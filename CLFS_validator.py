@@ -7,7 +7,7 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 
-from CLFS_validation_rules import validate_others_option
+from CLFS_validation_rules import validate_others_option, QUESTIONS_WITH_OTHERS
 
 
 # Column name to HouseholdMember attribute mapping
@@ -64,6 +64,8 @@ COLUMN_MAPPING = {
     "reasons_self_employed": "What were your reason(s) for being self-employed?",
     "prefer_to_be": "Would you prefer to be a/an",
     "reasons_for_taking_job": "What were your reason(s) for taking up this job?",
+    "freelance_platforms": "Did you perform any freelance or assignment-based work via any of the following online platform(s) in the last 12 months?",
+    "job_accommodations": "Does your current job accommodate the working arrangements you need (e.g. shorter working hours, provision of flexible work arrangements)?",
     "keen_reasons": "I was keen in this job and took it up because:",
     "not_keen_reasons": "I was not keen in this job, but still took it up because:",
     "usual_hours_of_work": "Usual hours of work",
@@ -548,22 +550,27 @@ def main():
         rule1_issues = 0
         rule1_corrected = 0
         
-        # Check place_of_birth column (one of the "Others:" columns)
-        place_of_birth_col = "Place of Birth"
-        if place_of_birth_col in df.columns:
-            col_idx = df.columns.get_loc(place_of_birth_col)
+        # Check all columns with "Others:" options
+        for attr_name, question_config in QUESTIONS_WITH_OTHERS.items():
+            col_name = question_config["column_name"]
             
-            for row_idx, value in df[place_of_birth_col].items():
+            if col_name not in df.columns:
+                print(f"  ⚠ Column '{col_name}' not found in data")
+                continue
+            
+            col_idx = df.columns.get_loc(col_name)
+            
+            for row_idx, value in df[col_name].items():
                 if pd.isna(value):
                     continue
                 
-                result = validate_others_option(str(value), "place_of_birth")
+                result = validate_others_option(str(value), attr_name)
                 
-                if result.corrected_value:
-                    print(f"  ✓ Row {row_idx + 1}: {result.message}")
+                if result.corrected_value and result.corrected_value != str(value):
+                    print(f"  ✓ Row {row_idx + 1} ({col_name}): {result.message}")
                     print(f"    Before: {result.original_value}")
                     print(f"    After:  {result.corrected_value}")
-                    modified_df.at[row_idx, place_of_birth_col] = result.corrected_value
+                    modified_df.at[row_idx, col_name] = result.corrected_value
                     changes[(row_idx, col_idx)] = (result.original_value, result.corrected_value)
                     rule1_corrected += 1
         

@@ -21,6 +21,7 @@ class ValidationResult:
 
 
 # Questions with "Others:" options and their available predefined options
+# RULE 1: For any question that has an 'Others: ' option, validate and auto-correct responses
 QUESTIONS_WITH_OTHERS = {
     "place_of_birth": {
         "column_name": "Place of Birth",
@@ -37,22 +38,89 @@ QUESTIONS_WITH_OTHERS = {
             "Bangladesh",
             "Pakistan",
             "Sri Lanka",
-            # Add more as discovered from data
         ],
         "description": "Countries or places of birth"
     },
-    "where_currently_staying": {
-        "column_name": "Where are you currently staying?",
+    "main_reason_living_abroad": {
+        "column_name": "What is your main reason for living abroad?",
         "options": [
-            "Residential unit",
-            "Public housing",
-            "Private housing",
-            "Hostel",
-            # Add more as discovered from data
+            "Studying",
+            "Working",
         ],
-        "description": "Current residence types"
+        "description": "Main reason for living abroad"
     },
-    # More questions to be added as identified
+    "religion": {
+        "column_name": "What is your religion?",
+        "options": [
+            "No religion",
+            "Taoism/Chinese Traditional Beliefs",
+            "Islam",
+            "Hinduism",
+            "Sikhism",
+            "Christianity",
+        ],
+        "description": "Religion"
+    },
+    "reason_for_internship": {
+        "column_name": "What was the main reason you were in a paid internship, traineeship, or apprenticeship?",
+        "options": [
+            "It was my only job option available",
+            "To gain exposure/experience",
+            "It is required as part of practical training towards formal professional roles or accreditation",
+            "I wanted to switch to a new industry or field and took up this internship/traineeship/apprenticeship to explore its suitability",
+            "I was unable to secure a full-time role in this same industry or field",
+            "I was unable to secure a full-time role in another industry or field I was interested in",
+        ],
+        "description": "Main reason for internship/traineeship/apprenticeship"
+    },
+    "sets_price_for_goods_services": {
+        "column_name": "Do you usually set the price for the goods or services you provide in this job?",
+        "options": [
+            "Yes",
+            "No, prices are usually negotiated with my clients",
+            "No, prices are usually set by my clients",
+            "No, prices are set by a third party (e.g., intermediary/ agency)",
+            "No, prices are set to a market rate",
+        ],
+        "description": "Whether respondent sets price for goods/services"
+    },
+    "reasons_self_employed": {
+        "column_name": "What were your reason(s) for being self-employed?",
+        "options": [
+            "Income is higher as compared to working as an employee in a similar job",
+            "Income is higher as compared to working as an employee in a non-similar job",
+            "Gain work experience",
+            "Facilitate a career transition to a new job/industry",
+            "Pursue my passion or interest",
+            "The work is meaningful",
+        ],
+        "description": "Reasons for being self-employed"
+    },
+    "freelance_platforms": {
+        "column_name": "Did you perform any freelance or assignment-based work via any of the following online platform(s) in the last 12 months?",
+        "options": [
+            "Ride-hailing platforms (e.g. Grab Driver, GoPartner, Ryde Driver, TADA Driver)",
+            "Food-delivery platforms (e.g. Deliveroo Rider, Foodpanda Rider, Grab Driver, Lalamove Delivery Partner)",
+            "Online freelance platforms (e.g. Fiverr, Upwork, TaskRabbit)",
+            "Social media platforms (e.g. Facebook Shop, Instagram)",
+            "Online advertisements / marketplaces / e-Commerce websites (e.g. Carousell, Lazada, Shopee)",
+            "Own website (e.g. blog, registered domain)",
+            "I did not take up freelance or assignment-based work through online platforms in the last 12 months",
+        ],
+        "description": "Freelance/assignment-based work platforms"
+    },
+    "job_accommodations": {
+        "column_name": "Does your current job accommodate the working arrangements you need (e.g. shorter working hours, provision of flexible work arrangements)?",
+        "options": [
+            "Shorter working hours",
+            "Flexible work schedule (e.g. ability to work from home, flexible start/end times)",
+            "Equipment and technology provision (Screen readers, ergonomic keyboards, specialised telephone etc)",
+            "Working location near home",
+            "Customised transport to/from the workplace",
+            "Structured and routine nature of work",
+        ],
+        "description": "Job accommodations for working arrangements"
+    },
 }
 
 

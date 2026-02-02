@@ -164,13 +164,6 @@ def _fuzzy_match_option(user_answer: str, options: list[str]) -> Optional[str]:
     return None
 
 
-def _word_count(text: str) -> int:
-    """Count words in text"""
-    if not text:
-        return 0
-    return len(text.split())
-
-
 # RULE 1: Others option validation and confirmation prefix
 def validate_others_option(
     answer: str,

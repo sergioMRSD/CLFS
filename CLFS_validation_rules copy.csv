@@ -1,7 +1,4 @@
 Validations,Error,Routing,Warning,Grand Total,,total errors,half
-The 5-digit SSIC code under Name of Company must be a valid SSIC 5 -Digit code,,8104,,8104,," 152,469 "," 76,235 "
-Coding for present occupation must be a valid code that can be found in SSOC 2024.,7888,,,7888,,,
-EMP_BREAK Whether there has been any breaks in employment must be a valid code.,,7596,,7596,,,
 Age at which you started employment must be a valid code.,,7489,,7489,,,
 Coding for present industry must be a valid code that can be found in SSIC 2020.,5377,,,5377,,,
 Whether respondent is a student must be a valid code.,,4678,,4678,,must either be a student or working,

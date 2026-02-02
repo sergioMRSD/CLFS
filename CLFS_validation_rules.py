@@ -143,6 +143,21 @@ def _extract_others_value(answer: str) -> Tuple[bool, str]:
     return False, answer
 
 
+def _word_count(text: str) -> int:
+    """
+    Count the number of words in the text.
+    
+    Args:
+        text: The text to count words in
+    
+    Returns:
+        Number of words
+    """
+    if not text:
+        return 0
+    return len(text.split())
+
+
 def _fuzzy_match_option(user_answer: str, options: list[str]) -> Optional[str]:
     """
     Attempt fuzzy matching against available options.
@@ -225,16 +240,27 @@ def validate_others_option(
             rule_applied="RULE 1 - Others matched predefined option"
         )
     
-    # No match - add RSPD confirmation regardless of word count
-    confirmation_sentence = "The RSPD confirms that the following answer is correct as of this time; "
-    corrected_value = f"Others: {confirmation_sentence}{extracted}"
-    
+    # No match - count words in the extracted answer (excluding "Others:")
     word_count = _word_count(extracted)
     
-    return ValidationResult(
-        is_valid=True,
-        message=f"Others answer approved with RSPD confirmation (original word count: {word_count}, now meets minimum requirement)",
-        original_value=answer,
-        corrected_value=corrected_value,
-        rule_applied="RULE 1 - RSPD confirmation added"
-    )
+    # Only add RSPD confirmation if word count is less than minimum
+    if word_count < min_words:
+        confirmation_sentence = "The RSPD confirms that the following answer is correct as of this time; "
+        corrected_value = f"Others: {confirmation_sentence}{extracted}"
+        
+        return ValidationResult(
+            is_valid=True,
+            message=f"Others answer approved with RSPD confirmation (original word count: {word_count}, now meets minimum requirement)",
+            original_value=answer,
+            corrected_value=corrected_value,
+            rule_applied="RULE 1 - RSPD confirmation added"
+        )
+    else:
+        # Word count is sufficient - no change needed
+        return ValidationResult(
+            is_valid=True,
+            message=f"Others answer has sufficient word count ({word_count} words >= {min_words})",
+            original_value=answer,
+            corrected_value=None,
+            rule_applied="RULE 1 - No change needed"
+        )

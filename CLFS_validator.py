@@ -448,6 +448,7 @@ def load_input_files(folder_path="Operating_Table"):
         try:
             print(f"Loading {file.name}...")
             df = pd.read_excel(file)
+            df = _clean_dataframe(df)
             input_files[file.name] = df
             print(f"Successfully loaded {file.name} with {len(df)} rows and {len(df.columns)} columns")
         except Exception as e:
@@ -457,7 +458,13 @@ def load_input_files(folder_path="Operating_Table"):
         try:
             print(f"Loading {file.name}...")
             header_row_idx = 5  # Row 6 (0-based index)
-            df = pd.read_csv(file, header=header_row_idx, skiprows=range(header_row_idx))
+            df = pd.read_csv(
+                file,
+                header=0,
+                skiprows=range(header_row_idx),
+                encoding="utf-8-sig"
+            )
+            df = _clean_dataframe(df)
 
             input_files[file.name] = df
             print(f"Successfully loaded {file.name} with {len(df)} rows and {len(df.columns)} columns")
@@ -468,6 +475,14 @@ def load_input_files(folder_path="Operating_Table"):
         print(f"No .xlsx or .csv files found in '{folder_path}'")
     
     return input_files
+
+
+def _clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.dropna(how="all")
+    df.columns = [str(col).strip() for col in df.columns]
+    if "Response ID" in df.columns:
+        df = df[df["Response ID"].notna()]
+    return df.reset_index(drop=True)
 
 
 def create_output_directory():

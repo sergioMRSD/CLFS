@@ -456,7 +456,9 @@ def load_input_files(folder_path="Operating_Table"):
     for file in Path(folder_path).glob("*.csv"):
         try:
             print(f"Loading {file.name}...")
-            df = pd.read_csv(file)
+            header_row_idx = 5  # Row 6 (0-based index)
+            df = pd.read_csv(file, header=header_row_idx, skiprows=range(header_row_idx))
+
             input_files[file.name] = df
             print(f"Successfully loaded {file.name} with {len(df)} rows and {len(df.columns)} columns")
         except Exception as e:

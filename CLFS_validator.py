@@ -7,16 +7,7 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 
-from CLFS_validation_rules import (
-    validate_others_option, 
-    QUESTIONS_WITH_OTHERS,
-    validate_age_started_employment,
-    validate_bonus,
-    validate_previous_company_name,
-    validate_interest_from_savings,
-    validate_dividends_investment_interest,
-    validate_freelance_employment_consistency
-)
+import CLFS_validation_rules as rules
 
 
 # Column name to HouseholdMember attribute mapping
@@ -633,7 +624,7 @@ def main():
         rule1_corrected = 0
         
         # Check all columns with "Others:" options
-        for attr_name, question_config in QUESTIONS_WITH_OTHERS.items():
+        for attr_name, question_config in rules.QUESTIONS_WITH_OTHERS.items():
             col_name = question_config["column_name"]
             
             if col_name not in df.columns:
@@ -646,7 +637,7 @@ def main():
                 if pd.isna(value):
                     continue
                 
-                result = validate_others_option(str(value), attr_name)
+                result = rules.validate_others_option(str(value), attr_name)
                 
                 if result.corrected_value and result.corrected_value != str(value):
                     print(f"  ✓ Row {row_idx + 1} ({col_name}): {result.message}")
@@ -684,7 +675,7 @@ def main():
                 
                 # RULE 2: Age started employment validation
                 if member.age_started_employment is not None:
-                    result = validate_age_started_employment(member.age_started_employment)
+                    result = rules.validate_age_started_employment(member.age_started_employment)
                     if not result.is_valid:
                         col_name = "At what age did you start employment"
                         if col_name in df.columns:
@@ -703,7 +694,7 @@ def main():
                 
                 # RULE 3: Bonus validation
                 if member.bonus_received_last_12_months is not None:
-                    result = validate_bonus(member.bonus_received_last_12_months)
+                    result = rules.validate_bonus(member.bonus_received_last_12_months)
                     if not result.is_valid:
                         col_name = "Bonus received from your job(s) during the last 12 months"
                         if col_name in df.columns:
@@ -722,7 +713,7 @@ def main():
                 
                 # RULE 4: Previous company name validation
                 if member.establishment_name_last_worked is not None:
-                    result = validate_previous_company_name(member.establishment_name_last_worked)
+                    result = rules.validate_previous_company_name(member.establishment_name_last_worked)
                     if not result.is_valid:
                         col_name = "Name of Establishment you were working last worked"
                         if col_name in df.columns:
@@ -741,7 +732,7 @@ def main():
                 
                 # RULE 5: Interest from savings validation
                 if member.interest_from_savings_last_12_months is not None:
-                    result = validate_interest_from_savings(member.interest_from_savings_last_12_months)
+                    result = rules.validate_interest_from_savings(member.interest_from_savings_last_12_months)
                     if not result.is_valid:
                         col_name = "How much interest did you receive from savings (e.g., current and saving accounts, fixed deposits) in the last 12 months?"
                         if col_name in df.columns:
@@ -760,7 +751,7 @@ def main():
                 
                 # RULE 6: Dividends/investment interest validation
                 if member.dividends_interests_investments_last_12_months is not None:
-                    result = validate_dividends_investment_interest(member.dividends_interests_investments_last_12_months)
+                    result = rules.validate_dividends_investment_interest(member.dividends_interests_investments_last_12_months)
                     if not result.is_valid:
                         col_name = "How much dividends and interests did you receive from other investment sources (e.g., bonds, shares, unit trust, personal loans to persons outside your households) in the last 12 months?"
                         if col_name in df.columns:
@@ -779,7 +770,7 @@ def main():
                 
                 # RULE 7: Freelance work vs Own Account Worker consistency
                 if member.freelance_online_platforms_last_12_months is not None:
-                    result = validate_freelance_employment_consistency(
+                    result = rules.validate_freelance_employment_consistency(
                         member.employment_status_last_week,
                         member.freelance_online_platforms_last_12_months
                     )

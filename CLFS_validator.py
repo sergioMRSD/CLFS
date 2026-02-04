@@ -435,37 +435,46 @@ def extract_household_members(df: pd.DataFrame) -> list[list[HouseholdMember]]:
 
     return households
 
-def load_xlsx_files(folder_path="Operating_Table"):
+def load_input_files(folder_path="Operating_Table"):
     """
-    Load all .xlsx files from the specified folder.
+    Load all .xlsx and .csv files from the specified folder.
     
     Args:
-        folder_path (str): Path to the folder containing .xlsx files
+        folder_path (str): Path to the folder containing input files
         
     Returns:
         dict: Dictionary with filenames as keys and DataFrames as values
     """
-    xlsx_files = {}
+    input_files = {}
     
     # Check if folder exists
     if not os.path.exists(folder_path):
         print(f"Error: Folder '{folder_path}' does not exist.")
-        return xlsx_files
+        return input_files
     
-    # Find all .xlsx files in the folder
+    # Find all .xlsx and .csv files in the folder
     for file in Path(folder_path).glob("*.xlsx"):
         try:
             print(f"Loading {file.name}...")
             df = pd.read_excel(file)
-            xlsx_files[file.name] = df
+            input_files[file.name] = df
             print(f"Successfully loaded {file.name} with {len(df)} rows and {len(df.columns)} columns")
         except Exception as e:
             print(f"Error loading {file.name}: {e}")
     
-    if not xlsx_files:
-        print(f"No .xlsx files found in '{folder_path}'")
+    for file in Path(folder_path).glob("*.csv"):
+        try:
+            print(f"Loading {file.name}...")
+            df = pd.read_csv(file)
+            input_files[file.name] = df
+            print(f"Successfully loaded {file.name} with {len(df)} rows and {len(df.columns)} columns")
+        except Exception as e:
+            print(f"Error loading {file.name}: {e}")
     
-    return xlsx_files
+    if not input_files:
+        print(f"No .xlsx or .csv files found in '{folder_path}'")
+    
+    return input_files
 
 
 def create_output_directory():
@@ -475,19 +484,67 @@ def create_output_directory():
     return output_dir
 
 
-def save_with_highlights(df: pd.DataFrame, original_file_path: str, changes: dict):
+def create_validation_report(rule_errors: list[dict], source_filename: str) -> Optional[Path]:
     """
-    Save modified Excel file with cells highlighted in yellow where changes were made.
+    Create a validation report Excel file with summary and details sheets.
+
+    Sheet 1: Summary of errors with frequency counts
+    Sheet 2: Detailed errors with Response ID and Full Name
+
+    Args:
+        rule_errors: List of error dicts
+        source_filename: Input filename
+
+    Returns:
+        Path to the report file if created
+    """
+    if not rule_errors:
+        return None
+
+    output_dir = create_output_directory()
+    filename = Path(source_filename).stem
+    report_path = output_dir / f"{filename}_validation_report.xlsx"
+
+    details_df = pd.DataFrame(rule_errors)
+
+    summary_df = (
+        details_df
+        .groupby(["rule", "column", "message"], dropna=False)
+        .size()
+        .reset_index(name="count")
+        .sort_values("count", ascending=False)
+    )
+
+    with pd.ExcelWriter(report_path, engine="openpyxl") as writer:
+        summary_df.to_excel(writer, sheet_name="Summary", index=False)
+        details_df.to_excel(writer, sheet_name="Details", index=False)
+
+    print(f"\n✓ Validation report saved to: {report_path}")
+    return report_path
+
+
+def save_with_highlights(
+    df: pd.DataFrame,
+    original_file_path: str,
+    changes: dict,
+    error_cells: set[tuple[int, int]]
+):
+    """
+    Save modified Excel file with cells highlighted in blue for changes
+    and yellow for detected errors.
     
     Args:
         df: Modified DataFrame
         original_file_path: Path to original file
         changes: Dictionary with format {(row, col): (old_value, new_value)}
+        error_cells: Set of (row, col) positions for error highlights
     """
     output_dir = create_output_directory()
     
     # Create output filename
-    filename = Path(original_file_path).stem
+    original_path = Path(original_file_path)
+    filename = original_path.stem
+    
     output_path = output_dir / f"{filename}_validated.xlsx"
     
     # Save the dataframe
@@ -499,6 +556,7 @@ def save_with_highlights(df: pd.DataFrame, original_file_path: str, changes: dic
     
     # Blue highlight for changed cells
     blue_fill = PatternFill(start_color="0000FF", end_color="0000FF", fill_type="solid")
+    yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
     
     for (row_idx, col_idx), (old_val, new_val) in changes.items():
         # Excel rows are 1-indexed and we need to account for header row
@@ -508,6 +566,13 @@ def save_with_highlights(df: pd.DataFrame, original_file_path: str, changes: dic
         cell = ws.cell(row=excel_row, column=excel_col)
         cell.fill = blue_fill
         cell.value = new_val
+
+    # Apply yellow highlights for errors (no value changes)
+    for (row_idx, col_idx) in error_cells:
+        excel_row = row_idx + 2
+        excel_col = col_idx + 1
+        cell = ws.cell(row=excel_row, column=excel_col)
+        cell.fill = yellow_fill
     
     wb.save(output_path)
     print(f"\n✓ Validated file saved to: {output_path}")
@@ -519,8 +584,8 @@ def main():
     print("CLFS Data Validator")
     print("=" * 50)
     
-    # Load all .xlsx files from Operating_Table folder
-    files = load_xlsx_files()
+    # Load all .xlsx and .csv files from Operating_Table folder
+    files = load_input_files()
     
     print(f"\nTotal files loaded: {len(files)}")
     
@@ -553,10 +618,13 @@ def main():
         print(f"Applying Validation Rules...")
         print(f"{'=' * 50}")
         
-        # Track changes for output
+        # Track changes and errors for output
         changes = {}
+        error_cells = set()
         modified_df = df.copy()
         
+        rule_errors = []
+
         # RULE 1: Others option validation
         print(f"\nRULE 1: Others option validation")
         print("-" * 50)
@@ -587,6 +655,18 @@ def main():
                     modified_df.at[row_idx, col_name] = result.corrected_value
                     changes[(row_idx, col_idx)] = (result.original_value, result.corrected_value)
                     rule1_corrected += 1
+                    response_id = df.at[row_idx, "Response ID"] if "Response ID" in df.columns else None
+                    member_name = df.at[row_idx, "Full Name"] if "Full Name" in df.columns else None
+                    rule_errors.append({
+                        "file": filename,
+                        "row": row_idx + 1,
+                        "response_id": response_id,
+                        "member_index": None,
+                        "member": member_name,
+                        "rule": f"RULE 1 - {col_name}",
+                        "column": col_name,
+                        "message": result.message
+                    })
         
         print(f"\nRULE 1 Summary: {rule1_corrected} corrected")
         
@@ -594,12 +674,13 @@ def main():
         print(f"\nRULES 2-7: Data quality validations")
         print("-" * 50)
         
-        rule_errors = []
-        
         # Iterate through all household members for validation
         for household_idx, members in enumerate(households, 1):
             for member_idx, member in enumerate(members, 1):
                 row_idx = household_idx - 1  # Adjust for 0-based indexing
+                response_id = None
+                if "Response ID" in df.columns:
+                    response_id = df.at[row_idx, "Response ID"]
                 
                 # RULE 2: Age started employment validation
                 if member.age_started_employment is not None:
@@ -608,9 +689,12 @@ def main():
                         col_name = "At what age did you start employment"
                         if col_name in df.columns:
                             col_idx = df.columns.get_loc(col_name)
-                            changes[(row_idx, col_idx)] = (result.original_value, result.original_value)
+                            error_cells.add((row_idx, col_idx))
                             rule_errors.append({
+                                "file": filename,
                                 "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 2",
                                 "column": col_name,
@@ -624,9 +708,12 @@ def main():
                         col_name = "Bonus received from your job(s) during the last 12 months"
                         if col_name in df.columns:
                             col_idx = df.columns.get_loc(col_name)
-                            changes[(row_idx, col_idx)] = (result.original_value, result.original_value)
+                            error_cells.add((row_idx, col_idx))
                             rule_errors.append({
+                                "file": filename,
                                 "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 3",
                                 "column": col_name,
@@ -640,9 +727,12 @@ def main():
                         col_name = "Name of Establishment you were working last worked"
                         if col_name in df.columns:
                             col_idx = df.columns.get_loc(col_name)
-                            changes[(row_idx, col_idx)] = (result.original_value, result.original_value)
+                            error_cells.add((row_idx, col_idx))
                             rule_errors.append({
+                                "file": filename,
                                 "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 4",
                                 "column": col_name,
@@ -656,9 +746,12 @@ def main():
                         col_name = "How much interest did you receive from savings (e.g., current and saving accounts, fixed deposits) in the last 12 months?"
                         if col_name in df.columns:
                             col_idx = df.columns.get_loc(col_name)
-                            changes[(row_idx, col_idx)] = (result.original_value, result.original_value)
+                            error_cells.add((row_idx, col_idx))
                             rule_errors.append({
+                                "file": filename,
                                 "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 5",
                                 "column": col_name,
@@ -672,9 +765,12 @@ def main():
                         col_name = "How much dividends and interests did you receive from other investment sources (e.g., bonds, shares, unit trust, personal loans to persons outside your households) in the last 12 months?"
                         if col_name in df.columns:
                             col_idx = df.columns.get_loc(col_name)
-                            changes[(row_idx, col_idx)] = (result.original_value, result.original_value)
+                            error_cells.add((row_idx, col_idx))
                             rule_errors.append({
+                                "file": filename,
                                 "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 6",
                                 "column": col_name,
@@ -693,12 +789,15 @@ def main():
                         free_col = "Did you perform any freelance or assignment-based work via any of the following online platform(s) in the last 12 months?"
                         if emp_col in df.columns:
                             col_idx = df.columns.get_loc(emp_col)
-                            changes[(row_idx, col_idx)] = (str(member.employment_status_last_week), str(member.employment_status_last_week))
+                            error_cells.add((row_idx, col_idx))
                         if free_col in df.columns:
                             col_idx = df.columns.get_loc(free_col)
-                            changes[(row_idx, col_idx)] = (str(member.freelance_online_platforms_last_12_months), str(member.freelance_online_platforms_last_12_months))
+                            error_cells.add((row_idx, col_idx))
                         rule_errors.append({
+                            "file": filename,
                             "row": row_idx + 1,
+                            "response_id": response_id,
+                            "member_index": member_idx,
                             "member": member.full_name,
                             "rule": "RULE 7",
                             "column": f"{emp_col} & {free_col}",
@@ -717,11 +816,14 @@ def main():
             print(f"  ✓ No validation errors found")
         
         print(f"\nRULES 2-7 Summary: {len(rule_errors)} errors found")
+
+        # Create validation report (summary + details)
+        create_validation_report(rule_errors, filename)
         
         # Save validated output if changes were made
-        if changes:
+        if changes or error_cells:
             original_path = Path("Operating_Table") / filename
-            save_with_highlights(modified_df, str(original_path), changes)
+            save_with_highlights(modified_df, str(original_path), changes, error_cells)
 
 
 if __name__ == "__main__":

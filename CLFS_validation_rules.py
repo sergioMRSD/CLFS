@@ -264,3 +264,328 @@ def validate_others_option(
             corrected_value=None,
             rule_applied="RULE 1 - No change needed"
         )
+
+
+# RULE 2: Employment Start Age Validation
+def validate_age_started_employment(value) -> ValidationResult:
+    """
+    RULE 2: Validate age when started employment.
+    Must be a whole number between 13 and 100.
+    
+    Args:
+        value: The age value to validate
+    
+    Returns:
+        ValidationResult with validation status
+    """
+    original_str = str(value) if value is not None else ""
+    
+    if value is None or value == "":
+        return ValidationResult(
+            is_valid=True,
+            message="No value provided",
+            original_value=original_str
+        )
+    
+    # Check if it's a valid integer
+    if not isinstance(value, (int, float)):
+        return ValidationResult(
+            is_valid=False,
+            message="Invalid age. Must be a whole number between 13 and 100.",
+            original_value=original_str,
+            rule_applied="RULE 2 - Age validation failed"
+        )
+    
+    # Check if it's a whole number
+    if isinstance(value, float) and not value.is_integer():
+        return ValidationResult(
+            is_valid=False,
+            message="Invalid age. Must be a whole number between 13 and 100.",
+            original_value=original_str,
+            rule_applied="RULE 2 - Age validation failed"
+        )
+    
+    age = int(value)
+    
+    # Check range
+    if age < 13 or age > 100:
+        return ValidationResult(
+            is_valid=False,
+            message="Invalid age. Must be a whole number between 13 and 100.",
+            original_value=original_str,
+            rule_applied="RULE 2 - Age validation failed"
+        )
+    
+    return ValidationResult(
+        is_valid=True,
+        message="Valid age",
+        original_value=original_str,
+        rule_applied="RULE 2 - Age validation passed"
+    )
+
+
+# RULE 3: Bonus Validation
+def validate_bonus(value) -> ValidationResult:
+    """
+    RULE 3: Validate bonus amount.
+    Must be numeric between 0 and 99, no commas or minus signs.
+    
+    Args:
+        value: The bonus value to validate
+    
+    Returns:
+        ValidationResult with validation status
+    """
+    original_str = str(value) if value is not None else ""
+    
+    if value is None or value == "":
+        return ValidationResult(
+            is_valid=True,
+            message="No value provided",
+            original_value=original_str
+        )
+    
+    # Convert to string to check for invalid characters
+    if isinstance(value, str):
+        if "," in value or "-" in value:
+            return ValidationResult(
+                is_valid=False,
+                message="Invalid bonus. Must be numeric between 0 and 99, no commas or minus signs.",
+                original_value=original_str,
+                rule_applied="RULE 3 - Bonus validation failed"
+            )
+        try:
+            numeric_value = float(value)
+        except ValueError:
+            return ValidationResult(
+                is_valid=False,
+                message="Invalid bonus. Must be numeric between 0 and 99, no commas or minus signs.",
+                original_value=original_str,
+                rule_applied="RULE 3 - Bonus validation failed"
+            )
+    elif isinstance(value, (int, float)):
+        numeric_value = float(value)
+    else:
+        return ValidationResult(
+            is_valid=False,
+            message="Invalid bonus. Must be numeric between 0 and 99, no commas or minus signs.",
+            original_value=original_str,
+            rule_applied="RULE 3 - Bonus validation failed"
+        )
+    
+    # Check range
+    if numeric_value < 0 or numeric_value > 99:
+        return ValidationResult(
+            is_valid=False,
+            message="Invalid bonus. Must be numeric between 0 and 99, no commas or minus signs.",
+            original_value=original_str,
+            rule_applied="RULE 3 - Bonus validation failed"
+        )
+    
+    return ValidationResult(
+        is_valid=True,
+        message="Valid bonus",
+        original_value=original_str,
+        rule_applied="RULE 3 - Bonus validation passed"
+    )
+
+
+# RULE 4: Previous Company Name Validation
+def validate_previous_company_name(value) -> ValidationResult:
+    """
+    RULE 4: Validate previous company/establishment name.
+    Must contain at least 3 letters and not be purely numeric.
+    
+    Args:
+        value: The company name to validate
+    
+    Returns:
+        ValidationResult with validation status
+    """
+    original_str = str(value) if value is not None else ""
+    
+    if value is None or value == "":
+        return ValidationResult(
+            is_valid=True,
+            message="No value provided",
+            original_value=original_str
+        )
+    
+    # Convert to string
+    if not isinstance(value, str):
+        value = str(value)
+    
+    # Count letters
+    letters = re.findall(r"[A-Za-z]", value)
+    if len(letters) < 3:
+        return ValidationResult(
+            is_valid=False,
+            message="Invalid company name. Must contain at least 3 letters and not be purely numeric.",
+            original_value=original_str,
+            rule_applied="RULE 4 - Company name validation failed"
+        )
+    
+    # Check if purely numeric (after removing spaces)
+    numeric_only = value.replace(" ", "").isdigit()
+    if numeric_only:
+        return ValidationResult(
+            is_valid=False,
+            message="Invalid company name. Must contain at least 3 letters and not be purely numeric.",
+            original_value=original_str,
+            rule_applied="RULE 4 - Company name validation failed"
+        )
+    
+    return ValidationResult(
+        is_valid=True,
+        message="Valid company name",
+        original_value=original_str,
+        rule_applied="RULE 4 - Company name validation passed"
+    )
+
+
+# RULE 5: Interest from Savings Validation
+def validate_interest_from_savings(value) -> ValidationResult:
+    """
+    RULE 5: Validate interest from savings.
+    Must be numeric between 0 and 10 (decimals allowed).
+    
+    Args:
+        value: The interest value to validate
+    
+    Returns:
+        ValidationResult with validation status
+    """
+    original_str = str(value) if value is not None else ""
+    
+    if value is None or value == "":
+        return ValidationResult(
+            is_valid=True,
+            message="No value provided",
+            original_value=original_str
+        )
+    
+    try:
+        numeric_value = float(value)
+    except (ValueError, TypeError):
+        return ValidationResult(
+            is_valid=False,
+            message="Invalid interest. Must be numeric between 0 and 10 (decimals allowed).",
+            original_value=original_str,
+            rule_applied="RULE 5 - Interest validation failed"
+        )
+    
+    if numeric_value < 0 or numeric_value > 10:
+        return ValidationResult(
+            is_valid=False,
+            message="Invalid interest. Must be numeric between 0 and 10 (decimals allowed).",
+            original_value=original_str,
+            rule_applied="RULE 5 - Interest validation failed"
+        )
+    
+    return ValidationResult(
+        is_valid=True,
+        message="Valid interest",
+        original_value=original_str,
+        rule_applied="RULE 5 - Interest validation passed"
+    )
+
+
+# RULE 6: Dividends/Investment Interest Validation
+def validate_dividends_investment_interest(value) -> ValidationResult:
+    """
+    RULE 6: Validate dividends and interests from investments.
+    Must be numeric between 0 and 50 (decimals allowed).
+    
+    Args:
+        value: The dividends/interest value to validate
+    
+    Returns:
+        ValidationResult with validation status
+    """
+    original_str = str(value) if value is not None else ""
+    
+    if value is None or value == "":
+        return ValidationResult(
+            is_valid=True,
+            message="No value provided",
+            original_value=original_str
+        )
+    
+    try:
+        numeric_value = float(value)
+    except (ValueError, TypeError):
+        return ValidationResult(
+            is_valid=False,
+            message="Invalid dividends/other investment interest. Must be numeric between 0 and 50 (decimals allowed).",
+            original_value=original_str,
+            rule_applied="RULE 6 - Dividends validation failed"
+        )
+    
+    if numeric_value < 0 or numeric_value > 50:
+        return ValidationResult(
+            is_valid=False,
+            message="Invalid dividends/other investment interest. Must be numeric between 0 and 50 (decimals allowed).",
+            original_value=original_str,
+            rule_applied="RULE 6 - Dividends validation failed"
+        )
+    
+    return ValidationResult(
+        is_valid=True,
+        message="Valid dividends/investment interest",
+        original_value=original_str,
+        rule_applied="RULE 6 - Dividends validation passed"
+    )
+
+
+# RULE 7: Freelance Work vs Own Account Worker Consistency
+def validate_freelance_employment_consistency(
+    employment_status: str,
+    freelance_platforms: str
+) -> ValidationResult:
+    """
+    RULE 7: Validate consistency between freelance work and employment status.
+    If respondent did freelance work (not "I did not take up..."), 
+    employment status must be "Own Account Worker".
+    
+    Args:
+        employment_status: Employment status value
+        freelance_platforms: Freelance platforms value
+    
+    Returns:
+        ValidationResult with validation status
+    """
+    if not freelance_platforms or freelance_platforms == "":
+        return ValidationResult(
+            is_valid=True,
+            message="No freelance data provided",
+            original_value=freelance_platforms or ""
+        )
+    
+    freelance_str = str(freelance_platforms).strip()
+    employment_str = str(employment_status).strip() if employment_status else ""
+    
+    # Check if they did NOT do freelance work
+    no_freelance_option = "I did not take up freelance or assignment-based work through online platforms in the last 12 months"
+    if freelance_str == no_freelance_option:
+        return ValidationResult(
+            is_valid=True,
+            message="No freelance work - consistency check not applicable",
+            original_value=freelance_str
+        )
+    
+    # They did freelance work - check if employment status is Own Account Worker
+    required_status = "Own Account Worker (Self-employed without paid employees)"
+    if employment_str != required_status:
+        return ValidationResult(
+            is_valid=False,
+            message="Mismatch: Freelance work selected but Employment Status is not Own Account Worker.",
+            original_value=f"Employment: {employment_str}, Freelance: {freelance_str}",
+            rule_applied="RULE 7 - Freelance/Employment consistency failed"
+        )
+    
+    return ValidationResult(
+        is_valid=True,
+        message="Freelance work consistent with Own Account Worker status",
+        original_value=f"Employment: {employment_str}, Freelance: {freelance_str}",
+        rule_applied="RULE 7 - Freelance/Employment consistency passed"
+    )

@@ -7,7 +7,16 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 
-from CLFS_validation_rules import validate_others_option, QUESTIONS_WITH_OTHERS
+from CLFS_validation_rules import (
+    validate_others_option, 
+    QUESTIONS_WITH_OTHERS,
+    validate_age_started_employment,
+    validate_bonus,
+    validate_previous_company_name,
+    validate_interest_from_savings,
+    validate_dividends_investment_interest,
+    validate_freelance_employment_consistency
+)
 
 
 # Column name to HouseholdMember attribute mapping
@@ -97,6 +106,11 @@ COLUMN_MAPPING = {
     "looking_to_better_utilise_skills": "Is the main reason for looking for a new job to better utilise your skills?",
     "num_job_changes_last_2_years": "Number of Job changes in the last 2 years",
     "when_left_last_job": "When did you leave your last job?",
+    "age_started_employment": "At what age did you start employment",
+    "establishment_name_last_worked": "Name of Establishment you were working last worked",
+    "interest_from_savings_last_12_months": "How much interest did you receive from savings (e.g., current and saving accounts, fixed deposits) in the last 12 months?",
+    "dividends_interests_investments_last_12_months": "How much dividends and interests did you receive from other investment sources (e.g., bonds, shares, unit trust, personal loans to persons outside your households) in the last 12 months?",
+    "freelance_online_platforms_last_12_months": "Did you perform any freelance or assignment-based work via any of the following online platform(s) in the last 12 months?",
     "ns_industry": "NS Industry",
     "remarks": "Remarks",
 }
@@ -483,8 +497,8 @@ def save_with_highlights(df: pd.DataFrame, original_file_path: str, changes: dic
     wb = load_workbook(output_path)
     ws = wb.active
     
-    # Yellow highlight for changed cells
-    yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+    # Blue highlight for changed cells
+    blue_fill = PatternFill(start_color="0000FF", end_color="0000FF", fill_type="solid")
     
     for (row_idx, col_idx), (old_val, new_val) in changes.items():
         # Excel rows are 1-indexed and we need to account for header row
@@ -492,7 +506,7 @@ def save_with_highlights(df: pd.DataFrame, original_file_path: str, changes: dic
         excel_col = col_idx + 1  # +1 for 1-indexing
         
         cell = ws.cell(row=excel_row, column=excel_col)
-        cell.fill = yellow_fill
+        cell.fill = blue_fill
         cell.value = new_val
     
     wb.save(output_path)
@@ -575,6 +589,134 @@ def main():
                     rule1_corrected += 1
         
         print(f"\nRULE 1 Summary: {rule1_corrected} corrected")
+        
+        # RULE 2-7: Additional validation rules from colleague's work
+        print(f"\nRULES 2-7: Data quality validations")
+        print("-" * 50)
+        
+        rule_errors = []
+        
+        # Iterate through all household members for validation
+        for household_idx, members in enumerate(households, 1):
+            for member_idx, member in enumerate(members, 1):
+                row_idx = household_idx - 1  # Adjust for 0-based indexing
+                
+                # RULE 2: Age started employment validation
+                if member.age_started_employment is not None:
+                    result = validate_age_started_employment(member.age_started_employment)
+                    if not result.is_valid:
+                        col_name = "At what age did you start employment"
+                        if col_name in df.columns:
+                            col_idx = df.columns.get_loc(col_name)
+                            changes[(row_idx, col_idx)] = (result.original_value, result.original_value)
+                            rule_errors.append({
+                                "row": row_idx + 1,
+                                "member": member.full_name,
+                                "rule": "RULE 2",
+                                "column": col_name,
+                                "message": result.message
+                            })
+                
+                # RULE 3: Bonus validation
+                if member.bonus_received_last_12_months is not None:
+                    result = validate_bonus(member.bonus_received_last_12_months)
+                    if not result.is_valid:
+                        col_name = "Bonus received from your job(s) during the last 12 months"
+                        if col_name in df.columns:
+                            col_idx = df.columns.get_loc(col_name)
+                            changes[(row_idx, col_idx)] = (result.original_value, result.original_value)
+                            rule_errors.append({
+                                "row": row_idx + 1,
+                                "member": member.full_name,
+                                "rule": "RULE 3",
+                                "column": col_name,
+                                "message": result.message
+                            })
+                
+                # RULE 4: Previous company name validation
+                if member.establishment_name_last_worked is not None:
+                    result = validate_previous_company_name(member.establishment_name_last_worked)
+                    if not result.is_valid:
+                        col_name = "Name of Establishment you were working last worked"
+                        if col_name in df.columns:
+                            col_idx = df.columns.get_loc(col_name)
+                            changes[(row_idx, col_idx)] = (result.original_value, result.original_value)
+                            rule_errors.append({
+                                "row": row_idx + 1,
+                                "member": member.full_name,
+                                "rule": "RULE 4",
+                                "column": col_name,
+                                "message": result.message
+                            })
+                
+                # RULE 5: Interest from savings validation
+                if member.interest_from_savings_last_12_months is not None:
+                    result = validate_interest_from_savings(member.interest_from_savings_last_12_months)
+                    if not result.is_valid:
+                        col_name = "How much interest did you receive from savings (e.g., current and saving accounts, fixed deposits) in the last 12 months?"
+                        if col_name in df.columns:
+                            col_idx = df.columns.get_loc(col_name)
+                            changes[(row_idx, col_idx)] = (result.original_value, result.original_value)
+                            rule_errors.append({
+                                "row": row_idx + 1,
+                                "member": member.full_name,
+                                "rule": "RULE 5",
+                                "column": col_name,
+                                "message": result.message
+                            })
+                
+                # RULE 6: Dividends/investment interest validation
+                if member.dividends_interests_investments_last_12_months is not None:
+                    result = validate_dividends_investment_interest(member.dividends_interests_investments_last_12_months)
+                    if not result.is_valid:
+                        col_name = "How much dividends and interests did you receive from other investment sources (e.g., bonds, shares, unit trust, personal loans to persons outside your households) in the last 12 months?"
+                        if col_name in df.columns:
+                            col_idx = df.columns.get_loc(col_name)
+                            changes[(row_idx, col_idx)] = (result.original_value, result.original_value)
+                            rule_errors.append({
+                                "row": row_idx + 1,
+                                "member": member.full_name,
+                                "rule": "RULE 6",
+                                "column": col_name,
+                                "message": result.message
+                            })
+                
+                # RULE 7: Freelance work vs Own Account Worker consistency
+                if member.freelance_online_platforms_last_12_months is not None:
+                    result = validate_freelance_employment_consistency(
+                        member.employment_status_last_week,
+                        member.freelance_online_platforms_last_12_months
+                    )
+                    if not result.is_valid:
+                        # Highlight both employment status and freelance columns
+                        emp_col = "Employment Status as of last week"
+                        free_col = "Did you perform any freelance or assignment-based work via any of the following online platform(s) in the last 12 months?"
+                        if emp_col in df.columns:
+                            col_idx = df.columns.get_loc(emp_col)
+                            changes[(row_idx, col_idx)] = (str(member.employment_status_last_week), str(member.employment_status_last_week))
+                        if free_col in df.columns:
+                            col_idx = df.columns.get_loc(free_col)
+                            changes[(row_idx, col_idx)] = (str(member.freelance_online_platforms_last_12_months), str(member.freelance_online_platforms_last_12_months))
+                        rule_errors.append({
+                            "row": row_idx + 1,
+                            "member": member.full_name,
+                            "rule": "RULE 7",
+                            "column": f"{emp_col} & {free_col}",
+                            "message": result.message
+                        })
+        
+        # Display errors found
+        if rule_errors:
+            print(f"\n  ✗ Found {len(rule_errors)} validation errors:")
+            for error in rule_errors:
+                print(f"    Row {error['row']} - {error['member']}")
+                print(f"    {error['rule']}: {error['message']}")
+                print(f"    Column: {error['column']}")
+                print()
+        else:
+            print(f"  ✓ No validation errors found")
+        
+        print(f"\nRULES 2-7 Summary: {len(rule_errors)} errors found")
         
         # Save validated output if changes were made
         if changes:

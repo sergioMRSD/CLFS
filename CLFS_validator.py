@@ -833,29 +833,8 @@ def main():
                             "message": result.message
                         })
 
-                # RULE 8: Assign SSEC Code based on Highest Academic Qualification
+                # RULE 8: Validate Highest Academic Qualification vs Place of Study
                 qualification = member.highest_academic_qualification
-                if ssec_enabled and qualification:
-                    ssec_code, ssec_score = rules.best_ssec_match(str(qualification))
-                    if "SSEC Code" in df.columns:
-                        col_idx = df.columns.get_loc("SSEC Code")
-                        if ssec_code:
-                            modified_df.at[row_idx, "SSEC Code"] = ssec_code
-                            changes[(row_idx, col_idx)] = ("", ssec_code)
-                        else:
-                            error_cells.add((row_idx, col_idx))
-                            rule_errors.append({
-                                "file": filename,
-                                "row": row_idx + 1,
-                                "response_id": response_id,
-                                "member_index": member_idx,
-                                "member": member.full_name,
-                                "rule": "RULE 8",
-                                "column": "SSEC Code",
-                                "message": "Unable to map SSEC Code from Highest Academic Qualification"
-                            })
-
-                # RULE 9: Validate Highest Academic Qualification vs Place of Study
                 place = member.place_of_study_highest_academic
                 if qualification and place:
                     matches = rules.validate_qualification_place(str(qualification), str(place))
@@ -874,9 +853,30 @@ def main():
                                 "response_id": response_id,
                                 "member_index": member_idx,
                                 "member": member.full_name,
-                                "rule": f"RULE 9 - {match['rule_id']}",
+                                "rule": f"RULE 8 - {match['rule_id']}",
                                 "column": f"{qual_col} & {place_col}",
                                 "message": match["reason"]
+                            })
+
+                # RULE 9: Assign SSEC Code based on Highest Academic Qualification
+                if ssec_enabled and qualification:
+                    ssec_code, ssec_score = rules.best_ssec_match(str(qualification))
+                    if "SSEC Code" in df.columns:
+                        col_idx = df.columns.get_loc("SSEC Code")
+                        if ssec_code:
+                            modified_df.at[row_idx, "SSEC Code"] = ssec_code
+                            changes[(row_idx, col_idx)] = ("", ssec_code)
+                        else:
+                            error_cells.add((row_idx, col_idx))
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
+                                "member": member.full_name,
+                                "rule": "RULE 9",
+                                "column": "SSEC Code",
+                                "message": "Unable to map SSEC Code from Highest Academic Qualification"
                             })
         
         # Display errors found

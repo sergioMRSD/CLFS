@@ -8,6 +8,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 
 import CLFS_validation_rules as rules
+import SSOC_assigner_V3 as ssoc
 
 
 # Column name to HouseholdMember attribute mapping
@@ -500,6 +501,121 @@ def _ensure_ssec_column(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+SSOC_DEFINITIONS_FILE = os.environ.get(
+    "SSOC_DEFINITIONS_FILE",
+    str(Path("references") / "ssoc2024-detailed-definitions.xlsx")
+)
+SSOC_EXPERT_MAP_FILE = os.environ.get(
+    "SSOC_EXPERT_MAP_FILE",
+    str(Path("references") / "Library_of_SSOC_eng_manager.xlsx")
+)
+SSOC_MIN_SCORE = float(os.environ.get("SSOC_MIN_SCORE", "0.05"))
+
+_SSOC_RESOURCES_CACHE: Optional[dict] = None
+
+
+def _load_ssoc_resources() -> Optional[dict]:
+    global _SSOC_RESOURCES_CACHE
+    if _SSOC_RESOURCES_CACHE is not None:
+        return _SSOC_RESOURCES_CACHE
+
+    defs_path = SSOC_DEFINITIONS_FILE
+    if not defs_path or not os.path.exists(defs_path):
+        return None
+
+    defs, title_map = ssoc.load_definitions(
+        defs_path,
+        ssoc.DEFAULT_DEF_SHEET,
+        ssoc.DEFAULT_DEF_SKIP_ROWS,
+        debug=False
+    )
+
+    expert_map = {}
+    expert_path = SSOC_EXPERT_MAP_FILE
+    if expert_path and os.path.exists(expert_path):
+        expert_map = ssoc.load_expert_map(expert_path, debug=False)
+
+    _SSOC_RESOURCES_CACHE = {
+        "defs": defs,
+        "title_map": title_map,
+        "expert_map": expert_map,
+    }
+    return _SSOC_RESOURCES_CACHE
+
+
+def _ensure_ssoc_columns(df: pd.DataFrame) -> tuple[pd.DataFrame, list[dict]]:
+    """
+    Insert "SSOC Code" columns after each "Main tasks / duties" column (paired with a Job Title).
+    Returns updated DataFrame and list of column group metadata.
+    """
+    columns = list(df.columns)
+    duty_indices = [i for i, col in enumerate(columns) if str(col).strip() == "Main tasks / duties"]
+    title_indices = [i for i, col in enumerate(columns) if str(col).strip() == "Job Title"]
+
+    if not duty_indices or not title_indices:
+        return df, []
+
+    groups: list[dict] = []
+    title_idx_ptr = 0
+    for duty_idx in duty_indices:
+        while title_idx_ptr + 1 < len(title_indices) and title_indices[title_idx_ptr + 1] < duty_idx:
+            title_idx_ptr += 1
+        title_idx = title_indices[title_idx_ptr] if title_indices[title_idx_ptr] < duty_idx else None
+        groups.append({"title_idx": title_idx, "duties_idx": duty_idx, "ssoc_idx": None})
+
+    offset = 0
+    for group in sorted(groups, key=lambda g: g["duties_idx"]):
+        duties_idx = group["duties_idx"] + offset
+        title_idx = group["title_idx"] + offset if group["title_idx"] is not None else None
+        insert_at = duties_idx + 1
+
+        if insert_at < len(columns) and str(columns[insert_at]).strip() == "SSOC Code":
+            group["ssoc_idx"] = insert_at
+        else:
+            df.insert(insert_at, "SSOC Code", "", allow_duplicates=True)
+            columns.insert(insert_at, "SSOC Code")
+            group["ssoc_idx"] = insert_at
+            offset += 1
+
+        group["duties_idx"] = duties_idx
+        group["title_idx"] = title_idx
+
+    return df, groups
+
+
+def _add_ft_pt_columns(df: pd.DataFrame) -> tuple[pd.DataFrame, list[tuple[int, int, str]]]:
+    """
+    Rule 12: Add FT/PT columns next to each "Usual hours of work" column.
+    Returns updated DataFrame and a list of changes (row_idx, col_idx, value).
+    """
+    changes: list[tuple[int, int, str]] = []
+    columns = list(df.columns)
+    hours_cols = [i for i, col in enumerate(columns) if str(col).strip() == "Usual hours of work"]
+
+    for col_idx in sorted(hours_cols, reverse=True):
+        col_name = columns[col_idx]
+        series = df.iloc[:, col_idx]
+
+        if series.replace("", pd.NA).isna().all():
+            continue
+
+        insert_at = col_idx + 1
+        df.insert(insert_at, "FT/PT", "", allow_duplicates=True)
+
+        for row_idx, value in series.items():
+            if value in (None, ""):
+                continue
+            try:
+                hours = float(value)
+            except (ValueError, TypeError):
+                continue
+            ft_pt = "FT" if hours >= 35 else "PT"
+            df.iat[row_idx, insert_at] = ft_pt
+            changes.append((row_idx, insert_at, ft_pt))
+
+    return df, changes
+
+
 def create_output_directory():
     """Create output folder if it doesn't exist"""
     output_dir = Path("output")
@@ -642,11 +758,52 @@ def main():
         print(f"{'=' * 50}")
         
         df = _ensure_ssec_column(df)
+        df, ssoc_groups = _ensure_ssoc_columns(df)
+        df, ftpt_changes = _add_ft_pt_columns(df)
 
         # Track changes and errors for output
         changes = {}
         error_cells = set()
         modified_df = df.copy()
+        for row_idx, col_idx, value in ftpt_changes:
+            changes[(row_idx, col_idx)] = ("", value)
+
+        ssoc_resources = _load_ssoc_resources()
+        if not ssoc_groups:
+            print("  ⚠ SSOC mapping skipped (no Job Title/Main tasks columns found)")
+        elif not ssoc_resources:
+            print("  ⚠ SSOC mapping skipped (SSOC definitions file not found). Set SSOC_DEFINITIONS_FILE env var.")
+        else:
+            print("  ✓ SSOC definitions loaded; assigning SSOC codes")
+            for row_idx in range(len(df)):
+                for group in ssoc_groups:
+                    title_idx = group.get("title_idx")
+                    duties_idx = group.get("duties_idx")
+                    ssoc_idx = group.get("ssoc_idx")
+                    if ssoc_idx is None or duties_idx is None:
+                        continue
+
+                    title_val = df.iat[row_idx, title_idx] if title_idx is not None else ""
+                    duties_val = df.iat[row_idx, duties_idx] if duties_idx is not None else ""
+                    title_text = "" if pd.isna(title_val) else str(title_val)
+                    duties_text = "" if pd.isna(duties_val) else str(duties_val)
+
+                    ssoc_code, _, _, _, _, _ = ssoc.best_match_duties_priority(
+                        title_text,
+                        duties_text,
+                        ssoc_resources["defs"],
+                        ssoc_resources["title_map"],
+                        ssoc_resources["expert_map"],
+                        SSOC_MIN_SCORE,
+                        "",
+                        occ_group_hint_raw=None,
+                        company_industry=""
+                    )
+
+                    old_val = modified_df.iat[row_idx, ssoc_idx]
+                    if str(old_val).strip() != str(ssoc_code).strip():
+                        modified_df.iat[row_idx, ssoc_idx] = ssoc_code
+                        changes[(row_idx, ssoc_idx)] = (old_val, ssoc_code)
         
         rule_errors = []
 
@@ -695,8 +852,8 @@ def main():
         
         print(f"\nRULE 1 Summary: {rule1_corrected} corrected")
         
-        # RULE 2-9: Additional validation rules from colleague's work
-        print(f"\nRULES 2-9: Data quality validations")
+        # RULE 2-13: Additional validation rules from colleague's work
+        print(f"\nRULES 2-13: Data quality validations")
         print("-" * 50)
 
         ssec_enabled = bool(getattr(rules, "SSEC_CANDIDATES", []))
@@ -859,6 +1016,62 @@ def main():
                             })
 
                 # RULE 9: Assign SSEC Code based on Highest Academic Qualification
+                
+                # RULE 10: Internship/Employment type validation
+                internship_value = member.paid_internship_traineeship
+                employment_value = member.type_of_employment
+                result = rules.validate_internship_employment_rule(internship_value, employment_value)
+                if not result.is_valid:
+                    internship_col = "Was your main job last week a paid internship, traineeship or apprenticeship?"
+                    employment_col = "Type of Employment?"
+                    if employment_col in df.columns:
+                        error_cells.add((row_idx, df.columns.get_loc(employment_col)))
+                    if internship_col in df.columns:
+                        error_cells.add((row_idx, df.columns.get_loc(internship_col)))
+                    rule_errors.append({
+                        "file": filename,
+                        "row": row_idx + 1,
+                        "response_id": response_id,
+                        "member_index": member_idx,
+                        "member": member.full_name,
+                        "rule": "RULE 10",
+                        "column": f"{internship_col} & {employment_col}",
+                        "message": result.message
+                    })
+
+                # RULE 11: Job title validation
+                result = rules.validate_job_title_rule(member.job_title)
+                if not result.is_valid:
+                    job_col = "Job Title"
+                    if job_col in df.columns:
+                        error_cells.add((row_idx, df.columns.get_loc(job_col)))
+                    rule_errors.append({
+                        "file": filename,
+                        "row": row_idx + 1,
+                        "response_id": response_id,
+                        "member_index": member_idx,
+                        "member": member.full_name,
+                        "rule": "RULE 11",
+                        "column": job_col,
+                        "message": result.message
+                    })
+
+                # RULE 13: Usual hours of work must be numeric
+                result = rules.validate_usual_hours_value(member.usual_hours_of_work)
+                if not result.is_valid:
+                    hours_col = "Usual hours of work"
+                    if hours_col in df.columns:
+                        error_cells.add((row_idx, df.columns.get_loc(hours_col)))
+                    rule_errors.append({
+                        "file": filename,
+                        "row": row_idx + 1,
+                        "response_id": response_id,
+                        "member_index": member_idx,
+                        "member": member.full_name,
+                        "rule": "RULE 13",
+                        "column": hours_col,
+                        "message": result.message
+                    })
                 if ssec_enabled and qualification:
                     ssec_code, ssec_score = rules.best_ssec_match(str(qualification))
                     if "SSEC Code" in df.columns:
@@ -890,7 +1103,7 @@ def main():
         else:
             print(f"  ✓ No validation errors found")
         
-        print(f"\nRULES 2-9 Summary: {len(rule_errors)} errors found")
+        print(f"\nRULES 2-13 Summary: {len(rule_errors)} errors found")
 
         # Create validation report (summary + details)
         create_validation_report(rule_errors, filename)

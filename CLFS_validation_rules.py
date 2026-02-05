@@ -445,29 +445,29 @@ SSEC_CANDIDATES: list[tuple[str, str]] = [
 def _extract_others_value(answer: str) -> Tuple[bool, str]:
     """
     Extract value after "Others: " prefix if present.
-    
+
     Returns:
         Tuple of (has_others_prefix, extracted_value)
     """
     if not answer:
         return False, ""
-    
+
     pattern = r"^Others:\s*(.+)$"
     match = re.match(pattern, answer, re.IGNORECASE)
-    
+
     if match:
         return True, match.group(1).strip()
-    
+
     return False, answer
 
 
 def _word_count(text: str) -> int:
     """
     Count the number of words in the text.
-    
+
     Args:
         text: The text to count words in
-    
+
     Returns:
         Number of words
     """
@@ -482,18 +482,18 @@ def _fuzzy_match_option(user_answer: str, options: list[str]) -> Optional[str]:
     Returns matched option or None if no match.
     """
     user_lower = user_answer.lower().strip()
-    
+
     for option in options:
         option_lower = option.lower().strip()
-        
+
         # Exact match (case-insensitive)
         if user_lower == option_lower:
             return option
-        
+
         # Partial match - if user answer contains option or vice versa
         if user_lower in option_lower or option_lower in user_lower:
             return option
-    
+
     return None
 
 
@@ -504,6 +504,12 @@ def _normalize_text(text: str) -> str:
     s = re.sub(r"[\-_/\\(),.;:]+", " ", s)
     s = re.sub(r"\s+", " ", s)
     return s
+
+
+def _normalize_value(value: Optional[str]) -> str:
+    if value is None:
+        return ""
+    return str(value).strip().lower()
 
 
 def best_ssec_match(qualification: str, threshold: int = 85) -> tuple[Optional[str], int]:
@@ -530,22 +536,6 @@ def best_ssec_match(qualification: str, threshold: int = 85) -> tuple[Optional[s
     return None, best_score
 
 
-def validate_qualification_place(qualification: str, place: str) -> list[dict]:
-    if not qualification or not place:
-        return []
-
-    qual_norm = str(qualification).strip().lower()
-    place_norm = str(place).strip().lower()
-
-    matches = []
-    for rule in QUALIFICATION_PLACE_RULES:
-        qual_values = [q.lower() for q in rule["qualification_values"]]
-        place_values = [p.lower() for p in rule["place_values"]]
-        if qual_norm in qual_values and place_norm in place_values:
-            matches.append(rule)
-    return matches
-
-
 # RULE 1: Others option validation and confirmation prefix
 def validate_others_option(
     answer: str,
@@ -557,12 +547,12 @@ def validate_others_option(
     - Check if the "Others:" answer matches any predefined option
     - If no match and word count >= min_words, add RSPD confirmation sentence
     - If no match and word count < min_words, flag for manual review
-    
+
     Args:
         answer: The respondent's answer
         question_key: Key to identify the question (e.g., 'place_of_birth')
         min_words: Minimum word count required for custom answers (default: 10)
-    
+
     Returns:
         ValidationResult with validation status and any corrections
     """
@@ -572,9 +562,9 @@ def validate_others_option(
             message="No answer provided",
             original_value=answer or ""
         )
-    
+
     has_others, extracted = _extract_others_value(answer)
-    
+
     # Not an "Others:" response, so it's valid as-is
     if not has_others:
         return ValidationResult(
@@ -582,7 +572,7 @@ def validate_others_option(
             message="Standard option (no Others: prefix)",
             original_value=answer
         )
-    
+
     # This is an "Others:" response - check if it matches predefined options
     if question_key not in QUESTIONS_WITH_OTHERS:
         return ValidationResult(
@@ -590,13 +580,13 @@ def validate_others_option(
             message=f"Question '{question_key}' not configured for Others validation",
             original_value=answer
         )
-    
+
     question_config = QUESTIONS_WITH_OTHERS[question_key]
     options = question_config["options"]
-    
+
     # Try to match against predefined options
     matched_option = _fuzzy_match_option(extracted, options)
-    
+
     if matched_option:
         # Matched a predefined option - suggest replacement
         return ValidationResult(
@@ -606,15 +596,15 @@ def validate_others_option(
             corrected_value=matched_option,
             rule_applied="RULE 1 - Others matched predefined option"
         )
-    
+
     # No match - count words in the extracted answer (excluding "Others:")
     word_count = _word_count(extracted)
-    
+
     # Only add RSPD confirmation if word count is less than minimum
     if word_count < min_words:
         confirmation_sentence = "The RSPD confirms that the following answer is correct as of this time; "
         corrected_value = f"Others: {confirmation_sentence}{extracted}"
-        
+
         return ValidationResult(
             is_valid=True,
             message=f"Others answer approved with RSPD confirmation (original word count: {word_count}, now meets minimum requirement)",
@@ -638,22 +628,22 @@ def validate_age_started_employment(value) -> ValidationResult:
     """
     RULE 2: Validate age when started employment.
     Must be a whole number between 13 and 100.
-    
+
     Args:
         value: The age value to validate
-    
+
     Returns:
         ValidationResult with validation status
     """
     original_str = str(value) if value is not None else ""
-    
+
     if value is None or value == "":
         return ValidationResult(
             is_valid=True,
             message="No value provided",
             original_value=original_str
         )
-    
+
     # Check if it's a valid integer
     if not isinstance(value, (int, float)):
         return ValidationResult(
@@ -662,7 +652,7 @@ def validate_age_started_employment(value) -> ValidationResult:
             original_value=original_str,
             rule_applied="RULE 2 - Age validation failed"
         )
-    
+
     # Check if it's a whole number
     if isinstance(value, float) and not value.is_integer():
         return ValidationResult(
@@ -671,9 +661,9 @@ def validate_age_started_employment(value) -> ValidationResult:
             original_value=original_str,
             rule_applied="RULE 2 - Age validation failed"
         )
-    
+
     age = int(value)
-    
+
     # Check range
     if age < 13 or age > 100:
         return ValidationResult(
@@ -682,7 +672,7 @@ def validate_age_started_employment(value) -> ValidationResult:
             original_value=original_str,
             rule_applied="RULE 2 - Age validation failed"
         )
-    
+
     return ValidationResult(
         is_valid=True,
         message="Valid age",
@@ -696,22 +686,22 @@ def validate_bonus(value) -> ValidationResult:
     """
     RULE 3: Validate bonus amount.
     Must be numeric between 0 and 99, no commas or minus signs.
-    
+
     Args:
         value: The bonus value to validate
-    
+
     Returns:
         ValidationResult with validation status
     """
     original_str = str(value) if value is not None else ""
-    
+
     if value is None or value == "":
         return ValidationResult(
             is_valid=True,
             message="No value provided",
             original_value=original_str
         )
-    
+
     # Convert to string to check for invalid characters
     if isinstance(value, str):
         if "," in value or "-" in value:
@@ -739,7 +729,7 @@ def validate_bonus(value) -> ValidationResult:
             original_value=original_str,
             rule_applied="RULE 3 - Bonus validation failed"
         )
-    
+
     # Check range
     if numeric_value < 0 or numeric_value > 99:
         return ValidationResult(
@@ -748,7 +738,7 @@ def validate_bonus(value) -> ValidationResult:
             original_value=original_str,
             rule_applied="RULE 3 - Bonus validation failed"
         )
-    
+
     return ValidationResult(
         is_valid=True,
         message="Valid bonus",
@@ -762,26 +752,26 @@ def validate_previous_company_name(value) -> ValidationResult:
     """
     RULE 4: Validate previous company/establishment name.
     Must contain at least 3 letters and not be purely numeric.
-    
+
     Args:
         value: The company name to validate
-    
+
     Returns:
         ValidationResult with validation status
     """
     original_str = str(value) if value is not None else ""
-    
+
     if value is None or value == "":
         return ValidationResult(
             is_valid=True,
             message="No value provided",
             original_value=original_str
         )
-    
+
     # Convert to string
     if not isinstance(value, str):
         value = str(value)
-    
+
     # Count letters
     letters = re.findall(r"[A-Za-z]", value)
     if len(letters) < 3:
@@ -791,7 +781,7 @@ def validate_previous_company_name(value) -> ValidationResult:
             original_value=original_str,
             rule_applied="RULE 4 - Company name validation failed"
         )
-    
+
     # Check if purely numeric (after removing spaces)
     numeric_only = value.replace(" ", "").isdigit()
     if numeric_only:
@@ -801,7 +791,7 @@ def validate_previous_company_name(value) -> ValidationResult:
             original_value=original_str,
             rule_applied="RULE 4 - Company name validation failed"
         )
-    
+
     return ValidationResult(
         is_valid=True,
         message="Valid company name",
@@ -815,22 +805,22 @@ def validate_interest_from_savings(value) -> ValidationResult:
     """
     RULE 5: Validate interest from savings.
     Must be numeric between 0 and 10 (decimals allowed).
-    
+
     Args:
         value: The interest value to validate
-    
+
     Returns:
         ValidationResult with validation status
     """
     original_str = str(value) if value is not None else ""
-    
+
     if value is None or value == "":
         return ValidationResult(
             is_valid=True,
             message="No value provided",
             original_value=original_str
         )
-    
+
     try:
         numeric_value = float(value)
     except (ValueError, TypeError):
@@ -840,7 +830,7 @@ def validate_interest_from_savings(value) -> ValidationResult:
             original_value=original_str,
             rule_applied="RULE 5 - Interest validation failed"
         )
-    
+
     if numeric_value < 0 or numeric_value > 10:
         return ValidationResult(
             is_valid=False,
@@ -848,7 +838,7 @@ def validate_interest_from_savings(value) -> ValidationResult:
             original_value=original_str,
             rule_applied="RULE 5 - Interest validation failed"
         )
-    
+
     return ValidationResult(
         is_valid=True,
         message="Valid interest",
@@ -862,22 +852,22 @@ def validate_dividends_investment_interest(value) -> ValidationResult:
     """
     RULE 6: Validate dividends and interests from investments.
     Must be numeric between 0 and 50 (decimals allowed).
-    
+
     Args:
         value: The dividends/interest value to validate
-    
+
     Returns:
         ValidationResult with validation status
     """
     original_str = str(value) if value is not None else ""
-    
+
     if value is None or value == "":
         return ValidationResult(
             is_valid=True,
             message="No value provided",
             original_value=original_str
         )
-    
+
     try:
         numeric_value = float(value)
     except (ValueError, TypeError):
@@ -887,7 +877,7 @@ def validate_dividends_investment_interest(value) -> ValidationResult:
             original_value=original_str,
             rule_applied="RULE 6 - Dividends validation failed"
         )
-    
+
     if numeric_value < 0 or numeric_value > 50:
         return ValidationResult(
             is_valid=False,
@@ -895,7 +885,7 @@ def validate_dividends_investment_interest(value) -> ValidationResult:
             original_value=original_str,
             rule_applied="RULE 6 - Dividends validation failed"
         )
-    
+
     return ValidationResult(
         is_valid=True,
         message="Valid dividends/investment interest",
@@ -911,13 +901,13 @@ def validate_freelance_employment_consistency(
 ) -> ValidationResult:
     """
     RULE 7: Validate consistency between freelance work and employment status.
-    If respondent did freelance work (not "I did not take up..."), 
+    If respondent did freelance work (not "I did not take up..."),
     employment status must be "Own Account Worker".
-    
+
     Args:
         employment_status: Employment status value
         freelance_platforms: Freelance platforms value
-    
+
     Returns:
         ValidationResult with validation status
     """
@@ -927,10 +917,10 @@ def validate_freelance_employment_consistency(
             message="No freelance data provided",
             original_value=freelance_platforms or ""
         )
-    
+
     freelance_str = str(freelance_platforms).strip()
     employment_str = str(employment_status).strip() if employment_status else ""
-    
+
     # Check if they did NOT do freelance work
     no_freelance_option = "I did not take up freelance or assignment-based work through online platforms in the last 12 months"
     if freelance_str == no_freelance_option:
@@ -939,7 +929,7 @@ def validate_freelance_employment_consistency(
             message="No freelance work - consistency check not applicable",
             original_value=freelance_str
         )
-    
+
     # They did freelance work - check if employment status is Own Account Worker
     required_status = "Own Account Worker (Self-employed without paid employees)"
     if employment_str != required_status:
@@ -949,10 +939,133 @@ def validate_freelance_employment_consistency(
             original_value=f"Employment: {employment_str}, Freelance: {freelance_str}",
             rule_applied="RULE 7 - Freelance/Employment consistency failed"
         )
-    
+
     return ValidationResult(
         is_valid=True,
         message="Freelance work consistent with Own Account Worker status",
         original_value=f"Employment: {employment_str}, Freelance: {freelance_str}",
         rule_applied="RULE 7 - Freelance/Employment consistency passed"
     )
+
+
+# RULE 8: Qualification vs Place of Study Validation
+def validate_qualification_place(qualification: str, place: str) -> list[dict]:
+    if not qualification or not place:
+        return []
+
+    qual_norm = str(qualification).strip().lower()
+    place_norm = str(place).strip().lower()
+
+    matches = []
+    for rule in QUALIFICATION_PLACE_RULES:
+        qual_values = [q.lower() for q in rule["qualification_values"]]
+        place_values = [p.lower() for p in rule["place_values"]]
+        if qual_norm in qual_values and place_norm in place_values:
+            matches.append(rule)
+    return matches
+
+
+# RULE 9: SSEC mapping uses best_ssec_match (helper)
+
+
+# RULE 10: Internship/Employment Type Validation
+def validate_internship_employment_rule(internship_value: Optional[str], employment_value: Optional[str]) -> ValidationResult:
+    """
+    Rule 10:
+    If internship/traineeship/apprenticeship == 'Yes'
+    then Type of Employment must be 'Fixed-Term contract employee'.
+    """
+    internship = _normalize_value(internship_value)
+    employment = _normalize_value(employment_value)
+
+    if not internship or not employment:
+        return ValidationResult(
+            is_valid=True,
+            message="No applicable values provided",
+            original_value=""
+        )
+
+    if internship != "yes":
+        return ValidationResult(
+            is_valid=True,
+            message="Internship not selected",
+            original_value=internship
+        )
+
+    if employment in ("permanent employee", "casual/on-call employee"):
+        return ValidationResult(
+            is_valid=False,
+            message="Internship/Traineeship/Apprenticeship must be Fixed-Term contract employee",
+            original_value=employment,
+            rule_applied="RULE 10"
+        )
+
+    return ValidationResult(
+        is_valid=True,
+        message="Internship employment type is valid",
+        original_value=employment,
+        rule_applied="RULE 10"
+    )
+
+
+# RULE 11: Job Title Validation
+def validate_job_title_rule(job_title: Optional[str]) -> ValidationResult:
+    """
+    Rule 11:
+    Job Title must be at least 4 letters and cannot contain numbers.
+    """
+    raw_value = _normalize_value(job_title)
+    if not raw_value:
+        return ValidationResult(
+            is_valid=True,
+            message="No job title provided",
+            original_value=""
+        )
+
+    if len(raw_value) < 4 or any(char.isdigit() for char in raw_value):
+        return ValidationResult(
+            is_valid=False,
+            message="Job Title must be at least 4 letters and contain no numbers",
+            original_value=job_title or "",
+            rule_applied="RULE 11"
+        )
+
+    return ValidationResult(
+        is_valid=True,
+        message="Job title is valid",
+        original_value=job_title or "",
+        rule_applied="RULE 11"
+    )
+
+
+# RULE 12: FT/PT column derived in validator
+
+
+# RULE 13: Usual Hours Validation
+def validate_usual_hours_value(hours_value: Optional[str]) -> ValidationResult:
+    """
+    Rule 13:
+    Usual hours of work must be numeric when provided.
+    """
+    if hours_value in (None, ""):
+        return ValidationResult(
+            is_valid=True,
+            message="No hours provided",
+            original_value=""
+        )
+
+    try:
+        float(hours_value)
+        return ValidationResult(
+            is_valid=True,
+            message="Usual hours value is numeric",
+            original_value=str(hours_value),
+            rule_applied="RULE 13"
+        )
+    except (ValueError, TypeError):
+        return ValidationResult(
+            is_valid=False,
+            message="Usual hours of work must be numeric",
+            original_value=str(hours_value),
+            rule_applied="RULE 13"
+        )

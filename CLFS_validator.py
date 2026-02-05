@@ -485,6 +485,21 @@ def _clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     return df.reset_index(drop=True)
 
 
+def _ensure_ssec_column(df: pd.DataFrame) -> pd.DataFrame:
+    if "SSEC Code" in df.columns:
+        df["SSEC Code"] = df["SSEC Code"].astype("object")
+        return df
+    if "Highest Academic Qualification" not in df.columns:
+        return df
+
+    cols = list(df.columns)
+    insert_at = cols.index("Highest Academic Qualification") + 1
+    cols.insert(insert_at, "SSEC Code")
+    df = df.reindex(columns=cols)
+    df["SSEC Code"] = df["SSEC Code"].astype("object")
+    return df
+
+
 def create_output_directory():
     """Create output folder if it doesn't exist"""
     output_dir = Path("output")
@@ -626,6 +641,8 @@ def main():
         print(f"Applying Validation Rules...")
         print(f"{'=' * 50}")
         
+        df = _ensure_ssec_column(df)
+
         # Track changes and errors for output
         changes = {}
         error_cells = set()
@@ -678,9 +695,13 @@ def main():
         
         print(f"\nRULE 1 Summary: {rule1_corrected} corrected")
         
-        # RULE 2-7: Additional validation rules from colleague's work
-        print(f"\nRULES 2-7: Data quality validations")
+        # RULE 2-9: Additional validation rules from colleague's work
+        print(f"\nRULES 2-9: Data quality validations")
         print("-" * 50)
+
+        ssec_enabled = bool(getattr(rules, "SSEC_CANDIDATES", []))
+        if not ssec_enabled:
+            print("  ⚠ SSEC mapping skipped (SSEC_CANDIDATES is empty)")
         
         # Iterate through all household members for validation
         for household_idx, members in enumerate(households, 1):
@@ -811,6 +832,52 @@ def main():
                             "column": f"{emp_col} & {free_col}",
                             "message": result.message
                         })
+
+                # RULE 8: Assign SSEC Code based on Highest Academic Qualification
+                qualification = member.highest_academic_qualification
+                if ssec_enabled and qualification:
+                    ssec_code, ssec_score = rules.best_ssec_match(str(qualification))
+                    if "SSEC Code" in df.columns:
+                        col_idx = df.columns.get_loc("SSEC Code")
+                        if ssec_code:
+                            modified_df.at[row_idx, "SSEC Code"] = ssec_code
+                            changes[(row_idx, col_idx)] = ("", ssec_code)
+                        else:
+                            error_cells.add((row_idx, col_idx))
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
+                                "member": member.full_name,
+                                "rule": "RULE 8",
+                                "column": "SSEC Code",
+                                "message": "Unable to map SSEC Code from Highest Academic Qualification"
+                            })
+
+                # RULE 9: Validate Highest Academic Qualification vs Place of Study
+                place = member.place_of_study_highest_academic
+                if qualification and place:
+                    matches = rules.validate_qualification_place(str(qualification), str(place))
+                    if matches:
+                        qual_col = "Highest Academic Qualification"
+                        place_col = "Place of study for your Highest Academic Attained in?"
+                        if qual_col in df.columns:
+                            error_cells.add((row_idx, df.columns.get_loc(qual_col)))
+                        if place_col in df.columns:
+                            error_cells.add((row_idx, df.columns.get_loc(place_col)))
+
+                        for match in matches:
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
+                                "member": member.full_name,
+                                "rule": f"RULE 9 - {match['rule_id']}",
+                                "column": f"{qual_col} & {place_col}",
+                                "message": match["reason"]
+                            })
         
         # Display errors found
         if rule_errors:
@@ -823,7 +890,7 @@ def main():
         else:
             print(f"  ✓ No validation errors found")
         
-        print(f"\nRULES 2-7 Summary: {len(rule_errors)} errors found")
+        print(f"\nRULES 2-9 Summary: {len(rule_errors)} errors found")
 
         # Create validation report (summary + details)
         create_validation_report(rule_errors, filename)

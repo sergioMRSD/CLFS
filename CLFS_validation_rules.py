@@ -124,6 +124,324 @@ QUESTIONS_WITH_OTHERS = {
 }
 
 
+# Education validation rules (qualification vs place)
+QUALIFICATION_PLACE_RULES = [
+    {
+        "rule_id": "QPS01",
+        "qualification_values": ["Polytechnic Diploma"],
+        "place_values": [
+            "National University of Singapore",
+            "Nanyang Technological University",
+            "National Institute of Education",
+            "Singapore Management University",
+            "Singapore University of Technology and Design",
+            "Singapore Institute of Technology",
+            "Singapore University of Social Sciences (SUSS)",
+        ],
+        "severity": "FLAG",
+        "reason": "Local universities do not award polytechnic diplomas; diplomas are awarded by polytechnics.",
+        "action": "flag_for_review",
+        "highlight_cells": [
+            "Highest Academic Qualification",
+            "Place of study for your Highest Academic Attained in?",
+        ],
+    },
+    {
+        "rule_id": "QPS02",
+        "qualification_values": [
+            "First Degree or equivalent",
+            "Long First Degree or equivalent",
+        ],
+        "place_values": ["Institute of Technical Education"],
+        "severity": "FLAG",
+        "reason": "ITE does not award bachelor's degrees; degrees are typically awarded by universities.",
+        "action": "flag_for_review",
+        "highlight_cells": [
+            "Highest Academic Qualification",
+            "Place of study for your Highest Academic Attained in?",
+        ],
+    },
+    {
+        "rule_id": "QPS03",
+        "qualification_values": ["At least 1 subject pass in GCE 'A'/'H2' Level or equivalent"],
+        "place_values": [
+            "National University of Singapore",
+            "Nanyang Technological University",
+            "National Institute of Education",
+            "Singapore Management University",
+            "Singapore University of Technology and Design",
+            "Singapore Institute of Technology",
+            "Singapore University of Social Sciences (SUSS)",
+        ],
+        "severity": "FLAG",
+        "reason": "GCE A Levels are pre-university qualifications and are not obtained from universities.",
+        "action": "flag_for_review",
+        "highlight_cells": [
+            "Highest Academic Qualification",
+            "Place of study for your Highest Academic Attained in?",
+        ],
+    },
+    {
+        "rule_id": "QPS04",
+        "qualification_values": ["Doctoral Degree or equivalent"],
+        "place_values": ["Local Polytechnics", "Institute of Technical Education"],
+        "severity": "FLAG",
+        "reason": "Polytechnics/ITE do not award doctoral degrees; doctorates are awarded by universities.",
+        "action": "flag_for_review",
+        "highlight_cells": [
+            "Highest Academic Qualification",
+            "Place of study for your Highest Academic Attained in?",
+        ],
+    },
+    {
+        "rule_id": "QPS05",
+        "qualification_values": ["PSLE Certificate ot equivalent"],
+        "place_values": [
+            "National University of Singapore",
+            "Nanyang Technological University",
+            "National Institute of Education",
+            "Singapore Management University",
+            "Singapore University of Technology and Design",
+            "Singapore Institute of Technology",
+            "Singapore University of Social Sciences (SUSS)",
+        ],
+        "severity": "FLAG",
+        "reason": "PSLE is a primary-school level certification and is not obtained from universities.",
+        "action": "flag_for_review",
+        "highlight_cells": [
+            "Highest Academic Qualification",
+            "Place of study for your Highest Academic Attained in?",
+        ],
+    },
+    {
+        "rule_id": "QPS06",
+        "qualification_values": ["Polytechnic Diploma"],
+        "place_values": ["Outside of Singapore"],
+        "severity": "REVIEW",
+        "reason": "“Polytechnic Diploma” is Singapore-specific wording; overseas diploma may need equivalency confirmation.",
+        "action": "flag_for_review",
+        "highlight_cells": [
+            "Highest Academic Qualification",
+            "Place of study for your Highest Academic Attained in?",
+        ],
+    },
+    {
+        "rule_id": "QPS07",
+        "qualification_values": ["Higher Nitec or equivalent"],
+        "place_values": [
+            "National University of Singapore",
+            "Nanyang Technological University",
+            "National Institute of Education",
+            "Singapore Management University",
+            "Singapore University of Technology and Design",
+            "Singapore Institute of Technology",
+            "Singapore University of Social Sciences (SUSS)",
+        ],
+        "severity": "FLAG",
+        "reason": "Higher Nitec is awarded by ITE, not by universities.",
+        "action": "flag_for_review",
+        "highlight_cells": [
+            "Highest Academic Qualification",
+            "Place of study for your Highest Academic Attained in?",
+        ],
+    },
+    {
+        "rule_id": "QPS08",
+        "qualification_values": ["Postgraduate Diploma", "Master's Degree or equivalent"],
+        "place_values": ["Local Polytechnics", "Institute of Technical Education"],
+        "severity": "FLAG",
+        "reason": "Postgraduate qualifications are typically offered by universities, not by polytechnics or ITE.",
+        "action": "flag_for_review",
+        "highlight_cells": [
+            "Highest Academic Qualification",
+            "Place of study for your Highest Academic Attained in?",
+        ],
+    },
+]
+
+
+# SSEC mapping candidates: list of (code, description)
+SSEC_CANDIDATES: list[tuple[str, str]] = [
+    ('0', 'PRE-PRIMARY'),
+    ('00', 'Pre-Primary (i.e. Nursery, Kindergarten 1, Kindergarten 2)'),
+    ('1', 'PRIMARY'),
+    ('11', 'Primary 1'),
+    ('12', 'Primary 2'),
+    ('13', 'Primary 3'),
+    ('14', 'Primary 4'),
+    ('15', 'Primary 5'),
+    ('16', 'Primary 6'),
+    ('19', 'Other primary education or equivalent'),
+    ('2', 'SECONDARY'),
+    ('21', 'Secondary 1'),
+    ('22', 'Secondary 2'),
+    ('23', 'Secondary 3'),
+    ('24', 'Secondary 4'),
+    ('25', 'Secondary 5'),
+    ('26', 'ITE Skills Certificate (ISC)'),
+    ('27', 'Other secondary education or equivalent'),
+    ('28', 'Other skills certificate courses or equivalent (except ISC)'),
+    ('3', 'POST-SECONDARY (NON-TERTIARY): GENERAL AND VOCATIONAL'),
+    ('31', 'Pre-University 1 / Junior College 1 (general) (including Year 5 of Integrated Programme)'),
+    ('32', 'Pre-University 2 / Junior College 2 (general) (including Year 6 of Integrated Programme)'),
+    ('33', 'Pre-University 3 (general)'),
+    ('34', 'National ITE Certificate (Nitec)'),
+    ('35', 'Higher Nitec'),
+    ('36', 'Master Nitec'),
+    ('37', 'Other post-secondary (non-tertiary; general) education or equivalent'),
+    ('38', 'Other post-secondary (non-tertiary; vocational) education or equivalent (including advanced certificate courses)'),
+    ('4', 'POLYTECHNIC DIPLOMA'),
+    ('41', 'Polytechnic diploma'),
+    ('42', 'Polytechnic post-diploma (including polytechnic advanced/specialist diploma, diploma (conversion))'),
+    ('5', 'PROFESSIONAL QUALIFICATION AND OTHER DIPLOMA'),
+    ('51', 'ITE diploma'),
+    ('52', 'Other locally or externally developed diploma (including NIE diploma, SIM diploma, LASALLE diploma, NAFA diploma)'),
+    ('53', 'Qualification awarded by professional bodies (including ACCA, CFA)'),
+    ('59', 'Other post-diploma qualifications or equivalent'),
+    ('6', "BACHELOR'S OR EQUIVALENT"),
+    ('61', 'First degree or equivalent'),
+    ('62', 'Long first degree or equivalent'),
+    ('7', "POSTGRADUATE DIPLOMA/CERTIFICATE (EXCLUDING MASTER'S AND DOCTORATE)"),
+    ('70', 'Postgraduate diploma/certificate (including NIE postgraduate diploma)'),
+    ('8', "MASTER'S AND DOCTORATE OR EQUIVALENT"),
+    ('81', "Master's degree or equivalent"),
+    ('82', 'Doctoral degree or equivalent'),
+    ('X', 'NOT REPORTED'),
+    ('XX', 'Not reported'),
+    ('0', 'NO FORMAL QUALIFICATION / PRE-PRIMARY / LOWER PRIMARY'),
+    ('01', 'Never attended school'),
+    ('02', 'Pre-Primary (i.e. Nursery, Kindergarten 1, Kindergarten 2)'),
+    ('03', 'Primary education without Primary School Leaving Examination (PSLE) / Primary School Proficiency Examination (PSPE) certificate or equivalent'),
+    ('04', 'Certificate in BEST 1-3'),
+    ('11', 'Primary School Leaving Examination (PSLE) / Primary School Proficiency Examination (PSPE) certificate or equivalent'),
+    ('12', 'Certificate in BEST 4'),
+    ('13', 'At least 3 achievements for different Workplace Literacy or Numeracy (WPLN) skills at Level 1 or 2'),
+    ('2', 'LOWER SECONDARY'),
+    ('21', "Secondary education without any subject pass at GCE 'O'/'N' Level or equivalent"),
+    ('22', 'Certificate in WISE 1-3'),
+    ('23', 'Basic vocational certificate (including ITE Basic Vocational Training)'),
+    ('24', 'At least 3 achievements for different Workplace Literacy or Numeracy (WPLN) skills at Level 3 or 4'),
+    ('3', 'SECONDARY'),
+    ('31', "At least 1 subject pass at GCE 'N' Level"),
+    ('32', "At least 1 subject pass at GCE 'O' Level"),
+    ('33', 'National ITE Certificate (Intermediate) or equivalent (including National Technical Certificate (NTC) Grade 3, Certificate of Vocational Training, BCA Builder Certificate)'),
+    ('34', 'ITE Skills Certificate (ISC) or equivalent (including Certificate of Competency, Certificate in Service Skills)'),
+    ('35', 'At least 3 achievements for different Workplace Literacy or Numeracy (WPLN) skills at Level 5 and above'),
+    ('39', 'Other secondary education/certificates or equivalent'),
+    ('4', 'POST-SECONDARY (NON-TERTIARY): GENERAL AND VOCATIONAL'),
+    ('41', "At least 1 subject pass at GCE 'A'/'H2' Level or equivalent (general)"),
+    ('42', 'National ITE Certificate (Nitec) or equivalent (including Post Nitec Certificate, Specialist Nitec, Certificate in Office Skills, National Technical Certificate (NTC) Grade 2, National Certificate in Nursing, BCA Advanced Builder Certificate)'),
+    ('43', 'Higher Nitec or equivalent (including Certificate in Business Skills, Industrial Technician Certificate)'),
+    ('44', 'Master Nitec or equivalent (including NTC Grade 1)'),
+    ('45', 'WSQ Certificate or equivalent'),
+    ('46', 'WSQ Higher Certificate or equivalent'),
+    ('47', 'WSQ Advanced Certificate or equivalent'),
+    ('48', 'Other post-secondary (non-tertiary; general) qualifications or equivalent (including International Baccalaureate / NUS High School Diploma)'),
+    ('49', 'Other post-secondary (non-tertiary; vocational) certificates/qualifications or equivalent (including SIM certificate)'),
+    ('5', 'POLYTECHNIC DIPLOMA'),
+    ('51', 'Polytechnic diploma'),
+    ('52', 'Polytechnic post-diploma (including polytechnic advanced/specialist/management/graduate diploma, diploma (conversion))'),
+    ('6', 'PROFESSIONAL QUALIFICATION AND OTHER DIPLOMA'),
+    ('61', 'ITE diploma'),
+    ('62', 'Other locally or externally developed diploma (including NIE diploma, SIM diploma, LASALLE diploma, NAFA diploma)'),
+    ('63', 'Qualification awarded by professional bodies (including ACCA, CFA)'),
+    ('64', 'WSQ diploma'),
+    ('65', 'WSQ specialist diploma'),
+    ('69', 'Other post-diploma qualifications or equivalent'),
+    ('7', "BACHELOR'S OR EQUIVALENT"),
+    ('71', 'First degree or equivalent'),
+    ('72', 'Long first degree or equivalent'),
+    ('8', "POSTGRADUATE DIPLOMA/CERTIFICATE (EXCLUDING MASTER'S AND DOCTORATE)"),
+    ('81', 'Postgraduate diploma/certificate (including NIE postgraduate diploma)'),
+    ('82', 'WSQ graduate certificate'),
+    ('83', 'WSQ graduate diploma'),
+    ('9', "MASTER'S AND DOCTORATE OR EQUIVALENT"),
+    ('91', "Master's degree or equivalent"),
+    ('92', 'Doctoral degree or equivalent'),
+    ('N', 'MODULAR CERTIFICATION (NON-AWARD COURSES / NON-FULL QUALIFICATIONS)'),
+    ('N1', 'At least 1 WSQ Statement of Attainment or ITE modular certificate at post-secondary level (non-tertiary) or equivalent'),
+    ('N2', 'At least 1 WSQ Statement of Attainment or other modular certificate at diploma level or equivalent (including polytechnic post-diploma certificate)'),
+    ('N3', 'At least 1 WSQ Statement of Attainment or other modular certificate at degree level or equivalent'),
+    ('N4', 'At least 1 WSQ Statement of Attainment or other modular certificate at postgraduate level or equivalent'),
+    ('N9', 'Other statements of attainment, modular certificates or equivalent'),
+    ('01', 'EDUCATION'),
+    ('011', 'TEACHER TRAINING'),
+    ('012', 'EDUCATION SCIENCE'),
+    ('013', 'TRAINER TRAINING'),
+    ('02', 'FINE AND APPLIED ARTS'),
+    ('021', 'FINE AND PERFORMING ARTS'),
+    ('022', '3D DESIGN'),
+    ('023', 'MEDIA DESIGN/PRODUCTION'),
+    ('029', 'FINE AND APPLIED ARTS NOT ELSEWHERE CLASSIFIED'),
+    ('03', 'HUMANITIES AND SOCIAL SCIENCES'),
+    ('031', 'LANGUAGE AND CULTURAL STUDIES'),
+    ('032', 'BEHAVIOURAL SCIENCE'),
+    ('033', 'ECONOMICS'),
+    ('034', 'SOCIAL WORK'),
+    ('039', 'HUMANITIES AND SOCIAL SCIENCES NOT ELSEWHERE CLASSIFIED'),
+    ('04', 'MASS COMMUNICATION AND INFORMATION SCIENCE'),
+    ('041', 'MASS COMMUNICATION'),
+    ('042', 'INFORMATION SCIENCE'),
+    ('05', 'BUSINESS AND ADMINISTRATION'),
+    ('051', 'ADMINISTRATION AND MANAGEMENT'),
+    ('052', 'ACCOUNTANCY'),
+    ('053', 'BANKING, INSURANCE AND FINANCIAL SERVICES'),
+    ('054', 'SALES AND MARKETING'),
+    ('055', 'MANAGEMENT SUPPORT SERVICES'),
+    ('059', 'BUSINESS AND ADMINISTRATION NOT ELSEWHERE CLASSIFIED'),
+    ('06', 'LAW'),
+    ('060', 'LAW'),
+    ('07', 'NATURAL AND MATHEMATICAL SCIENCES'),
+    ('071', 'BIOLOGICAL SCIENCES AND TECHNOLOGIES'),
+    ('072', 'PHYSICAL SCIENCES AND TECHNOLOGIES'),
+    ('073', 'AGRICULTURE AND FISHERY'),
+    ('074', 'VETERINARY SCIENCES'),
+    ('075', 'MATHEMATICS AND STATISTICS'),
+    ('079', 'NATURAL AND MATHEMATICAL SCIENCES NOT ELSEWHERE CLASSIFIED'),
+    ('08', 'HEALTH SCIENCES'),
+    ('081', 'GENERAL MEDICAL SCIENCES'),
+    ('082', 'SPECIALISED MEDICAL SCIENCES'),
+    ('083', 'DENTISTRY'),
+    ('084', 'NURSING AND HEALTH CARE'),
+    ('085', 'PHARMACY'),
+    ('086', 'THERAPY AND REHABILITATION'),
+    ('087', 'MEDICAL DIAGNOSTIC AND TREATMENT TECHNOLOGY'),
+    ('089', 'HEALTH SCIENCES NOT ELSEWHERE CLASSIFIED'),
+    ('09', 'INFORMATION TECHNOLOGY'),
+    ('091', 'INFORMATION TECHNOLOGY'),
+    ('092', 'COMPUTER OPERATIONS/TECHNICAL SUPPORT'),
+    ('10', 'ARCHITECTURE, BUILDING AND REAL ESTATE'),
+    ('101', 'ARCHITECTURE AND URBAN PLANNING'),
+    ('102', 'SURVEYING'),
+    ('103', 'BUILDING SCIENCE AND MANAGEMENT'),
+    ('104', 'BUILDING TRADES'),
+    ('109', 'ARCHITECTURE, BUILDING AND REAL ESTATE NOT ELSEWHERE CLASSIFIED'),
+    ('11', 'ENGINEERING SCIENCES'),
+    ('111', 'CHEMICAL ENGINEERING'),
+    ('112', 'CIVIL ENGINEERING'),
+    ('113', 'ELECTRICAL AND ELECTRONICS ENGINEERING'),
+    ('114', 'MECHANICAL ENGINEERING'),
+    ('115', 'MARINE ENGINEERING'),
+    ('116', 'MANUFACTURING AND RELATED ENGINEERING'),
+    ('119', 'ENGINEERING SCIENCES NOT ELSEWHERE CLASSIFIED'),
+    ('12', 'ENGINEERING, MANUFACTURING AND RELATED TRADES'),
+    ('121', 'ENGINEERING TRADES'),
+    ('122', 'MANUFACTURING TRADES'),
+    ('129', 'ENGINEERING, MANUFACTURING AND RELATED TRADES NOT ELSEWHERE CLASSIFIED'),
+    ('13', 'SERVICES'),
+    ('131', 'PERSONAL SERVICES'),
+    ('132', 'FOOD SERVICES'),
+    ('133', 'HOSPITALITY SERVICES'),
+    ('134', 'TRANSPORT SERVICES'),
+    ('135', 'SAFETY AND SECURITY SERVICES'),
+    ('136', 'SPORTS AND RECREATION SERVICES'),
+    ('99', 'OTHER FIELDS'),
+    ('990', 'OTHER FIELDS NOT ELSEWHERE CLASSIFIED'),
+    ('XX', 'NOT REPORTED'),
+    ('XXX', 'NOT REPORTED'),
+]
+
+
 def _extract_others_value(answer: str) -> Tuple[bool, str]:
     """
     Extract value after "Others: " prefix if present.
@@ -177,6 +495,55 @@ def _fuzzy_match_option(user_answer: str, options: list[str]) -> Optional[str]:
             return option
     
     return None
+
+
+def _normalize_text(text: str) -> str:
+    if not text:
+        return ""
+    s = str(text).strip().lower()
+    s = re.sub(r"[\-_/\\(),.;:]+", " ", s)
+    s = re.sub(r"\s+", " ", s)
+    return s
+
+
+def best_ssec_match(qualification: str, threshold: int = 85) -> tuple[Optional[str], int]:
+    qn = _normalize_text(qualification)
+    if not qn or not SSEC_CANDIDATES:
+        return None, 0
+
+    best_code = None
+    best_score = 0
+    for code, desc in SSEC_CANDIDATES:
+        dn = _normalize_text(desc)
+        if not dn:
+            continue
+        if dn in qn or qn in dn:
+            return code, 100
+        import difflib
+        score = int(difflib.SequenceMatcher(None, qn, dn).ratio() * 100)
+        if score > best_score:
+            best_code = code
+            best_score = score
+
+    if best_score >= threshold:
+        return best_code, best_score
+    return None, best_score
+
+
+def validate_qualification_place(qualification: str, place: str) -> list[dict]:
+    if not qualification or not place:
+        return []
+
+    qual_norm = str(qualification).strip().lower()
+    place_norm = str(place).strip().lower()
+
+    matches = []
+    for rule in QUALIFICATION_PLACE_RULES:
+        qual_values = [q.lower() for q in rule["qualification_values"]]
+        place_values = [p.lower() for p in rule["place_values"]]
+        if qual_norm in qual_values and place_norm in place_values:
+            matches.append(rule)
+    return matches
 
 
 # RULE 1: Others option validation and confirmation prefix

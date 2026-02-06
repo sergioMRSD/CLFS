@@ -722,6 +722,13 @@ def main():
     """Main function to run the validator."""
     print("CLFS Data Validator")
     print("=" * 50)
+
+    print("\nModule diagnostics")
+    print("-" * 50)
+    print(f"rules.__file__: {getattr(rules, '__file__', 'unknown')}")
+    ssec_count = len(getattr(rules, "SSEC_CANDIDATES", []) or [])
+    print(f"SSEC_CANDIDATES count: {ssec_count}")
+    print(f"has validate_qualification_place: {hasattr(rules, 'validate_qualification_place')}")
     
     # Load all .xlsx and .csv files from Operating_Table folder
     files = load_input_files()

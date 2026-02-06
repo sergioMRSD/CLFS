@@ -669,7 +669,7 @@ def save_with_highlights(
     error_cells: set[tuple[int, int]]
 ):
     """
-    Save modified Excel file with cells highlighted in blue for changes
+    Save modified Excel file with cells highlighted in orange for changes
     and yellow for detected errors.
     
     Args:
@@ -694,7 +694,7 @@ def save_with_highlights(
     ws = wb.active
     
     # Blue highlight for changed cells
-    blue_fill = PatternFill(start_color="0000FF", end_color="0000FF", fill_type="solid")
+    orange_fill = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
     yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
     
     for (row_idx, col_idx), (old_val, new_val) in changes.items():
@@ -703,7 +703,7 @@ def save_with_highlights(
         excel_col = col_idx + 1  # +1 for 1-indexing
         
         cell = ws.cell(row=excel_row, column=excel_col)
-        cell.fill = blue_fill
+        cell.fill = orange_fill
         cell.value = new_val
 
     # Apply yellow highlights for errors (no value changes)

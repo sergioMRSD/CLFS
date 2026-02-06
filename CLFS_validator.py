@@ -355,9 +355,55 @@ def _normalize_value(value: object) -> Optional[str]:
     return text if text else None
 
 
+def _normalize_header(text: object) -> str:
+    if text is None:
+        return ""
+    return str(text).strip().lower()
+
+
+def _column_matches(col_name: object, target: str) -> bool:
+    col_norm = _normalize_header(col_name)
+    target_norm = _normalize_header(target)
+    return target_norm == col_norm or target_norm in col_norm
+
+
+def _find_column_name(columns: list, target: str) -> Optional[str]:
+    if not columns:
+        return None
+    target_norm = _normalize_header(target)
+
+    exact_matches = [c for c in columns if _normalize_header(c) == target_norm]
+    if exact_matches:
+        return exact_matches[0]
+
+    partial_matches = [c for c in columns if target_norm and target_norm in _normalize_header(c)]
+    if not partial_matches:
+        return None
+
+    return sorted(partial_matches, key=lambda c: len(_normalize_header(c)))[0]
+
+
+def _find_column_indices(columns: list, target: str) -> list[int]:
+    return [i for i, col in enumerate(columns) if _column_matches(col, target)]
+
+
+def _get_cell_value(df: pd.DataFrame, row_idx: int, target: str) -> Optional[object]:
+    col_name = _find_column_name(list(df.columns), target)
+    if not col_name:
+        return None
+    return df.at[row_idx, col_name]
+
+
+def _get_column_index(df: pd.DataFrame, target: str) -> tuple[Optional[str], Optional[int]]:
+    col_name = _find_column_name(list(df.columns), target)
+    if not col_name:
+        return None, None
+    return col_name, df.columns.get_loc(col_name)
+
+
 def _get_member_column_groups(columns: list[str]) -> list[dict[str, Optional[int]]]:
-    full_name_indices = [i for i, col in enumerate(columns) if col == "Full Name"]
-    dob_indices = [i for i, col in enumerate(columns) if col == "Date of Birth (DD/MM/YYYY)"]
+    full_name_indices = _find_column_indices(columns, "Full Name")
+    dob_indices = _find_column_indices(columns, "Date of Birth (DD/MM/YYYY)")
 
     groups: list[dict[str, Optional[int]]] = []
     for idx, full_name_idx in enumerate(full_name_indices):
@@ -393,8 +439,9 @@ def extract_household_members(df: pd.DataFrame) -> list[list[HouseholdMember]]:
                 if attr_name == "full_name":
                     # Already set
                     continue
-                if col_name in columns:
-                    col_idx = columns.index(col_name)
+                matched_col = _find_column_name(columns, col_name)
+                if matched_col:
+                    col_idx = columns.index(matched_col)
                     value = _normalize_value(row.iloc[col_idx])
                     # Try to convert to appropriate type
                     if value:
@@ -481,20 +528,23 @@ def load_input_files(folder_path="Operating_Table"):
 def _clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     df = df.dropna(how="all")
     df.columns = [str(col).strip() for col in df.columns]
-    if "Response ID" in df.columns:
-        df = df[df["Response ID"].notna()]
+    response_col = _find_column_name(list(df.columns), "Response ID")
+    if response_col:
+        df = df[df[response_col].notna()]
     return df.reset_index(drop=True)
 
 
 def _ensure_ssec_column(df: pd.DataFrame) -> pd.DataFrame:
-    if "SSEC Code" in df.columns:
-        df["SSEC Code"] = df["SSEC Code"].astype("object")
+    ssec_col = _find_column_name(list(df.columns), "SSEC Code")
+    if ssec_col:
+        df[ssec_col] = df[ssec_col].astype("object")
         return df
-    if "Highest Academic Qualification" not in df.columns:
+    hqa_col = _find_column_name(list(df.columns), "Highest Academic Qualification")
+    if not hqa_col:
         return df
 
     cols = list(df.columns)
-    insert_at = cols.index("Highest Academic Qualification") + 1
+    insert_at = cols.index(hqa_col) + 1
     cols.insert(insert_at, "SSEC Code")
     df = df.reindex(columns=cols)
     df["SSEC Code"] = df["SSEC Code"].astype("object")
@@ -549,8 +599,8 @@ def _ensure_ssoc_columns(df: pd.DataFrame) -> tuple[pd.DataFrame, list[dict]]:
     Returns updated DataFrame and list of column group metadata.
     """
     columns = list(df.columns)
-    duty_indices = [i for i, col in enumerate(columns) if str(col).strip() == "Main tasks / duties"]
-    title_indices = [i for i, col in enumerate(columns) if str(col).strip() == "Job Title"]
+    duty_indices = _find_column_indices(columns, "Main tasks / duties")
+    title_indices = _find_column_indices(columns, "Job Title")
 
     if not duty_indices or not title_indices:
         return df, []
@@ -590,7 +640,7 @@ def _add_ft_pt_columns(df: pd.DataFrame) -> tuple[pd.DataFrame, list[tuple[int, 
     """
     changes: list[tuple[int, int, str]] = []
     columns = list(df.columns)
-    hours_cols = [i for i, col in enumerate(columns) if str(col).strip() == "Usual hours of work"]
+    hours_cols = _find_column_indices(columns, "Usual hours of work")
 
     for col_idx in sorted(hours_cols, reverse=True):
         col_name = columns[col_idx]
@@ -827,14 +877,15 @@ def main():
         # Check all columns with "Others:" options
         for attr_name, question_config in rules.QUESTIONS_WITH_OTHERS.items():
             col_name = question_config["column_name"]
-            
-            if col_name not in df.columns:
+
+            matched_col = _find_column_name(list(df.columns), col_name)
+            if not matched_col:
                 print(f"  ⚠ Column '{col_name}' not found in data")
                 continue
-            
-            col_idx = df.columns.get_loc(col_name)
-            
-            for row_idx, value in df[col_name].items():
+
+            col_idx = df.columns.get_loc(matched_col)
+
+            for row_idx, value in df[matched_col].items():
                 if pd.isna(value):
                     continue
                 
@@ -844,11 +895,11 @@ def main():
                     print(f"  ✓ Row {row_idx + 1} ({col_name}): {result.message}")
                     print(f"    Before: {result.original_value}")
                     print(f"    After:  {result.corrected_value}")
-                    modified_df.at[row_idx, col_name] = result.corrected_value
+                    modified_df.at[row_idx, matched_col] = result.corrected_value
                     changes[(row_idx, col_idx)] = (result.original_value, result.corrected_value)
                     rule1_corrected += 1
-                    response_id = df.at[row_idx, "Response ID"] if "Response ID" in df.columns else None
-                    member_name = df.at[row_idx, "Full Name"] if "Full Name" in df.columns else None
+                    response_id = _get_cell_value(df, row_idx, "Response ID")
+                    member_name = _get_cell_value(df, row_idx, "Full Name")
                     rule_errors.append({
                         "file": filename,
                         "row": row_idx + 1,
@@ -856,7 +907,7 @@ def main():
                         "member_index": None,
                         "member": member_name,
                         "rule": f"RULE 1 - {col_name}",
-                        "column": col_name,
+                        "column": matched_col,
                         "message": result.message
                     })
         
@@ -874,17 +925,15 @@ def main():
         for household_idx, members in enumerate(households, 1):
             for member_idx, member in enumerate(members, 1):
                 row_idx = household_idx - 1  # Adjust for 0-based indexing
-                response_id = None
-                if "Response ID" in df.columns:
-                    response_id = df.at[row_idx, "Response ID"]
+                response_id = _get_cell_value(df, row_idx, "Response ID")
                 
                 # RULE 2: Age started employment validation
                 if member.age_started_employment is not None:
                     result = rules.validate_age_started_employment(member.age_started_employment)
                     if not result.is_valid:
                         col_name = "At what age did you start employment"
-                        if col_name in df.columns:
-                            col_idx = df.columns.get_loc(col_name)
+                        matched_col, col_idx = _get_column_index(df, col_name)
+                        if matched_col is not None and col_idx is not None:
                             error_cells.add((row_idx, col_idx))
                             rule_errors.append({
                                 "file": filename,
@@ -893,7 +942,7 @@ def main():
                                 "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 2",
-                                "column": col_name,
+                                "column": matched_col,
                                 "message": result.message
                             })
                 
@@ -902,8 +951,8 @@ def main():
                     result = rules.validate_bonus(member.bonus_received_last_12_months)
                     if not result.is_valid:
                         col_name = "Bonus received from your job(s) during the last 12 months"
-                        if col_name in df.columns:
-                            col_idx = df.columns.get_loc(col_name)
+                        matched_col, col_idx = _get_column_index(df, col_name)
+                        if matched_col is not None and col_idx is not None:
                             error_cells.add((row_idx, col_idx))
                             rule_errors.append({
                                 "file": filename,
@@ -912,7 +961,7 @@ def main():
                                 "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 3",
-                                "column": col_name,
+                                "column": matched_col,
                                 "message": result.message
                             })
                 
@@ -921,8 +970,8 @@ def main():
                     result = rules.validate_previous_company_name(member.establishment_name_last_worked)
                     if not result.is_valid:
                         col_name = "Name of Establishment you were working last worked"
-                        if col_name in df.columns:
-                            col_idx = df.columns.get_loc(col_name)
+                        matched_col, col_idx = _get_column_index(df, col_name)
+                        if matched_col is not None and col_idx is not None:
                             error_cells.add((row_idx, col_idx))
                             rule_errors.append({
                                 "file": filename,
@@ -931,7 +980,7 @@ def main():
                                 "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 4",
-                                "column": col_name,
+                                "column": matched_col,
                                 "message": result.message
                             })
                 
@@ -940,8 +989,8 @@ def main():
                     result = rules.validate_interest_from_savings(member.interest_from_savings_last_12_months)
                     if not result.is_valid:
                         col_name = "How much interest did you receive from savings (e.g., current and saving accounts, fixed deposits) in the last 12 months?"
-                        if col_name in df.columns:
-                            col_idx = df.columns.get_loc(col_name)
+                        matched_col, col_idx = _get_column_index(df, col_name)
+                        if matched_col is not None and col_idx is not None:
                             error_cells.add((row_idx, col_idx))
                             rule_errors.append({
                                 "file": filename,
@@ -950,7 +999,7 @@ def main():
                                 "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 5",
-                                "column": col_name,
+                                "column": matched_col,
                                 "message": result.message
                             })
                 
@@ -959,8 +1008,8 @@ def main():
                     result = rules.validate_dividends_investment_interest(member.dividends_interests_investments_last_12_months)
                     if not result.is_valid:
                         col_name = "How much dividends and interests did you receive from other investment sources (e.g., bonds, shares, unit trust, personal loans to persons outside your households) in the last 12 months?"
-                        if col_name in df.columns:
-                            col_idx = df.columns.get_loc(col_name)
+                        matched_col, col_idx = _get_column_index(df, col_name)
+                        if matched_col is not None and col_idx is not None:
                             error_cells.add((row_idx, col_idx))
                             rule_errors.append({
                                 "file": filename,
@@ -969,7 +1018,7 @@ def main():
                                 "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 6",
-                                "column": col_name,
+                                "column": matched_col,
                                 "message": result.message
                             })
                 
@@ -983,12 +1032,12 @@ def main():
                         # Highlight both employment status and freelance columns
                         emp_col = "Employment Status as of last week"
                         free_col = "Did you perform any freelance or assignment-based work via any of the following online platform(s) in the last 12 months?"
-                        if emp_col in df.columns:
-                            col_idx = df.columns.get_loc(emp_col)
-                            error_cells.add((row_idx, col_idx))
-                        if free_col in df.columns:
-                            col_idx = df.columns.get_loc(free_col)
-                            error_cells.add((row_idx, col_idx))
+                        emp_matched, emp_idx = _get_column_index(df, emp_col)
+                        if emp_matched is not None and emp_idx is not None:
+                            error_cells.add((row_idx, emp_idx))
+                        free_matched, free_idx = _get_column_index(df, free_col)
+                        if free_matched is not None and free_idx is not None:
+                            error_cells.add((row_idx, free_idx))
                         rule_errors.append({
                             "file": filename,
                             "row": row_idx + 1,
@@ -996,7 +1045,7 @@ def main():
                             "member_index": member_idx,
                             "member": member.full_name,
                             "rule": "RULE 7",
-                            "column": f"{emp_col} & {free_col}",
+                            "column": f"{emp_matched or emp_col} & {free_matched or free_col}",
                             "message": result.message
                         })
 
@@ -1008,10 +1057,12 @@ def main():
                     if matches:
                         qual_col = "Highest Academic Qualification"
                         place_col = "Place of study for your Highest Academic Attained in?"
-                        if qual_col in df.columns:
-                            error_cells.add((row_idx, df.columns.get_loc(qual_col)))
-                        if place_col in df.columns:
-                            error_cells.add((row_idx, df.columns.get_loc(place_col)))
+                        qual_matched, qual_idx = _get_column_index(df, qual_col)
+                        if qual_matched is not None and qual_idx is not None:
+                            error_cells.add((row_idx, qual_idx))
+                        place_matched, place_idx = _get_column_index(df, place_col)
+                        if place_matched is not None and place_idx is not None:
+                            error_cells.add((row_idx, place_idx))
 
                         for match in matches:
                             rule_errors.append({
@@ -1021,7 +1072,7 @@ def main():
                                 "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": f"RULE 8 - {match['rule_id']}",
-                                "column": f"{qual_col} & {place_col}",
+                                "column": f"{qual_matched or qual_col} & {place_matched or place_col}",
                                 "message": match["reason"]
                             })
 
@@ -1034,10 +1085,12 @@ def main():
                 if not result.is_valid:
                     internship_col = "Was your main job last week a paid internship, traineeship or apprenticeship?"
                     employment_col = "Type of Employment?"
-                    if employment_col in df.columns:
-                        error_cells.add((row_idx, df.columns.get_loc(employment_col)))
-                    if internship_col in df.columns:
-                        error_cells.add((row_idx, df.columns.get_loc(internship_col)))
+                    employment_matched, employment_idx = _get_column_index(df, employment_col)
+                    if employment_matched is not None and employment_idx is not None:
+                        error_cells.add((row_idx, employment_idx))
+                    internship_matched, internship_idx = _get_column_index(df, internship_col)
+                    if internship_matched is not None and internship_idx is not None:
+                        error_cells.add((row_idx, internship_idx))
                     rule_errors.append({
                         "file": filename,
                         "row": row_idx + 1,
@@ -1045,7 +1098,7 @@ def main():
                         "member_index": member_idx,
                         "member": member.full_name,
                         "rule": "RULE 10",
-                        "column": f"{internship_col} & {employment_col}",
+                        "column": f"{internship_matched or internship_col} & {employment_matched or employment_col}",
                         "message": result.message
                     })
 
@@ -1053,8 +1106,9 @@ def main():
                 result = rules.validate_job_title_rule(member.job_title)
                 if not result.is_valid:
                     job_col = "Job Title"
-                    if job_col in df.columns:
-                        error_cells.add((row_idx, df.columns.get_loc(job_col)))
+                    job_matched, job_idx = _get_column_index(df, job_col)
+                    if job_matched is not None and job_idx is not None:
+                        error_cells.add((row_idx, job_idx))
                     rule_errors.append({
                         "file": filename,
                         "row": row_idx + 1,
@@ -1062,7 +1116,7 @@ def main():
                         "member_index": member_idx,
                         "member": member.full_name,
                         "rule": "RULE 11",
-                        "column": job_col,
+                        "column": job_matched or job_col,
                         "message": result.message
                     })
 
@@ -1070,8 +1124,9 @@ def main():
                 result = rules.validate_usual_hours_value(member.usual_hours_of_work)
                 if not result.is_valid:
                     hours_col = "Usual hours of work"
-                    if hours_col in df.columns:
-                        error_cells.add((row_idx, df.columns.get_loc(hours_col)))
+                    hours_matched, hours_idx = _get_column_index(df, hours_col)
+                    if hours_matched is not None and hours_idx is not None:
+                        error_cells.add((row_idx, hours_idx))
                     rule_errors.append({
                         "file": filename,
                         "row": row_idx + 1,
@@ -1079,18 +1134,18 @@ def main():
                         "member_index": member_idx,
                         "member": member.full_name,
                         "rule": "RULE 13",
-                        "column": hours_col,
+                        "column": hours_matched or hours_col,
                         "message": result.message
                     })
                 if ssec_enabled and qualification:
                     ssec_code, ssec_score = rules.best_ssec_match(str(qualification))
-                    if "SSEC Code" in df.columns:
-                        col_idx = df.columns.get_loc("SSEC Code")
+                    ssec_col, ssec_idx = _get_column_index(df, "SSEC Code")
+                    if ssec_col is not None and ssec_idx is not None:
                         if ssec_code:
-                            modified_df.at[row_idx, "SSEC Code"] = ssec_code
-                            changes[(row_idx, col_idx)] = ("", ssec_code)
+                            modified_df.at[row_idx, ssec_col] = ssec_code
+                            changes[(row_idx, ssec_idx)] = ("", ssec_code)
                         else:
-                            error_cells.add((row_idx, col_idx))
+                            error_cells.add((row_idx, ssec_idx))
                             rule_errors.append({
                                 "file": filename,
                                 "row": row_idx + 1,
@@ -1098,7 +1153,7 @@ def main():
                                 "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 9",
-                                "column": "SSEC Code",
+                                "column": ssec_col,
                                 "message": "Unable to map SSEC Code from Highest Academic Qualification"
                             })
         

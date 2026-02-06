@@ -795,6 +795,9 @@ def main():
                     title_text = "" if pd.isna(title_val) else str(title_val)
                     duties_text = "" if pd.isna(duties_val) else str(duties_val)
 
+                    if not title_text.strip() and not duties_text.strip():
+                        continue
+
                     ssoc_code, _, _, _, _, _ = ssoc.best_match_duties_priority(
                         title_text,
                         duties_text,

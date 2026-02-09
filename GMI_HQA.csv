@@ -1,0 +1,88 @@
+HQA	SSOC	Job Ttitle	GMI range				Grouping			
+Degree/Masters	11201	Managing director/Chief executive officer	>$7000				Group	HQA	GMI range	
+Diploma and above	33491	Managing director/Chief executive officer	$3000 - $6999				Group 1	Degree,Master	$9000>	
+Diploma and above	33491	Management executive	$3000 - $6999				Group 2	Diploma and above	$7000 - $8999	
+							Group 3	Diploma and above	$3000 - $6999	
+Degree/Masters	11203	Chief operating officer/General manager	>$7000				Group 4	Secondary/ITE	$2000 - $2999	
+Diploma and above	33491	Chief operating officer/General manager	$3000 - $6999				Group 5 - 9	Secondary and below	Below $2000	
+							OAW cannot be in Group 1 and 3 (depends on the OCC)			
+Degree/Masters	12112	Administration manager	>$7000							
+Diploma and above	24299	Administration manager / Other administration professional n.e.c.	$6000 - 6999							
+Diploma and above	33492	Administration manager	$2800 - $5999							
+Diploma and above	33492	Operations officer (administrative)	$2800 - $5999							
+Secondary/ITE	41101	Administration manager	Below $2799							
+Secondary/ITE	41101	Office Clerk	Below $2799							
+										
+Degree/Masters	12212	Business development manager	>$9000							
+Diploma and above	24212	Business development executive	$7000 - $8999							
+Diploma and above	24212	Business consultant	$7000 - $8999							
+Diploma and above	33221	Business development manager	$3000 - $6999							
+Diploma and above	33221	Business development executive	$3000 - $6999							
+										
+Degree/Masters	12222	Marketing manager	>$9000							
+Diploma and above	24314	Marketing manager	$7000 - $8999							
+Diploma and above	24314	Digital marketing professional	$7000 - $8999							
+Diploma and above	33224	Marketing manager	$3000 - $6999							
+Diploma and above	33224	Online sales channel executive	$3000 - $6999							
+										
+Degree/Masters	12121	Personnel/Human resource manager	>$9000							
+Diploma and above	24233	Personnel/Human resource manager	$3000 - $8999							
+Diploma and above	24233	Personnel/Human resource officer	$3000 - $8999							
+Diploma and above	41102	Personnel/Human resource clerk	Below $3000							
+Secondary/ITE	41102	Personnel/Human resource clerk	Below $3000							
+										
+Degree/Masters	12211	Sales manager	>$7000							
+Diploma and below	52201	Sales manager	Below $3000							
+Diploma and below	52201	Sales supervisor	Below $3000							
+										
+Degree/Masters	13461	Financial services manager	>$9000							
+Degree/Masters	24131	Financial services manager	$7000 - $8999							
+Degree/Masters	24131	Financial analyst	$7000 - $8999							
+Diploma and above	33160	Financial services manager	$3000 - $6999							
+Diploma and above	33160	Financial services back office administrator	$3000 - $6999							
+Secondary/ITE	43111	Financial services manager	Below $2999							
+Secondary/ITE	43111	Bookkeeper	Below $2999							
+										
+Degree/Masters	24111	Accountant (excluding tax accountant)	>$7000							
+Diploma and above	33131	Accountant (excluding tax accountant)	$3000 - $6999							
+Diploma and above	33131	Assistant accountant	$3000 - $6999							
+Secondary/ITE	43112	Accountant (excluding tax accountant)	Below $2999							
+Secondary/ITE	43112	Ledger/Accounts clerk	Below $2999							
+										
+Diploma and above	22200	Registered nurse and related nursing professional (excluding enrolled nurse)	Any							
+Secondary/ITE	32200	Enrolled/Assistant nurse (excluding registered nurse)	Any							
+										
+Degree/Masters	21511	Electrical engineer	>$7000							
+Diploma and above	31002	Electrical engineer	$3000 - $6999							
+Diploma and above	31002	Assistant electrical engineer	$3000 - $6999							
+ITE and below	74110	Assistant electrical engineer	Below $2999							
+ITE and below	74110	Electrical engineer	Below $2999							
+ITE and below	74110	Electrician	Below $2999							
+										
+Degree/Masters	13241	Supply and distribution/Logistics/Warehousing manager	>$7000							
+Diploma and above	33461	Supply and distribution/Logistics/Warehousing manager	$3000 - $6999							
+Diploma and above	33461	Logistics/Production planner	$3000 - $6999							
+Diploma and above	33461	Production planning clerk	$3000 - $6999							
+ITE and below	43222	Logistics/Production planner	$2000 - $2999							
+ITE and below	43222	Production planning clerk	$2000 - $2999							
+Secondary and below	93334	Supply and distribution/Logistics/Warehousing manager	Below $1999							
+Secondary and below	93334	Logistics/Production planner	Below $1999							
+Secondary and below	93334	Warehouse worker	Below $1999							
+										
+Degree/Masters	33551	Police inspector	Above $3000							
+Degree/Masters	33551	Police officer	Above $3000							
+Secondary/ITE/Diploma	54121	Police inspector	Above $3000							
+Secondary/ITE/Diploma	54121	Police officer	Above $3000							
+										
+Diploma and above	32530	Community health worker	Above $2500							
+Diploma and above	32530	Healthcare assistant	Above $2500							
+ITE and below	53201	Community health worker	Below $2499							
+ITE and below	53201	Healthcare assistant	Below $2499							
+										
+Diploma and above	36991	Relief teacher	Above $2500							
+Secondary/ITE	53120	Relief teacher	Below $2499							
+Secondary/ITE	53120	Teacher aide	Below $2499							
+										
+Diploma and above	36100	Preschool education teacher	Above $2500							
+Secondary/ITE	53113	Preschool education teacher	Below $2499							
+Secondary/ITE	53113	Child/After school care centre worker	Below $2499							

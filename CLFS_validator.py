@@ -1,4 +1,5 @@
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -9,6 +10,320 @@ from openpyxl.styles import PatternFill
 
 import CLFS_validation_rules as rules
 import SSOC_assigner_V3 as ssoc
+
+
+RELIGION_RECLASS_MAP = {
+    "mahayana": "Buddhism",
+    "theravada": "Buddhism",
+    "vajrayana": "Buddhism",
+    "nichiren": "Buddhism",
+    "soka gakkai": "Buddhism",
+    "catholicism": "Christianity",
+    "methodism": "Christianity",
+    "evangelicalism": "Christianity",
+    "anglicanism": "Christianity",
+    "presbyterianism": "Christianity",
+    "pentecostalism": "Christianity",
+    "lutheranism": "Christianity",
+    "sunni islam": "Islam",
+    "shia islam": "Islam",
+    "ahmadiyya islam": "Islam",
+    "shaivism": "Hinduism",
+    "vaishnavism": "Hinduism",
+    "shaktism": "Hinduism",
+    "atheist": "No religion",
+    "agnostic": "No religion",
+    "freethinker": "No religion",
+}
+
+COUNTRY_LIST = {
+    "afghanistan",
+    "albania",
+    "algeria",
+    "andorra",
+    "angola",
+    "antigua & barbuda",
+    "argentina",
+    "armenia",
+    "australia",
+    "austria",
+    "azerbaijan",
+    "bahamas",
+    "bahrain",
+    "bangladesh",
+    "barbados",
+    "belarus",
+    "belgium",
+    "belize",
+    "benin",
+    "bhutan",
+    "bolivia",
+    "bosnia & herzegovina",
+    "botswana",
+    "brazil",
+    "brunei",
+    "bulgaria",
+    "burkina faso",
+    "burundi",
+    "cabo verde",
+    "cambodia",
+    "cameroon",
+    "canada",
+    "central african republic",
+    "chad",
+    "chile",
+    "china",
+    "colombia",
+    "comoros",
+    "congo",
+    "costa rica",
+    "côte d'ivoire",
+    "croatia",
+    "cuba",
+    "cyprus",
+    "czech republic",
+    "denmark",
+    "djibouti",
+    "dominica",
+    "dominican republic",
+    "dr congo",
+    "ecuador",
+    "egypt",
+    "el salvador",
+    "equatorial guinea",
+    "eritrea",
+    "estonia",
+    "eswatini",
+    "ethiopia",
+    "fiji",
+    "finland",
+    "france",
+    "gabon",
+    "gambia",
+    "georgia",
+    "germany",
+    "ghana",
+    "greece",
+    "grenada",
+    "guatemala",
+    "guinea",
+    "guinea-bissau",
+    "guyana",
+    "haiti",
+    "holy see",
+    "honduras",
+    "hungary",
+    "iceland",
+    "india",
+    "indonesia",
+    "iran",
+    "iraq",
+    "ireland",
+    "israel",
+    "italy",
+    "jamaica",
+    "japan",
+    "jordan",
+    "kazakhstan",
+    "kenya",
+    "kiribati",
+    "kuwait",
+    "kyrgyzstan",
+    "laos",
+    "latvia",
+    "lebanon",
+    "lesotho",
+    "liberia",
+    "libya",
+    "liechtenstein",
+    "lithuania",
+    "luxembourg",
+    "madagascar",
+    "malawi",
+    "malaysia",
+    "maldives",
+    "mali",
+    "malta",
+    "marshall islands",
+    "mauritania",
+    "mauritius",
+    "mexico",
+    "micronesia",
+    "moldova",
+    "monaco",
+    "mongolia",
+    "montenegro",
+    "morocco",
+    "mozambique",
+    "myanmar",
+    "namibia",
+    "nauru",
+    "nepal",
+    "netherlands",
+    "new zealand",
+    "nicaragua",
+    "niger",
+    "nigeria",
+    "north korea",
+    "north macedonia",
+    "norway",
+    "oman",
+    "pakistan",
+    "palau",
+    "panama",
+    "papua new guinea",
+    "paraguay",
+    "peru",
+    "philippines",
+    "poland",
+    "portugal",
+    "qatar",
+    "romania",
+    "russia",
+    "rwanda",
+    "saint kitts & nevis",
+    "saint lucia",
+    "samoa",
+    "san marino",
+    "sao tome & principe",
+    "saudi arabia",
+    "senegal",
+    "serbia",
+    "seychelles",
+    "sierra leone",
+    "singapore",
+    "slovakia",
+    "slovenia",
+    "solomon islands",
+    "somalia",
+    "south africa",
+    "south korea",
+    "south sudan",
+    "spain",
+    "sri lanka",
+    "st. vincent & grenadines",
+    "state of palestine",
+    "sudan",
+    "suriname",
+    "sweden",
+    "switzerland",
+    "syria",
+    "tajikistan",
+    "tanzania",
+    "thailand",
+    "timor-leste",
+    "togo",
+    "tonga",
+    "trinidad & tobago",
+    "tunisia",
+    "turkey",
+    "turkmenistan",
+    "tuvalu",
+    "uganda",
+    "ukraine",
+    "united arab emirates",
+    "united kingdom",
+    "united states",
+    "uruguay",
+    "uzbekistan",
+    "vanuatu",
+    "venezuela",
+    "vietnam",
+    "yemen",
+    "zambia",
+    "zimbabwe",
+}
+
+# TODO: populate with actual industry strata lookup list (lowercase establishment name -> SSIC code)
+STRATA_LOOKUP: list[tuple[str, str]] = []
+
+NO_FREELANCE_TEXT = (
+    "I did not take up freelance or assignment-based work through online platforms in the last 12 months"
+)
+
+# --- GMI/HQA reference data (for SSOC gating) ---
+GMI_GROUP_BANDS = [
+    {"group": 1, "hqa": "Degree,Master", "gmi_range": ">$9000"},
+    {"group": 2, "hqa": "Diploma and above", "gmi_range": "$7000 - $8999"},
+    {"group": 3, "hqa": "Diploma and above", "gmi_range": "$3000 - $6999"},
+    {"group": 4, "hqa": "Secondary/ITE", "gmi_range": "$2000 - $2999"},
+    {"group": 5, "hqa": "Secondary and below", "gmi_range": "Below $2000"},
+]
+
+GMI_HQA_ENTRIES = [
+    {"hqa": "Degree/Masters", "ssoc": "11201", "title": "Managing director/Chief executive officer", "gmi_range": ">$7000"},
+    {"hqa": "Diploma and above", "ssoc": "33491", "title": "Managing director/Chief executive officer", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Diploma and above", "ssoc": "33491", "title": "Management executive", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Degree/Masters", "ssoc": "11203", "title": "Chief operating officer/General manager", "gmi_range": ">$7000"},
+    {"hqa": "Diploma and above", "ssoc": "33491", "title": "Chief operating officer/General manager", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Degree/Masters", "ssoc": "12112", "title": "Administration manager", "gmi_range": ">$7000"},
+    {"hqa": "Diploma and above", "ssoc": "24299", "title": "Administration manager / Other administration professional n.e.c.", "gmi_range": "$6000 - 6999"},
+    {"hqa": "Diploma and above", "ssoc": "33492", "title": "Administration manager", "gmi_range": "$2800 - $5999"},
+    {"hqa": "Diploma and above", "ssoc": "33492", "title": "Operations officer (administrative)", "gmi_range": "$2800 - $5999"},
+    {"hqa": "Secondary/ITE", "ssoc": "41101", "title": "Administration manager", "gmi_range": "Below $2799"},
+    {"hqa": "Secondary/ITE", "ssoc": "41101", "title": "Office Clerk", "gmi_range": "Below $2799"},
+    {"hqa": "Degree/Masters", "ssoc": "12212", "title": "Business development manager", "gmi_range": ">$9000"},
+    {"hqa": "Diploma and above", "ssoc": "24212", "title": "Business development executive", "gmi_range": "$7000 - $8999"},
+    {"hqa": "Diploma and above", "ssoc": "24212", "title": "Business consultant", "gmi_range": "$7000 - $8999"},
+    {"hqa": "Diploma and above", "ssoc": "33221", "title": "Business development manager", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Diploma and above", "ssoc": "33221", "title": "Business development executive", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Degree/Masters", "ssoc": "12222", "title": "Marketing manager", "gmi_range": ">$9000"},
+    {"hqa": "Diploma and above", "ssoc": "24314", "title": "Marketing manager", "gmi_range": "$7000 - $8999"},
+    {"hqa": "Diploma and above", "ssoc": "24314", "title": "Digital marketing professional", "gmi_range": "$7000 - $8999"},
+    {"hqa": "Diploma and above", "ssoc": "33224", "title": "Marketing manager", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Diploma and above", "ssoc": "33224", "title": "Online sales channel executive", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Degree/Masters", "ssoc": "12121", "title": "Personnel/Human resource manager", "gmi_range": ">$9000"},
+    {"hqa": "Diploma and above", "ssoc": "24233", "title": "Personnel/Human resource manager", "gmi_range": "$3000 - $8999"},
+    {"hqa": "Diploma and above", "ssoc": "24233", "title": "Personnel/Human resource officer", "gmi_range": "$3000 - $8999"},
+    {"hqa": "Diploma and above", "ssoc": "41102", "title": "Personnel/Human resource clerk", "gmi_range": "Below $3000"},
+    {"hqa": "Secondary/ITE", "ssoc": "41102", "title": "Personnel/Human resource clerk", "gmi_range": "Below $3000"},
+    {"hqa": "Degree/Masters", "ssoc": "12211", "title": "Sales manager", "gmi_range": ">$7000"},
+    {"hqa": "Diploma and below", "ssoc": "52201", "title": "Sales manager", "gmi_range": "Below $3000"},
+    {"hqa": "Diploma and below", "ssoc": "52201", "title": "Sales supervisor", "gmi_range": "Below $3000"},
+    {"hqa": "Degree/Masters", "ssoc": "13461", "title": "Financial services manager", "gmi_range": ">$9000"},
+    {"hqa": "Degree/Masters", "ssoc": "24131", "title": "Financial services manager", "gmi_range": "$7000 - $8999"},
+    {"hqa": "Degree/Masters", "ssoc": "24131", "title": "Financial analyst", "gmi_range": "$7000 - $8999"},
+    {"hqa": "Diploma and above", "ssoc": "33160", "title": "Financial services manager", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Diploma and above", "ssoc": "33160", "title": "Financial services back office administrator", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Secondary/ITE", "ssoc": "43111", "title": "Financial services manager", "gmi_range": "Below $2999"},
+    {"hqa": "Secondary/ITE", "ssoc": "43111", "title": "Bookkeeper", "gmi_range": "Below $2999"},
+    {"hqa": "Degree/Masters", "ssoc": "24111", "title": "Accountant (excluding tax accountant)", "gmi_range": ">$7000"},
+    {"hqa": "Diploma and above", "ssoc": "33131", "title": "Accountant (excluding tax accountant)", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Diploma and above", "ssoc": "33131", "title": "Assistant accountant", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Secondary/ITE", "ssoc": "43112", "title": "Accountant (excluding tax accountant)", "gmi_range": "Below $2999"},
+    {"hqa": "Secondary/ITE", "ssoc": "43112", "title": "Ledger/Accounts clerk", "gmi_range": "Below $2999"},
+    {"hqa": "Diploma and above", "ssoc": "22200", "title": "Registered nurse and related nursing professional (excluding enrolled nurse)", "gmi_range": "Any"},
+    {"hqa": "Secondary/ITE", "ssoc": "32200", "title": "Enrolled/Assistant nurse (excluding registered nurse)", "gmi_range": "Any"},
+    {"hqa": "Degree/Masters", "ssoc": "21511", "title": "Electrical engineer", "gmi_range": ">$7000"},
+    {"hqa": "Diploma and above", "ssoc": "31002", "title": "Electrical engineer", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Diploma and above", "ssoc": "31002", "title": "Assistant electrical engineer", "gmi_range": "$3000 - $6999"},
+    {"hqa": "ITE and below", "ssoc": "74110", "title": "Assistant electrical engineer", "gmi_range": "Below $2999"},
+    {"hqa": "ITE and below", "ssoc": "74110", "title": "Electrical engineer", "gmi_range": "Below $2999"},
+    {"hqa": "ITE and below", "ssoc": "74110", "title": "Electrician", "gmi_range": "Below $2999"},
+    {"hqa": "Degree/Masters", "ssoc": "13241", "title": "Supply and distribution/Logistics/Warehousing manager", "gmi_range": ">$7000"},
+    {"hqa": "Diploma and above", "ssoc": "33461", "title": "Supply and distribution/Logistics/Warehousing manager", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Diploma and above", "ssoc": "33461", "title": "Logistics/Production planner", "gmi_range": "$3000 - $6999"},
+    {"hqa": "Diploma and above", "ssoc": "33461", "title": "Production planning clerk", "gmi_range": "$3000 - $6999"},
+    {"hqa": "ITE and below", "ssoc": "43222", "title": "Logistics/Production planner", "gmi_range": "$2000 - $2999"},
+    {"hqa": "ITE and below", "ssoc": "43222", "title": "Production planning clerk", "gmi_range": "$2000 - $2999"},
+    {"hqa": "Secondary and below", "ssoc": "93334", "title": "Supply and distribution/Logistics/Warehousing manager", "gmi_range": "Below $1999"},
+    {"hqa": "Secondary and below", "ssoc": "93334", "title": "Logistics/Production planner", "gmi_range": "Below $1999"},
+    {"hqa": "Secondary and below", "ssoc": "93334", "title": "Warehouse worker", "gmi_range": "Below $1999"},
+    {"hqa": "Degree/Masters", "ssoc": "33551", "title": "Police inspector", "gmi_range": "Above $3000"},
+    {"hqa": "Degree/Masters", "ssoc": "33551", "title": "Police officer", "gmi_range": "Above $3000"},
+    {"hqa": "Secondary/ITE/Diploma", "ssoc": "54121", "title": "Police inspector", "gmi_range": "Above $3000"},
+    {"hqa": "Secondary/ITE/Diploma", "ssoc": "54121", "title": "Police officer", "gmi_range": "Above $3000"},
+    {"hqa": "Diploma and above", "ssoc": "32530", "title": "Community health worker", "gmi_range": "Above $2500"},
+    {"hqa": "Diploma and above", "ssoc": "32530", "title": "Healthcare assistant", "gmi_range": "Above $2500"},
+    {"hqa": "ITE and below", "ssoc": "53201", "title": "Community health worker", "gmi_range": "Below $2499"},
+    {"hqa": "ITE and below", "ssoc": "53201", "title": "Healthcare assistant", "gmi_range": "Below $2499"},
+    {"hqa": "Diploma and above", "ssoc": "36991", "title": "Relief teacher", "gmi_range": "Above $2500"},
+    {"hqa": "Secondary/ITE", "ssoc": "53120", "title": "Relief teacher", "gmi_range": "Below $2499"},
+    {"hqa": "Secondary/ITE", "ssoc": "53120", "title": "Teacher aide", "gmi_range": "Below $2499"},
+    {"hqa": "Diploma and above", "ssoc": "36100", "title": "Preschool education teacher", "gmi_range": "Above $2500"},
+    {"hqa": "Secondary/ITE", "ssoc": "53113", "title": "Preschool education teacher", "gmi_range": "Below $2499"},
+    {"hqa": "Secondary/ITE", "ssoc": "53113", "title": "Child/After school care centre worker", "gmi_range": "Below $2499"},
+]
 
 
 # Column name to HouseholdMember attribute mapping
@@ -103,6 +418,8 @@ COLUMN_MAPPING = {
     "interest_from_savings_last_12_months": "How much interest did you receive from savings (e.g., current and saving accounts, fixed deposits) in the last 12 months?",
     "dividends_interests_investments_last_12_months": "How much dividends and interests did you receive from other investment sources (e.g., bonds, shares, unit trust, personal loans to persons outside your households) in the last 12 months?",
     "freelance_online_platforms_last_12_months": "Did you perform any freelance or assignment-based work via any of the following online platform(s) in the last 12 months?",
+    "self_employed_last_12_months": "At any point in the last 12 months, were you self-employed?",
+    "worked_own_business_last_12_months": "At any point in the last 12 months, did you work on your own (i.e., without paid employees) while running your own business or trade?",
     "ns_industry": "NS Industry",
     "remarks": "Remarks",
 }
@@ -401,6 +718,171 @@ def _get_column_index(df: pd.DataFrame, target: str) -> tuple[Optional[str], Opt
     return col_name, df.columns.get_loc(col_name)
 
 
+def _normalize_text(value: object) -> str:
+    if value is None:
+        return ""
+    return str(value).strip().lower()
+
+
+def _ensure_ssic_column(df: pd.DataFrame) -> tuple[pd.DataFrame, Optional[str]]:
+    est_col = _find_column_name(list(df.columns), "Name of Establishment you were working last week?")
+    if not est_col:
+        return df, None
+
+    ssic_col = _find_column_name(list(df.columns), "SSIC Code")
+    if ssic_col:
+        return df, ssic_col
+
+    cols = list(df.columns)
+    insert_at = cols.index(est_col) + 1
+    cols.insert(insert_at, "SSIC Code")
+    df = df.reindex(columns=cols)
+    return df, "SSIC Code"
+
+
+def _gmi_range_to_group(gmi_range: str) -> Optional[int]:
+    if not gmi_range:
+        return None
+    text = _normalize_text(gmi_range)
+    if "any" in text:
+        return None
+    if ">" in text and "9000" in text:
+        return 1
+    if "7000" in text and "8999" in text:
+        return 2
+    if "3000" in text and ("6999" in text or "5999" in text):
+        return 3
+    if "2000" in text and "2999" in text:
+        return 4
+    if "below" in text:
+        return 5
+    if "above" in text and ("3000" in text or "2500" in text):
+        return 3
+    return None
+
+
+def _build_ssoc_min_group_map(entries: list[dict]) -> dict[str, int]:
+    mapping: dict[str, int] = {}
+    for entry in entries:
+        ssoc_code = str(entry.get("ssoc", "")).strip()
+        gmi_range = str(entry.get("gmi_range", "")).strip()
+        if not ssoc_code:
+            continue
+        group = _gmi_range_to_group(gmi_range)
+        if group is None:
+            continue
+        current = mapping.get(ssoc_code)
+        mapping[ssoc_code] = group if current is None else min(current, group)
+    return mapping
+
+
+SSOC_MIN_GROUP_BY_CODE = _build_ssoc_min_group_map(GMI_HQA_ENTRIES)
+
+
+def _is_degree_hqa(hqa_value: Optional[str]) -> bool:
+    text = _normalize_text(hqa_value)
+    return "degree" in text or "master" in text
+
+
+def _parse_gmi_value(gmi_value: Optional[object]) -> Optional[float]:
+    if gmi_value is None or gmi_value == "":
+        return None
+    try:
+        return float(gmi_value)
+    except (ValueError, TypeError):
+        return None
+
+
+def _gmi_in_range(gmi_value: float, gmi_range: str) -> bool:
+    if gmi_value is None or gmi_range is None:
+        return False
+    text = _normalize_text(gmi_range)
+    if "any" in text:
+        return True
+
+    numbers = [int(n) for n in re.findall(r"\d+", text)]
+    if not numbers:
+        return False
+
+    if "below" in text:
+        return gmi_value <= numbers[0]
+    if "above" in text or text.startswith(">"):
+        return gmi_value >= numbers[0]
+    if len(numbers) >= 2:
+        return numbers[0] <= gmi_value <= numbers[1]
+    return False
+
+
+def _hqa_matches_entry(hqa_value: Optional[str], entry_hqa: str) -> bool:
+    hqa = _normalize_text(hqa_value)
+    entry = _normalize_text(entry_hqa)
+    if not hqa or not entry:
+        return False
+
+    if "degree" in entry or "master" in entry:
+        return "degree" in hqa or "master" in hqa
+    if "diploma and above" in entry:
+        return "diploma" in hqa or "degree" in hqa or "master" in hqa
+    if "secondary/ite/diploma" in entry:
+        return "secondary" in hqa or "ite" in hqa or "diploma" in hqa
+    if "secondary/ite" in entry:
+        return "secondary" in hqa or "ite" in hqa
+    if "diploma and below" in entry:
+        return "degree" not in hqa and "master" not in hqa
+    if "ite and below" in entry:
+        return "ite" in hqa or "secondary" in hqa or "below" in hqa
+    if "secondary and below" in entry:
+        return "degree" not in hqa and "master" not in hqa and "diploma" not in hqa
+
+    return entry in hqa
+
+
+def _select_candidate_by_examples(top_5: list[dict], hqa_value: Optional[str], gmi_value: Optional[float]) -> Optional[str]:
+    if not top_5 or gmi_value is None:
+        return None
+
+    for candidate in top_5:
+        code = str(candidate.get("code", "")).strip()
+        if not code:
+            continue
+        for entry in GMI_HQA_ENTRIES:
+            if code != str(entry.get("ssoc", "")).strip():
+                continue
+            if not _hqa_matches_entry(hqa_value, str(entry.get("hqa", ""))):
+                continue
+            if _gmi_in_range(gmi_value, str(entry.get("gmi_range", ""))):
+                return code
+    return None
+
+
+def _hqa_matches_band(hqa_value: Optional[str], band_hqa: str) -> bool:
+    return _hqa_matches_entry(hqa_value, band_hqa)
+
+
+def _required_group_from_band(hqa_value: Optional[str], gmi_value: Optional[float]) -> Optional[int]:
+    if gmi_value is None:
+        return None
+    for band in GMI_GROUP_BANDS:
+        if not _hqa_matches_band(hqa_value, band.get("hqa", "")):
+            continue
+        if _gmi_in_range(gmi_value, band.get("gmi_range", "")):
+            return band.get("group")
+    return None
+
+
+def _select_candidate_by_band(top_5: list[dict], required_group: Optional[int]) -> Optional[str]:
+    if required_group is None or not top_5:
+        return None
+    for candidate in top_5:
+        code = str(candidate.get("code", "")).strip()
+        if not code:
+            continue
+        min_group = SSOC_MIN_GROUP_BY_CODE.get(code)
+        if min_group is None or min_group >= required_group:
+            return code
+    return None
+
+
 def _get_member_column_groups(columns: list[str]) -> list[dict[str, Optional[int]]]:
     full_name_indices = _find_column_indices(columns, "Full Name")
     dob_indices = _find_column_indices(columns, "Date of Birth (DD/MM/YYYY)")
@@ -602,15 +1084,20 @@ def _ensure_ssoc_columns(df: pd.DataFrame) -> tuple[pd.DataFrame, list[dict]]:
     duty_indices = _find_column_indices(columns, "Main tasks / duties")
     title_indices = _find_column_indices(columns, "Job Title")
 
-    if not duty_indices or not title_indices:
+    if not duty_indices:
         return df, []
 
     groups: list[dict] = []
-    title_idx_ptr = 0
-    for duty_idx in duty_indices:
-        while title_idx_ptr + 1 < len(title_indices) and title_indices[title_idx_ptr + 1] < duty_idx:
-            title_idx_ptr += 1
-        title_idx = title_indices[title_idx_ptr] if title_indices[title_idx_ptr] < duty_idx else None
+    for idx, duty_idx in enumerate(duty_indices):
+        next_duty_idx = duty_indices[idx + 1] if idx + 1 < len(duty_indices) else len(columns)
+        title_idx = None
+        if title_indices:
+            titles_after = [i for i in title_indices if duty_idx < i < next_duty_idx]
+            if titles_after:
+                title_idx = titles_after[0]
+            else:
+                titles_before = [i for i in title_indices if i < duty_idx]
+                title_idx = titles_before[-1] if titles_before else None
         groups.append({"title_idx": title_idx, "duties_idx": duty_idx, "ssoc_idx": None})
 
     offset = 0
@@ -619,7 +1106,7 @@ def _ensure_ssoc_columns(df: pd.DataFrame) -> tuple[pd.DataFrame, list[dict]]:
         title_idx = group["title_idx"] + offset if group["title_idx"] is not None else None
         insert_at = duties_idx + 1
 
-        if insert_at < len(columns) and str(columns[insert_at]).strip() == "SSOC Code":
+        if insert_at < len(columns) and _column_matches(columns[insert_at], "SSOC Code"):
             group["ssoc_idx"] = insert_at
         else:
             df.insert(insert_at, "SSOC Code", "", allow_duplicates=True)
@@ -630,6 +1117,7 @@ def _ensure_ssoc_columns(df: pd.DataFrame) -> tuple[pd.DataFrame, list[dict]]:
         group["duties_idx"] = duties_idx
         group["title_idx"] = title_idx
 
+    df = df.copy()
     return df, groups
 
 
@@ -639,30 +1127,45 @@ def _add_ft_pt_columns(df: pd.DataFrame) -> tuple[pd.DataFrame, list[tuple[int, 
     Returns updated DataFrame and a list of changes (row_idx, col_idx, value).
     """
     changes: list[tuple[int, int, str]] = []
-    columns = list(df.columns)
-    hours_cols = _find_column_indices(columns, "Usual hours of work")
+    col_idx = 0
 
-    for col_idx in sorted(hours_cols, reverse=True):
+    while col_idx < len(df.columns):
+        columns = list(df.columns)
         col_name = columns[col_idx]
-        series = df.iloc[:, col_idx]
 
-        if series.replace("", pd.NA).isna().all():
+        if _column_matches(col_name, "Usual hours of work"):
+            series = df.iloc[:, col_idx]
+
+            insert_at = col_idx + 1
+            if insert_at < len(columns) and _column_matches(columns[insert_at], "FT/PT"):
+                ftpt_col_idx = insert_at
+            else:
+                df.insert(insert_at, "FT/PT", "", allow_duplicates=True)
+                ftpt_col_idx = insert_at
+
+            for row_idx, value in series.items():
+                if pd.isna(value) or str(value).strip() == "":
+                    if df.iat[row_idx, ftpt_col_idx] not in (None, ""):
+                        df.iat[row_idx, ftpt_col_idx] = ""
+                        changes.append((row_idx, ftpt_col_idx, ""))
+                    continue
+                try:
+                    hours = float(value)
+                except (ValueError, TypeError):
+                    if df.iat[row_idx, ftpt_col_idx] not in (None, ""):
+                        df.iat[row_idx, ftpt_col_idx] = ""
+                        changes.append((row_idx, ftpt_col_idx, ""))
+                    continue
+                ft_pt = "FT" if hours >= 35 else "PT"
+                df.iat[row_idx, ftpt_col_idx] = ft_pt
+                changes.append((row_idx, ftpt_col_idx, ft_pt))
+
+            col_idx = ftpt_col_idx + 1
             continue
 
-        insert_at = col_idx + 1
-        df.insert(insert_at, "FT/PT", "", allow_duplicates=True)
+        col_idx += 1
 
-        for row_idx, value in series.items():
-            if value in (None, ""):
-                continue
-            try:
-                hours = float(value)
-            except (ValueError, TypeError):
-                continue
-            ft_pt = "FT" if hours >= 35 else "PT"
-            df.iat[row_idx, insert_at] = ft_pt
-            changes.append((row_idx, insert_at, ft_pt))
-
+    df = df.copy()
     return df, changes
 
 
@@ -815,6 +1318,7 @@ def main():
         print(f"{'=' * 50}")
         
         df = _ensure_ssec_column(df)
+        df, ssic_col = _ensure_ssic_column(df)
         df, ssoc_groups = _ensure_ssoc_columns(df)
         df, ftpt_changes = _add_ft_pt_columns(df)
 
@@ -825,7 +1329,90 @@ def main():
         for row_idx, col_idx, value in ftpt_changes:
             changes[(row_idx, col_idx)] = ("", value)
 
+        rule_errors = []
+
+        # RULE 16: Religion reclass for Others
+        religion_col = _find_column_name(list(df.columns), "What is your religion?")
+        if religion_col:
+            col_idx = df.columns.get_loc(religion_col)
+            for row_idx, value in df[religion_col].items():
+                if pd.isna(value):
+                    continue
+                raw = str(value).strip()
+                raw_lower = raw.lower()
+                if raw_lower.startswith("others:"):
+                    text = raw_lower.split(":", 1)[1].strip()
+                    for denom, reclass in RELIGION_RECLASS_MAP.items():
+                        if denom in text:
+                            modified_df.at[row_idx, religion_col] = reclass
+                            changes[(row_idx, col_idx)] = (raw, reclass)
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": _get_cell_value(df, row_idx, "Response ID"),
+                                "member_index": None,
+                                "member": _get_cell_value(df, row_idx, "Full Name"),
+                                "rule": "RULE 16",
+                                "column": religion_col,
+                                "message": f"Reclassified to {reclass}",
+                            })
+                            break
+
+        # RULE 17: Religion consistency for "No religion"
+        if religion_col:
+            col_idx = df.columns.get_loc(religion_col)
+            for row_idx, value in df[religion_col].items():
+                if pd.isna(value):
+                    continue
+                raw = str(value).strip()
+                raw_lower = raw.lower()
+                if "no religion" in raw_lower and raw != "No religion":
+                    modified_df.at[row_idx, religion_col] = "No religion"
+                    changes[(row_idx, col_idx)] = (raw, "No religion")
+                    rule_errors.append({
+                        "file": filename,
+                        "row": row_idx + 1,
+                        "response_id": _get_cell_value(df, row_idx, "Response ID"),
+                        "member_index": None,
+                        "member": _get_cell_value(df, row_idx, "Full Name"),
+                        "rule": "RULE 17",
+                        "column": religion_col,
+                        "message": "Normalized to 'No religion'",
+                    })
+
+        # RULE 18: Place of Birth validation for Others
+        pob_col = _find_column_name(list(df.columns), "Place of Birth")
+        if pob_col:
+            col_idx = df.columns.get_loc(pob_col)
+            for row_idx, value in df[pob_col].items():
+                if pd.isna(value):
+                    continue
+                raw = str(value).strip()
+                raw_lower = raw.lower()
+                if raw_lower.startswith("others:"):
+                    text = raw_lower.split(":", 1)[1].strip()
+                    if text and text not in COUNTRY_LIST:
+                        error_cells.add((row_idx, col_idx))
+                        rule_errors.append({
+                            "file": filename,
+                            "row": row_idx + 1,
+                            "response_id": _get_cell_value(df, row_idx, "Response ID"),
+                            "member_index": None,
+                            "member": _get_cell_value(df, row_idx, "Full Name"),
+                            "rule": "RULE 18",
+                            "column": pob_col,
+                            "message": "Invalid country in Others: Place of Birth",
+                        })
+
         ssoc_resources = _load_ssoc_resources()
+        ssoc_debug = os.environ.get("SSOC_DEBUG", "").strip().lower() in {"1", "true", "yes"}
+        ssoc_use_gmi_hqa = False
+        ssoc_debug_fh = None
+        ssoc_debug_path = None
+        if ssoc_debug:
+            output_dir = create_output_directory()
+            ssoc_debug_path = output_dir / "ssoc_debug.log"
+            ssoc_debug_fh = open(ssoc_debug_path, "w", encoding="utf-8")
         if not ssoc_groups:
             print("  ⚠ SSOC mapping skipped (no Job Title/Main tasks columns found)")
         elif not ssoc_resources:
@@ -833,40 +1420,105 @@ def main():
         else:
             print("  ✓ SSOC definitions loaded; assigning SSOC codes")
             for row_idx in range(len(df)):
-                for group in ssoc_groups:
+                for group_idx, group in enumerate(ssoc_groups):
                     title_idx = group.get("title_idx")
                     duties_idx = group.get("duties_idx")
                     ssoc_idx = group.get("ssoc_idx")
                     if ssoc_idx is None or duties_idx is None:
                         continue
 
+                    member = None
+                    if row_idx < len(households) and group_idx < len(households[row_idx]):
+                        member = households[row_idx][group_idx]
+
                     title_val = df.iat[row_idx, title_idx] if title_idx is not None else ""
                     duties_val = df.iat[row_idx, duties_idx] if duties_idx is not None else ""
                     title_text = "" if pd.isna(title_val) else str(title_val)
                     duties_text = "" if pd.isna(duties_val) else str(duties_val)
 
-                    if not title_text.strip() and not duties_text.strip():
+                    if not _normalize_text(title_text) and not _normalize_text(duties_text):
                         continue
 
-                    ssoc_code, _, _, _, _, _ = ssoc.best_match_duties_priority(
+                    hqa_value = member.highest_academic_qualification if member else None
+                    gmi_value = _parse_gmi_value(member.gmi if member else None)
+
+                    ssoc_code, _, _, _, top_5, _ = ssoc.best_match_duties_priority(
                         title_text,
                         duties_text,
                         ssoc_resources["defs"],
                         ssoc_resources["title_map"],
                         ssoc_resources["expert_map"],
                         SSOC_MIN_SCORE,
-                        "",
+                        "" if hqa_value is None else str(hqa_value),
                         occ_group_hint_raw=None,
                         company_industry=""
                     )
+
+                    if ssoc_use_gmi_hqa:
+                        example_code = _select_candidate_by_examples(top_5 or [], hqa_value, gmi_value)
+                        if example_code:
+                            ssoc_code = example_code
+                        else:
+                            required_group = _required_group_from_band(hqa_value, gmi_value)
+                            band_code = _select_candidate_by_band(top_5 or [], required_group)
+                            if band_code:
+                                ssoc_code = band_code
+
+                    if ssoc_debug:
+                        top_5_codes = [str(c.get("code", "")).strip() for c in (top_5 or []) if str(c.get("code", "")).strip()]
+                        debug_line = (
+                            f"SSOC DEBUG row={row_idx + 1} group={group_idx + 1} "
+                            f"title='{title_text}' duties='{duties_text}' "
+                            f"hqa='{hqa_value}' gmi='{gmi_value}' "
+                            f"top5={top_5_codes} selected='{ssoc_code}'"
+                        )
+                        print(debug_line)
+                        if ssoc_debug_fh:
+                            ssoc_debug_fh.write(debug_line + "\n")
 
                     old_val = modified_df.iat[row_idx, ssoc_idx]
                     if str(old_val).strip() != str(ssoc_code).strip():
                         modified_df.iat[row_idx, ssoc_idx] = ssoc_code
                         changes[(row_idx, ssoc_idx)] = (old_val, ssoc_code)
-        
-        rule_errors = []
 
+            if ssoc_debug_fh:
+                ssoc_debug_fh.close()
+                print(f"  ✓ SSOC debug log saved to: {ssoc_debug_path}")
+
+        if ssic_col and STRATA_LOOKUP:
+            print("  ✓ SSIC lookup loaded; assigning SSIC codes")
+            est_col = _find_column_name(list(df.columns), "Name of Establishment you were working last week?")
+            ssic_matched_col, ssic_idx = _get_column_index(df, "SSIC Code")
+            if est_col and ssic_matched_col is not None and ssic_idx is not None:
+                for row_idx in range(len(df)):
+                    est_val = df.at[row_idx, est_col]
+                    if pd.isna(est_val) or str(est_val).strip() == "":
+                        continue
+                    est_norm = _normalize_text(est_val)
+                    match = next(
+                        (code for name, code in STRATA_LOOKUP if est_norm in name),
+                        None
+                    )
+                    if match:
+                        old_val = modified_df.iat[row_idx, ssic_idx]
+                        if str(old_val).strip() != str(match).strip():
+                            modified_df.iat[row_idx, ssic_idx] = match
+                            changes[(row_idx, ssic_idx)] = (old_val, match)
+                    else:
+                        error_cells.add((row_idx, ssic_idx))
+                        rule_errors.append({
+                            "file": filename,
+                            "row": row_idx + 1,
+                            "response_id": _get_cell_value(df, row_idx, "Response ID"),
+                            "member_index": None,
+                            "member": _get_cell_value(df, row_idx, "Full Name"),
+                            "rule": "RULE 14",
+                            "column": ssic_matched_col,
+                            "message": "Unable to match SSIC Code from establishment name",
+                        })
+        elif ssic_col:
+            print("  ⚠ SSIC lookup skipped (STRATA_LOOKUP is empty)")
+        
         # RULE 1: Others option validation
         print(f"\nRULE 1: Others option validation")
         print("-" * 50)
@@ -983,6 +1635,25 @@ def main():
                                 "column": matched_col,
                                 "message": result.message
                             })
+
+                # RULE 15: Current establishment name validation
+                if member.name_of_establishment_last_week is not None:
+                    result = rules.validate_previous_company_name(member.name_of_establishment_last_week)
+                    if not result.is_valid:
+                        col_name = "Name of Establishment you were working last week?"
+                        matched_col, col_idx = _get_column_index(df, col_name)
+                        if matched_col is not None and col_idx is not None:
+                            error_cells.add((row_idx, col_idx))
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
+                                "member": member.full_name,
+                                "rule": "RULE 15",
+                                "column": matched_col,
+                                "message": result.message
+                            })
                 
                 # RULE 5: Interest from savings validation
                 if member.interest_from_savings_last_12_months is not None:
@@ -1047,6 +1718,32 @@ def main():
                             "rule": "RULE 7",
                             "column": f"{emp_matched or emp_col} & {free_matched or free_col}",
                             "message": result.message
+                        })
+
+                # RULE 19: Freelance requires self-employed and own-account
+                freelance_val = _normalize_text(member.freelance_online_platforms_last_12_months)
+                if freelance_val and freelance_val != _normalize_text(NO_FREELANCE_TEXT):
+                    se_val = _normalize_text(member.self_employed_last_12_months)
+                    oa_val = _normalize_text(member.worked_own_business_last_12_months)
+                    if se_val != "yes" or oa_val != "yes":
+                        self_col = "At any point in the last 12 months, were you self-employed?"
+                        own_col = "At any point in the last 12 months, did you work on your own (i.e., without paid employees) while running your own business or trade?"
+                        free_col = "Did you perform any freelance or assignment-based work via any of the following online platform(s) in the last 12 months?"
+                        self_matched, self_idx = _get_column_index(df, self_col)
+                        own_matched, own_idx = _get_column_index(df, own_col)
+                        free_matched, free_idx = _get_column_index(df, free_col)
+                        for idx in [self_idx, own_idx, free_idx]:
+                            if idx is not None:
+                                error_cells.add((row_idx, idx))
+                        rule_errors.append({
+                            "file": filename,
+                            "row": row_idx + 1,
+                            "response_id": response_id,
+                            "member_index": member_idx,
+                            "member": member.full_name,
+                            "rule": "RULE 19",
+                            "column": f"{self_matched or self_col} & {own_matched or own_col} & {free_matched or free_col}",
+                            "message": "Freelance selected but self-employed/own-account not both Yes",
                         })
 
                 # RULE 8: Validate Highest Academic Qualification vs Place of Study

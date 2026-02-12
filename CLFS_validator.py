@@ -12,6 +12,34 @@ import CLFS_validation_rules as rules
 import SSOC_assigner_V3 as ssoc
 
 
+def _load_ssic_lookup() -> list[tuple[str, str]]:
+    """
+    Load SSIC reference data from CSV and return list of (normalized_company_name, ssic_code) tuples.
+    """
+    ssic_file = Path(__file__).parent / "references" / "SSIC_List_2Sep2025.csv"
+    if not ssic_file.exists():
+        print(f"Warning: SSIC reference file not found at {ssic_file}")
+        return []
+    
+    try:
+        df = pd.read_csv(ssic_file, sep="\t", encoding="utf-8")
+        lookup = []
+        for _, row in df.iterrows():
+            company_name = str(row.get("CompanyName", "")).strip()
+            ssic_code = str(row.get("SSIC2020", "")).strip()
+            if company_name and company_name != "nan" and ssic_code:
+                # Normalize company name for matching
+                normalized_name = re.sub(r"[^a-z0-9\s]", "", company_name.lower()).strip()
+                normalized_name = re.sub(r"\s+", " ", normalized_name)
+                if normalized_name:
+                    lookup.append((normalized_name, ssic_code))
+        print(f"Loaded {len(lookup)} SSIC company mappings from {ssic_file.name}")
+        return lookup
+    except Exception as e:
+        print(f"Error loading SSIC reference file: {e}")
+        return []
+
+
 RELIGION_RECLASS_MAP = {
     "mahayana": "Buddhism",
     "theravada": "Buddhism",
@@ -234,8 +262,8 @@ COUNTRY_LIST = {
     "zimbabwe",
 }
 
-# TODO: populate with actual industry strata lookup list (lowercase establishment name -> SSIC code)
-STRATA_LOOKUP: list[tuple[str, str]] = []
+# Load SSIC company name to code mappings from reference file
+STRATA_LOOKUP: list[tuple[str, str]] = _load_ssic_lookup()
 
 NO_FREELANCE_TEXT = (
     "I did not take up freelance or assignment-based work through online platforms in the last 12 months"
@@ -737,6 +765,7 @@ def _ensure_ssic_column(df: pd.DataFrame) -> tuple[pd.DataFrame, Optional[str]]:
     insert_at = cols.index(est_col) + 1
     cols.insert(insert_at, "SSIC Code")
     df = df.reindex(columns=cols)
+    df = df.copy()  # Defragment after column insertion
     return df, "SSIC Code"
 
 
@@ -1030,6 +1059,7 @@ def _ensure_ssec_column(df: pd.DataFrame) -> pd.DataFrame:
     cols.insert(insert_at, "SSEC Code")
     df = df.reindex(columns=cols)
     df["SSEC Code"] = df["SSEC Code"].astype("object")
+    df = df.copy()  # Defragment after column insertion
     return df
 
 
@@ -1495,10 +1525,24 @@ def main():
                     if pd.isna(est_val) or str(est_val).strip() == "":
                         continue
                     est_norm = _normalize_text(est_val)
-                    match = next(
-                        (code for name, code in STRATA_LOOKUP if est_norm in name),
-                        None
-                    )
+                    # Remove non-alphanumeric chars and normalize whitespace for matching
+                    est_clean = re.sub(r"[^a-z0-9\s]", "", est_norm).strip()
+                    est_clean = re.sub(r"\s+", " ", est_clean)
+                    
+                    # Try to find best match: prefer exact match, then substring match
+                    match = None
+                    # First pass: exact match
+                    for name, code in STRATA_LOOKUP:
+                        if est_clean == name:
+                            match = code
+                            break
+                    # Second pass: substring match (either direction)
+                    if not match:
+                        for name, code in STRATA_LOOKUP:
+                            if est_clean in name or name in est_clean:
+                                match = code
+                                break
+                    
                     if match:
                         old_val = modified_df.iat[row_idx, ssic_idx]
                         if str(old_val).strip() != str(match).strip():

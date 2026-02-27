@@ -9,6 +9,7 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 
+
 # =========================
 # CONFIGURATION
 # =========================
@@ -105,17 +106,18 @@ def normalise_header(value):
     return " ".join(str(value).strip().split()).lower()
 
 
+
 # =========================
 # VALIDATION PLACEHOLDER
 # =========================
 def validate_individual(individual):
     errors = []
 
-    errors.extend(
-        validate_internship_employment_rule(individual)
-    )
+    errors.extend(validate_internship_employment_rule(individual))
 
     errors.extend(validate_job_title_rule(individual))    
+
+    errors.extend(validate_bonus_received_rule(individual))
 
     # Future rules go here
     # errors.extend(validate_some_other_rule(individual))
@@ -208,10 +210,121 @@ def validate_job_title_rule(individual):
 
     return errors
 
+
+def validate_bonus_received_rule(individual):
+
+    errors = []
+
+    bonus_header = normalise_header("Bonus Received from your job(s) during the last 12 months")
+    bonus_answers = individual.get_answers(bonus_header)
+
+    if not bonus_answers:
+        return errors
+
+    # --- Pre-process bonus values once for reuse across all checks ---
+    parsed_bonus = []
+    for bonus in bonus_answers:
+        raw_value = bonus["value"]
+        if raw_value is None or str(raw_value).strip() == "":
+            continue
+        try:
+            parsed_bonus.append((float(raw_value), bonus["column"]))
+        except (ValueError, TypeError):
+            continue
+
+    # =========================
+    # CHECK 1: Labour Force Status = NS → Bonus must not be > 0
+    # =========================
+    labour_force_header = normalise_header("Labour Force Status")
+    labour_force_answers = individual.get_answers(labour_force_header)
+
+    if labour_force_answers:
+        is_ns = any(
+            normalise(ans["value"]) == "undergoing full-time national service (ns)"
+            for ans in labour_force_answers
+        )
+        if is_ns:
+            for amount, col in parsed_bonus:
+                if amount > 0:
+                    errors.append({
+                        "file": individual.file_name,
+                        "sheet": individual.sheet_name,
+                        "row": individual.excel_row,
+                        "column": col,
+                        "header": bonus_header,
+                        "error": (
+                            "Respondent is undergoing full-time National Service — "
+                            "Bonus Received must not be more than 0"
+                        ), 
+                        "auto_correct": True 
+                    })
+
+    # =========================
+    # CHECK 2: Bonus Received must not be >= 100 and must not be 13
+    # =========================
+    for amount, col in parsed_bonus:
+        if amount == 13 or amount >= 100:
+            errors.append({
+                "file": individual.file_name,
+                "sheet": individual.sheet_name,
+                "row": individual.excel_row,
+                "column": col,
+                "header": bonus_header,
+                "error": (
+                    "Bonus Received is a suspicious value — "
+                    "value must not be 13 or >= 100"
+                )
+            })
+
+
+    # =========================
+    # CHECK 3: Usual hours of work < 35 → Bonus Received must not be >= 5
+    # =========================
+    usual_hours_header = normalise_header("Usual hours of work")
+    usual_hours_answers = individual.get_answers(usual_hours_header)
+
+    if usual_hours_answers:
+        for hours_ans in usual_hours_answers:
+            raw_hours = hours_ans["value"]
+
+            if raw_hours is None or str(raw_hours).strip() == "":
+                continue
+
+            try:
+                hours = float(raw_hours)
+            except (ValueError, TypeError):
+                continue
+
+            if hours < 35:
+                for amount, col in parsed_bonus:
+                    if amount >= 5:
+                        errors.append({
+                            "file": individual.file_name,
+                            "sheet": individual.sheet_name,
+                            "row": individual.excel_row,
+                            "column": col,
+                            "header": bonus_header,
+                            "error": (
+                                "Usual hours of work is less than 35 (Part-Time) — "
+                                "Bonus Received must not be >= 5"
+                            )
+                        })
+
+    return errors
+
+
+
+
+
+
+
+
+
+
 def add_ft_pt_column(ws, headers):
     """
     Adds a column 'FT/PT' next to 'Usual hours of work'
-    FT if hours > 35
+    FT if hours >= 35
     PT if hours < 35
     """
 
@@ -260,6 +373,73 @@ def add_ft_pt_column(ws, headers):
                 ws.cell(row=row, column=ft_pt_col).value = "PT"
 
 
+def add_professional_certification_columns(ws, headers):
+
+    base_question = normalise_header(
+        "Have you ever obtained any Vocational or Skills certificates/qualifications, "
+        "(e.g. (WSQ) and (ESS) certificates, or formal certifications that validate "
+        "knowledge and skills in a particular field)?"
+    )
+
+    certification_header = normalise_header("Professional Certification")
+
+    certification_options = [
+        "Care Economy",
+        "Artificial Intelligence",
+        "Digital Skills",
+        "Green Economy",
+        "Industry 4.0"
+    ]
+
+    if base_question not in headers or certification_header not in headers:
+        return
+
+    base_col = headers[base_question][0]
+    cert_col = headers[certification_header][0]
+
+    # 🔹 Cache certification values BEFORE column insertion
+    cert_values_by_row = {
+        row: ws.cell(row=row, column=cert_col).value
+        for row in range(7, ws.max_row + 1)
+    }
+
+    insert_start_col = base_col + 1
+    ws.insert_cols(insert_start_col, amount=len(certification_options))
+
+    # Write headers
+    for i, option in enumerate(certification_options):
+        ws.cell(row=6, column=insert_start_col + i).value = option
+
+    # Populate values
+    for row in range(7, ws.max_row + 1):
+
+        base_value = ws.cell(row=row, column=base_col).value
+        cert_value = cert_values_by_row.get(row)
+
+        if base_value is None or str(base_value).strip() == "":
+            continue
+
+        base_norm = normalise(base_value)
+
+        if base_norm not in ("yes", "no"):
+            continue
+
+        selected_options = set()
+        if cert_value:
+            parts = str(cert_value).replace(";", ",").split(",")
+            selected_options = {normalise(p) for p in parts if p.strip()}
+
+        for i, option in enumerate(certification_options):
+            col = insert_start_col + i
+
+            if base_norm == "no":
+                ws.cell(row=row, column=col).value = "No"
+            else:
+                ws.cell(row=row, column=col).value = (
+                    "Yes" if normalise(option) in selected_options else "No"
+                )
+
+
 # =========================
 # MAIN PROCESSOR
 # =========================
@@ -273,7 +453,11 @@ def process_files():
         for sheet_name in wb.sheetnames:
             ws = wb[sheet_name]
             headers = find_headers(ws)
-            
+                        
+            add_professional_certification_columns(ws, headers)
+            #Re-read after headers after column insertion to avoid misalignment bugs (Need to do it every time you add or delete headers)
+            headers = find_headers(ws)
+
             add_ft_pt_column(ws, headers)
             #Re-read after headers after column insertion to avoid misalignment bugs 
             headers = find_headers(ws)
@@ -295,6 +479,12 @@ def process_files():
                         row=err["row"],
                         column=err["column"]
                     ).fill = YELLOW_FILL
+
+                    if err.get("auto_correct"):
+                            ws.cell(
+                                row=err["row"],
+                                column=err["column"]
+                            ).value = 0
 
                     error_log.append(err)
 

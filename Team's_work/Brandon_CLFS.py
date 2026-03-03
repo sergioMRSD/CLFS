@@ -387,12 +387,9 @@ def validate_bonus_received_rule(individual):
 
 
 
-
-
-
-
-
-
+# =========================
+# Additional
+# =========================
 
 def add_ft_pt_column(ws, headers):
     """

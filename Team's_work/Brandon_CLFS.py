@@ -256,7 +256,7 @@ def validate_bonus_received_rule(individual):
                             "Respondent is undergoing full-time National Service — "
                             "Bonus Received must not be more than 0"
                         ), 
-                        "auto_correct": True 
+                        "auto_correct": "Bonus changed to 0" 
                     })
 
     # =========================
@@ -309,6 +309,79 @@ def validate_bonus_received_rule(individual):
                                 "Bonus Received must not be >= 5"
                             )
                         })
+
+    # =========================
+    # CHECK 4: E Pass/ S Pass , Bonus >12 and Bonus < 100
+    # =========================
+
+    ID_Type_header = normalise_header("Identification Type")
+    ID_Type_answers = individual.get_answers(ID_Type_header)
+
+
+    if ID_Type_answers:
+        
+        foreigner_types = {
+            normalise("Foreigner on Employment Pass, Personalised Employment Pass, EntrePass, Tech.Pass or Overseas Networks & Expertise Pass (ONE Pass)"),
+            normalise("Foreigner on S Pass")
+        }    
+
+        is_foreigner = any(
+            normalise(ans["value"]) in foreigner_types
+            for ans in ID_Type_answers
+        )
+
+        if is_foreigner:
+            for amount, col in parsed_bonus:
+                if 12 <amount < 100 :
+                    errors.append({
+                        "file": individual.file_name,
+                        "sheet": individual.sheet_name,
+                        "row": individual.excel_row,
+                        "column": col,
+                        "header": bonus_header,
+                        "error": (
+                            "E/S Pass holder — "
+                            "Bonus Received must not be >12 and <100"
+                        )
+                    })
+            
+    # =========================
+    # CHECK 5: ID Type 5-11 , Bonus >6 and Bonus < 100
+    # =========================
+
+    if ID_Type_answers:
+        
+        foreigner_types = {
+            normalise("Foreigner on Student’s Pass"),
+            normalise("Foreigner on Social Visit pass (e.g. Long-Term Visit Pass (LTVP), Long-Term Visit Pass-Plus (LTVP+))"),
+            normalise("Foreigner on Dependant’s Pass"),
+            normalise("New-born foreign baby or child without identification document yet"),
+            normalise("Foreigner on training pass"),
+            normalise("Foreigner on other types of identification")
+        }    
+
+        is_foreigner = any(
+            normalise(ans["value"]) in foreigner_types
+            for ans in ID_Type_answers
+        )
+
+        if is_foreigner:
+            for amount, col in parsed_bonus:
+                if 6 <amount < 100 :
+                    errors.append({
+                        "file": individual.file_name,
+                        "sheet": individual.sheet_name,
+                        "row": individual.excel_row,
+                        "column": col,
+                        "header": bonus_header,
+                        "error": (
+                            "ID Type 5-11 — "
+                            "Bonus Received must not be >6 and <100"
+                        )
+                    })
+
+           
+
 
     return errors
 

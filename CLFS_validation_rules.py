@@ -1044,6 +1044,186 @@ def validate_dividends_investment_interest(value) -> ValidationResult:
     )
 
 
+def _parse_ssoc_major_group(ssoc_code: object) -> Optional[int]:
+    if ssoc_code is None:
+        return None
+    text = str(ssoc_code).strip()
+    if not text:
+        return None
+    match = re.search(r"([1-9])", text)
+    if not match:
+        return None
+    try:
+        return int(match.group(1))
+    except (ValueError, TypeError):
+        return None
+
+
+def validate_hours_worked_hw001(usual_hours: object) -> ValidationResult:
+    """
+    ZW HW_001: Usual hours of work should not exceed 99.
+    """
+    if usual_hours is None or str(usual_hours).strip() == "":
+        return ValidationResult(is_valid=True, message="No usual hours provided", original_value="")
+    try:
+        hours = float(usual_hours)
+    except (ValueError, TypeError):
+        return ValidationResult(is_valid=True, message="Unable to parse usual hours", original_value=str(usual_hours))
+    if hours > 99:
+        return ValidationResult(
+            is_valid=False,
+            message="Usual hours of work exceeds 99",
+            original_value=str(hours),
+            rule_applied="HW_001"
+        )
+    return ValidationResult(is_valid=True, message="Hours within HW_001 threshold", original_value=str(hours), rule_applied="HW_001")
+
+
+def validate_hours_worked_by_ssoc_group(usual_hours: object, ssoc_code: object) -> ValidationResult:
+    """
+    ZW HW_002/HW_003:
+    - SSOC major group 1-3: hours must be >10 and <50
+    - SSOC major group 4-9: hours must be >10 and <25
+    """
+    if usual_hours is None or str(usual_hours).strip() == "":
+        return ValidationResult(is_valid=True, message="No usual hours provided", original_value="")
+    try:
+        hours = float(usual_hours)
+    except (ValueError, TypeError):
+        return ValidationResult(is_valid=True, message="Unable to parse usual hours", original_value=str(usual_hours))
+
+    major_group = _parse_ssoc_major_group(ssoc_code)
+    if major_group is None:
+        return ValidationResult(is_valid=True, message="No SSOC major group available", original_value=str(ssoc_code))
+
+    if major_group in {1, 2, 3} and (hours <= 10 or hours >= 50):
+        return ValidationResult(
+            is_valid=False,
+            message="SSOC major group 1-3: usual hours must be >10 and <50",
+            original_value=str(hours),
+            rule_applied="HW_002"
+        )
+
+    if 4 <= major_group <= 9 and (hours <= 10 or hours >= 25):
+        return ValidationResult(
+            is_valid=False,
+            message="SSOC major group 4-9: usual hours must be >10 and <25",
+            original_value=str(hours),
+            rule_applied="HW_003"
+        )
+
+    return ValidationResult(
+        is_valid=True,
+        message="Hours consistent with SSOC major group threshold",
+        original_value=str(hours),
+        rule_applied="HW_002/HW_003"
+    )
+
+
+def validate_hours_worked_student_hw004(usual_hours: object, labour_force_status: object) -> ValidationResult:
+    """
+    ZW HW_004: If labour force status indicates student/studying, hours should not exceed 40.
+    """
+    status = "" if labour_force_status is None else str(labour_force_status).strip().lower()
+    is_student = any(token in status for token in ["student", "studying", "stud"])
+    if not is_student:
+        return ValidationResult(is_valid=True, message="Student check not applicable", original_value=status)
+
+    if usual_hours is None or str(usual_hours).strip() == "":
+        return ValidationResult(is_valid=True, message="No usual hours provided", original_value="")
+    try:
+        hours = float(usual_hours)
+    except (ValueError, TypeError):
+        return ValidationResult(is_valid=True, message="Unable to parse usual hours", original_value=str(usual_hours))
+
+    if hours > 40:
+        return ValidationResult(
+            is_valid=False,
+            message="Student labour-force status: usual hours must not exceed 40",
+            original_value=str(hours),
+            rule_applied="HW_004"
+        )
+    return ValidationResult(is_valid=True, message="Student hours within threshold", original_value=str(hours), rule_applied="HW_004")
+
+
+def validate_interest_age_threshold(age: object, amount: object) -> ValidationResult:
+    """
+    ZW INTR_001/INTR_002:
+    - Age < 18: interest/dividend amount must be < 10000
+    - Age >= 18: interest/dividend amount must be < 600000
+    """
+    if age is None or amount is None or str(amount).strip() == "":
+        return ValidationResult(is_valid=True, message="Insufficient data for age-interest rule", original_value="")
+
+    try:
+        age_num = float(age)
+        amount_num = float(amount)
+    except (ValueError, TypeError):
+        return ValidationResult(is_valid=True, message="Unable to parse age or amount", original_value=f"age={age}, amount={amount}")
+
+    if age_num < 18 and amount_num >= 10000:
+        return ValidationResult(
+            is_valid=False,
+            message="Age < 18: interest/dividend amount must be below 10000",
+            original_value=str(amount_num),
+            rule_applied="INTR_001"
+        )
+    if age_num >= 18 and amount_num >= 600000:
+        return ValidationResult(
+            is_valid=False,
+            message="Age >= 18: interest/dividend amount must be below 600000",
+            original_value=str(amount_num),
+            rule_applied="INTR_002"
+        )
+
+    return ValidationResult(
+        is_valid=True,
+        message="Interest/dividend amount within age threshold",
+        original_value=str(amount_num),
+        rule_applied="INTR_001/INTR_002"
+    )
+
+
+def validate_cash_in_kind_allowances(value: object) -> ValidationResult:
+    """
+    ZW CIK_001: Cash in-kind allowances/contributions should be below 24000.
+    """
+    if value is None or str(value).strip() == "":
+        return ValidationResult(is_valid=True, message="No cash-in-kind value provided", original_value="")
+    try:
+        numeric_value = float(value)
+    except (ValueError, TypeError):
+        return ValidationResult(is_valid=True, message="Unable to parse cash-in-kind value", original_value=str(value))
+    if numeric_value >= 24000:
+        return ValidationResult(
+            is_valid=False,
+            message="Cash in-kind/allowances amount must be below 24000",
+            original_value=str(numeric_value),
+            rule_applied="CIK_001"
+        )
+    return ValidationResult(is_valid=True, message="Cash in-kind/allowances within threshold", original_value=str(numeric_value), rule_applied="CIK_001")
+
+
+def validate_other_sources_income(value: object) -> ValidationResult:
+    """
+    ZW OTH_001: Amount from sources other than employment should be below 19000.
+    """
+    if value is None or str(value).strip() == "":
+        return ValidationResult(is_valid=True, message="No other-source income provided", original_value="")
+    try:
+        numeric_value = float(value)
+    except (ValueError, TypeError):
+        return ValidationResult(is_valid=True, message="Unable to parse other-source income", original_value=str(value))
+    if numeric_value >= 19000:
+        return ValidationResult(
+            is_valid=False,
+            message="Amount from sources other than employment must be below 19000",
+            original_value=str(numeric_value),
+            rule_applied="OTH_001"
+        )
+    return ValidationResult(is_valid=True, message="Other-source income within threshold", original_value=str(numeric_value), rule_applied="OTH_001")
+
+
 # RULE 7: Freelance Work vs Own Account Worker Consistency
 def validate_freelance_employment_consistency(
     employment_status: str,

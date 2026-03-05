@@ -445,6 +445,8 @@ COLUMN_MAPPING = {
     "establishment_name_last_worked": "Name of Establishment you were working last worked",
     "interest_from_savings_last_12_months": "How much interest did you receive from savings (e.g., current and saving accounts, fixed deposits) in the last 12 months?",
     "dividends_interests_investments_last_12_months": "How much dividends and interests did you receive from other investment sources (e.g., bonds, shares, unit trust, personal loans to persons outside your households) in the last 12 months?",
+    "allowances_contributions_last_12_months": "How much did you receive from regular cash and in-kind allowances or contributions (including alimony) from children, relatives, friends not staying in this household in the last 12 months",
+    "other_sources_income_last_12_months": "How much did you receive from sources other than employment and the above (e.g., regular pension payments, regular annuity payouts (excluding CPF Life, CPF Retirement Sum Scheme), social welfare grants, etc.) in the last 12 months",
     "freelance_online_platforms_last_12_months": "Did you perform any freelance or assignment-based work via any of the following online platform(s) in the last 12 months?",
     "self_employed_last_12_months": "At any point in the last 12 months, were you self-employed?",
     "worked_own_business_last_12_months": "At any point in the last 12 months, did you work on your own (i.e., without paid employees) while running your own business or trade?",
@@ -1856,6 +1858,131 @@ def main():
                                 "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 6",
+                                "column": matched_col,
+                                "message": result.message
+                            })
+
+                # ZW HW_001: Usual hours > 99
+                if member.usual_hours_of_work is not None:
+                    result = rules.validate_hours_worked_hw001(member.usual_hours_of_work)
+                    if not result.is_valid:
+                        matched_col, col_idx = _get_column_index(df, "Usual hours of work")
+                        if matched_col is not None and col_idx is not None:
+                            error_cells.add((row_idx, col_idx))
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
+                                "member": member.full_name,
+                                "rule": "HW_001",
+                                "column": matched_col,
+                                "message": result.message
+                            })
+
+                # ZW HW_002/HW_003: Usual hours by SSOC major group
+                if member.usual_hours_of_work is not None:
+                    ssoc_value = _get_cell_value(modified_df, row_idx, "SSOC Code")
+                    result = rules.validate_hours_worked_by_ssoc_group(member.usual_hours_of_work, ssoc_value)
+                    if not result.is_valid:
+                        matched_col, col_idx = _get_column_index(df, "Usual hours of work")
+                        if matched_col is not None and col_idx is not None:
+                            error_cells.add((row_idx, col_idx))
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
+                                "member": member.full_name,
+                                "rule": result.rule_applied or "HW_002/HW_003",
+                                "column": matched_col,
+                                "message": result.message
+                            })
+
+                # ZW HW_004: Student hours should not exceed 40
+                if member.usual_hours_of_work is not None:
+                    result = rules.validate_hours_worked_student_hw004(
+                        member.usual_hours_of_work,
+                        member.labour_force_status,
+                    )
+                    if not result.is_valid:
+                        matched_col, col_idx = _get_column_index(df, "Usual hours of work")
+                        if matched_col is not None and col_idx is not None:
+                            error_cells.add((row_idx, col_idx))
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
+                                "member": member.full_name,
+                                "rule": "HW_004",
+                                "column": matched_col,
+                                "message": result.message
+                            })
+
+                # ZW INTR_001/INTR_002: Interest/dividend thresholds by age
+                for value, col_name in [
+                    (
+                        member.interest_from_savings_last_12_months,
+                        "How much interest did you receive from savings (e.g., current and saving accounts, fixed deposits) in the last 12 months?",
+                    ),
+                    (
+                        member.dividends_interests_investments_last_12_months,
+                        "How much dividends and interests did you receive from other investment sources (e.g., bonds, shares, unit trust, personal loans to persons outside your households) in the last 12 months?",
+                    ),
+                ]:
+                    if value is None:
+                        continue
+                    result = rules.validate_interest_age_threshold(member.age, value)
+                    if not result.is_valid:
+                        matched_col, col_idx = _get_column_index(df, col_name)
+                        if matched_col is not None and col_idx is not None:
+                            error_cells.add((row_idx, col_idx))
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
+                                "member": member.full_name,
+                                "rule": result.rule_applied or "INTR_001/INTR_002",
+                                "column": matched_col,
+                                "message": result.message
+                            })
+
+                # ZW CIK_001: Cash in-kind / allowances threshold
+                if member.allowances_contributions_last_12_months is not None:
+                    result = rules.validate_cash_in_kind_allowances(member.allowances_contributions_last_12_months)
+                    if not result.is_valid:
+                        col_name = "How much did you receive from regular cash and in-kind allowances or contributions (including alimony) from children, relatives, friends not staying in this household in the last 12 months"
+                        matched_col, col_idx = _get_column_index(df, col_name)
+                        if matched_col is not None and col_idx is not None:
+                            error_cells.add((row_idx, col_idx))
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
+                                "member": member.full_name,
+                                "rule": "CIK_001",
+                                "column": matched_col,
+                                "message": result.message
+                            })
+
+                # ZW OTH_001: Amount from sources other than employment threshold
+                if member.other_sources_income_last_12_months is not None:
+                    result = rules.validate_other_sources_income(member.other_sources_income_last_12_months)
+                    if not result.is_valid:
+                        col_name = "How much did you receive from sources other than employment and the above (e.g., regular pension payments, regular annuity payouts (excluding CPF Life, CPF Retirement Sum Scheme), social welfare grants, etc.) in the last 12 months"
+                        matched_col, col_idx = _get_column_index(df, col_name)
+                        if matched_col is not None and col_idx is not None:
+                            error_cells.add((row_idx, col_idx))
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
+                                "member": member.full_name,
+                                "rule": "OTH_001",
                                 "column": matched_col,
                                 "message": result.message
                             })

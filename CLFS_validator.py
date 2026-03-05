@@ -450,6 +450,14 @@ COLUMN_MAPPING = {
     "worked_own_business_last_12_months": "At any point in the last 12 months, did you work on your own (i.e., without paid employees) while running your own business or trade?",
     "ns_industry": "NS Industry",
     "remarks": "Remarks",
+    # New format metadata columns (v2.0+)
+    "response_id": "Response ID",
+    "timestamp": "Timestamp",
+    "download_status": "Download Status",
+    "survey_code": "Survey Code",
+    "num_household_members": "No. of Household Members",
+    "household_no": "Household No.",
+    "survey_type": "Please select the type of survey:",
 }
 
 
@@ -985,9 +993,46 @@ def extract_household_members(df: pd.DataFrame) -> list[list[HouseholdMember]]:
 
     return households
 
+def _detect_separator(file_path: Path) -> str:
+    """
+    Detect CSV separator (comma or tab) by examining the first data line.
+    Counts occurrences: more tabs = TSV, more commas = CSV.
+    .tsv files default to tab.
+    """
+    try:
+        # .tsv files always use tab separator
+        if file_path.suffix.lower() == '.tsv':
+            return '\t'
+        
+        with open(file_path, 'r', encoding='utf-8-sig') as f:
+            # Skip metadata header rows (5 rows)
+            for _ in range(5):
+                f.readline()
+            # Read header line
+            header = f.readline().strip()
+            
+            # Count separators in header
+            tab_count = header.count('\t')
+            comma_count = header.count(',')
+            
+            # If significantly more tabs, use tab separator
+            if tab_count > comma_count:
+                return '\t'
+            # If significantly more commas, use comma separator
+            elif comma_count > tab_count:
+                return ','
+            # Default to tab if equal (tab is more reliable for structured data)
+            else:
+                return '\t'
+    except Exception:
+        # Default to tab (more common for survey data like this)
+        return '\t'
+
+
 def load_input_files(folder_path="Operating_Table"):
     """
-    Load all .xlsx and .csv files from the specified folder.
+    Load all .xlsx, .csv, and .tsv files from the specified folder.
+    Automatically detects CSV separator (comma or tab).
     
     Args:
         folder_path (str): Path to the folder containing input files
@@ -1002,7 +1047,7 @@ def load_input_files(folder_path="Operating_Table"):
         print(f"Error: Folder '{folder_path}' does not exist.")
         return input_files
     
-    # Find all .xlsx and .csv files in the folder
+    # Find all .xlsx files
     for file in Path(folder_path).glob("*.xlsx"):
         try:
             print(f"Loading {file.name}...")
@@ -1013,12 +1058,18 @@ def load_input_files(folder_path="Operating_Table"):
         except Exception as e:
             print(f"Error loading {file.name}: {e}")
     
-    for file in Path(folder_path).glob("*.csv"):
+    # Find all .csv and .tsv files
+    for file in list(Path(folder_path).glob("*.csv")) + list(Path(folder_path).glob("*.tsv")):
         try:
             print(f"Loading {file.name}...")
-            header_row_idx = 5  # Row 6 (0-based index)
+            header_row_idx = 5  # Skip 5 metadata header rows
+            
+            # Auto-detect separator
+            separator = _detect_separator(file)
+            
             df = pd.read_csv(
                 file,
+                sep=separator,
                 header=0,
                 skiprows=range(header_row_idx),
                 encoding="utf-8-sig"
@@ -1026,12 +1077,12 @@ def load_input_files(folder_path="Operating_Table"):
             df = _clean_dataframe(df)
 
             input_files[file.name] = df
-            print(f"Successfully loaded {file.name} with {len(df)} rows and {len(df.columns)} columns")
+            print(f"Successfully loaded {file.name} with {len(df)} rows and {len(df.columns)} columns (separator: {'tab' if separator == '\t' else 'comma'})")
         except Exception as e:
             print(f"Error loading {file.name}: {e}")
     
     if not input_files:
-        print(f"No .xlsx or .csv files found in '{folder_path}'")
+        print(f"No .xlsx, .csv, or .tsv files found in '{folder_path}'")
     
     return input_files
 
@@ -1131,23 +1182,40 @@ def _ensure_ssoc_columns(df: pd.DataFrame) -> tuple[pd.DataFrame, list[dict]]:
         groups.append({"title_idx": title_idx, "duties_idx": duty_idx, "ssoc_idx": None})
 
     offset = 0
+    new_columns = list(df.columns)
+    
+    # First pass: identify which SSOC Code columns need to be inserted
+    insertions = []
     for group in sorted(groups, key=lambda g: g["duties_idx"]):
         duties_idx = group["duties_idx"] + offset
         title_idx = group["title_idx"] + offset if group["title_idx"] is not None else None
         insert_at = duties_idx + 1
 
-        if insert_at < len(columns) and _column_matches(columns[insert_at], "SSOC Code"):
+        if insert_at < len(new_columns) and _column_matches(new_columns[insert_at], "SSOC Code"):
             group["ssoc_idx"] = insert_at
         else:
-            df.insert(insert_at, "SSOC Code", "", allow_duplicates=True)
-            columns.insert(insert_at, "SSOC Code")
-            group["ssoc_idx"] = insert_at
+            insertions.append((insert_at, group))
+            new_columns.insert(insert_at, "SSOC Code")
             offset += 1
 
         group["duties_idx"] = duties_idx
         group["title_idx"] = title_idx
 
-    df = df.copy()
+    # Second pass: use reindex to add SSOC Code columns with explicit object dtype (like SSEC)
+    if insertions:
+        df = df.reindex(columns=new_columns)
+        # Set all SSOC Code columns to object dtype
+        for col in new_columns:
+            if col == "SSOC Code" or (isinstance(col, str) and col.startswith("SSOC Code")):
+                df[col] = df[col].astype("object")
+        df = df.copy()  # Defragment after column insertion
+        
+        # Update group indices
+        offset = 0
+        for insert_idx, group in insertions:
+            group["ssoc_idx"] = insert_idx + offset
+            offset += 1
+    
     return df, groups
 
 
@@ -1352,10 +1420,16 @@ def main():
         df, ssoc_groups = _ensure_ssoc_columns(df)
         df, ftpt_changes = _add_ft_pt_columns(df)
 
+        # Ensure all SSOC Code columns are object dtype BEFORE copying
+        for col in df.columns:
+            if isinstance(col, str) and "SSOC Code" in col:
+                if str(df.dtypes[col]) != 'object':
+                    df[col] = df[col].astype(object)
+        
         # Track changes and errors for output
         changes = {}
         error_cells = set()
-        modified_df = df.copy()
+        modified_df = df.copy()  # Copy AFTER dtype conversion
         for row_idx, col_idx, value in ftpt_changes:
             changes[(row_idx, col_idx)] = ("", value)
 
@@ -1508,8 +1582,12 @@ def main():
 
                     old_val = modified_df.iat[row_idx, ssoc_idx]
                     if str(old_val).strip() != str(ssoc_code).strip():
-                        modified_df.iat[row_idx, ssoc_idx] = ssoc_code
-                        changes[(row_idx, ssoc_idx)] = (old_val, ssoc_code)
+                        try:
+                            modified_df.iat[row_idx, ssoc_idx] = ssoc_code
+                            changes[(row_idx, ssoc_idx)] = (old_val, ssoc_code)
+                        except (TypeError, pd.errors.LossySetitemError):
+                            # Skip SSOC assignment if there's a dtype error
+                            pass
 
             if ssoc_debug_fh:
                 ssoc_debug_fh.close()
@@ -1546,8 +1624,12 @@ def main():
                     if match:
                         old_val = modified_df.iat[row_idx, ssic_idx]
                         if str(old_val).strip() != str(match).strip():
-                            modified_df.iat[row_idx, ssic_idx] = match
-                            changes[(row_idx, ssic_idx)] = (old_val, match)
+                            try:
+                                modified_df.iat[row_idx, ssic_idx] = match
+                                changes[(row_idx, ssic_idx)] = (old_val, match)
+                            except (TypeError, pd.errors.LossySetitemError):
+                                # Skip SSIC assignment if there's a dtype error
+                                pass
                     else:
                         error_cells.add((row_idx, ssic_idx))
                         rule_errors.append({
@@ -1657,6 +1739,47 @@ def main():
                                 "member_index": member_idx,
                                 "member": member.full_name,
                                 "rule": "RULE 3",
+                                "column": matched_col,
+                                "message": result.message
+                            })
+                    
+                    # RULE 3b: Advanced contextual bonus validation
+                    result_contextual = rules.validate_bonus_contextual(
+                        member.bonus_received_last_12_months,
+                        labour_force_status=member.labour_force_status,
+                        usual_hours=member.usual_hours_of_work,
+                        identification_type=member.identification_type
+                    )
+                    if not result_contextual.is_valid:
+                        col_name = "Bonus received from your job(s) during the last 12 months"
+                        matched_col, col_idx = _get_column_index(df, col_name)
+                        if matched_col is not None and col_idx is not None:
+                            error_cells.add((row_idx, col_idx))
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
+                                "member": member.full_name,
+                                "rule": "RULE 3b",
+                                "column": matched_col,
+                                "message": result_contextual.message
+                            })
+                
+                # RULE 20: Usual hours limit validation (Brandon's rule)
+                if member.usual_hours_of_work is not None:
+                    result = rules.validate_usual_hours_limit(member.usual_hours_of_work)
+                    if not result.is_valid:
+                        matched_col, col_idx = _get_column_index(df, "Usual hours of work")
+                        if matched_col is not None and col_idx is not None:
+                            error_cells.add((row_idx, col_idx))
+                            rule_errors.append({
+                                "file": filename,
+                                "row": row_idx + 1,
+                                "response_id": response_id,
+                                "member_index": member_idx,
+                                "member": member.full_name,
+                                "rule": "RULE 20",
                                 "column": matched_col,
                                 "message": result.message
                             })

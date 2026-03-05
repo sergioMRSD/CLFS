@@ -747,6 +747,156 @@ def validate_bonus(value) -> ValidationResult:
     )
 
 
+# RULE 3b: Advanced Bonus Validation with contextual checks
+def validate_bonus_contextual(
+    bonus_value,
+    labour_force_status: Optional[str] = None,
+    usual_hours: Optional[float] = None,
+    identification_type: Optional[str] = None
+) -> ValidationResult:
+    """
+    Advanced bonus validation with contextual checks (RULE 3b).
+    
+    Checks:
+    1. If Labour Force Status = NS → Bonus must not be > 0
+    2. Bonus must not be == 13 or >= 100
+    3. If Usual hours < 35 → Bonus must not be >= 5
+    4. If E/S Pass → Bonus must not be >12 and <100
+    5. If Other foreigner types → Bonus must not be >6 and <100
+    """
+    if bonus_value is None or str(bonus_value).strip() == "":
+        return ValidationResult(
+            is_valid=True,
+            message="No bonus value provided",
+            original_value=""
+        )
+    
+    try:
+        bonus = float(bonus_value)
+    except (ValueError, TypeError):
+        return ValidationResult(
+            is_valid=True,
+            message="Bonus is not numeric",
+            original_value=str(bonus_value)
+        )
+    
+    # Check 1: NS → Bonus must not be > 0
+    if labour_force_status:
+        labour_force_norm = _normalize_value(labour_force_status).lower()
+        if "national service" in labour_force_norm or "ns" in labour_force_norm:
+            if bonus > 0:
+                return ValidationResult(
+                    is_valid=False,
+                    message="Respondent is undergoing National Service — Bonus Received must not be more than 0",
+                    original_value=str(bonus_value),
+                    rule_applied="RULE 3b - NS check"
+                )
+    
+    # Check 2: Bonus must not be 13 or >= 100
+    if bonus == 13 or bonus >= 100:
+        return ValidationResult(
+            is_valid=False,
+            message="Bonus Received is a suspicious value — value must not be 13 or >= 100",
+            original_value=str(bonus_value),
+            rule_applied="RULE 3b - Suspicious value check"
+        )
+    
+    # Check 3: Hours < 35 → Bonus must not be >= 5
+    if usual_hours is not None:
+        try:
+            hours = float(usual_hours)
+            if hours < 35 and bonus >= 5:
+                return ValidationResult(
+                    is_valid=False,
+                    message="Usual hours of work is less than 35 (Part-Time) — Bonus Received must not be >= 5",
+                    original_value=str(bonus_value),
+                    rule_applied="RULE 3b - Part-time bonus check"
+                )
+        except (ValueError, TypeError):
+            pass
+    
+    # Check 4 & 5: Identification Type checks
+    if identification_type:
+        id_norm = _normalize_value(identification_type).lower()
+        
+        # E/S Pass holders
+        e_s_pass_keywords = {"employment pass", "personalised employment pass", "entrepass", 
+                            "tech.pass", "one pass", "s pass"}
+        if any(keyword in id_norm for keyword in e_s_pass_keywords):
+            if 12 < bonus < 100:
+                return ValidationResult(
+                    is_valid=False,
+                    message="E/S Pass holder — Bonus Received must not be >12 and <100",
+                    original_value=str(bonus_value),
+                    rule_applied="RULE 3b - E/S Pass check"
+                )
+        
+        # Other foreigner types (Student, Social Visit, Dependant, Training, etc.)
+        other_foreigner_keywords = {"student's pass", "social visit pass", "ltvp", 
+                                   "dependant's pass", "training pass", "other types of identification"}
+        if any(keyword in id_norm for keyword in other_foreigner_keywords):
+            if 6 < bonus < 100:
+                return ValidationResult(
+                    is_valid=False,
+                    message="Foreigner (other types) — Bonus Received must not be >6 and <100",
+                    original_value=str(bonus_value),
+                    rule_applied="RULE 3b - Other foreigner check"
+                )
+    
+    return ValidationResult(
+        is_valid=True,
+        message="Contextual bonus validation passed",
+        original_value=str(bonus_value),
+        rule_applied="RULE 3b - All checks passed"
+    )
+
+
+# RULE 20: Usual Hours Limit (Brandon's rule)
+def validate_usual_hours_limit(usual_hours) -> ValidationResult:
+    """
+    RULE 20: Validate usual hours of work.
+    Flags when usual hours exceed 60 hours per week.
+    
+    Args:
+        usual_hours: Numeric hours per week value
+        
+    Returns:
+        ValidationResult with is_valid=False if hours > 60
+    """
+    if usual_hours is None:
+        return ValidationResult(
+            is_valid=True,
+            message="No usual hours provided",
+            original_value="None",
+            rule_applied="RULE 20 - Not applicable"
+        )
+    
+    try:
+        hours = float(usual_hours)
+    except (ValueError, TypeError):
+        return ValidationResult(
+            is_valid=True,
+            message="Invalid hours format - unable to validate",
+            original_value=str(usual_hours),
+            rule_applied="RULE 20 - Skipped"
+        )
+    
+    if hours > 60:
+        return ValidationResult(
+            is_valid=False,
+            message="Usual hours of work is more than 60 — Please justify",
+            original_value=str(hours),
+            rule_applied="RULE 20"
+        )
+    
+    return ValidationResult(
+        is_valid=True,
+        message="Usual hours within acceptable range",
+        original_value=str(hours),
+        rule_applied="RULE 20 - Passed"
+    )
+
+
 # RULE 4: Previous Company Name Validation
 def validate_previous_company_name(value) -> ValidationResult:
     """

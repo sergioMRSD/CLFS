@@ -119,6 +119,8 @@ def validate_individual(individual):
 
     errors.extend(validate_bonus_received_rule(individual))
 
+    errors.extend(validate_usual_hours_limit_rule(individual))
+
     # Future rules go here
     # errors.extend(validate_some_other_rule(individual))
 
@@ -208,7 +210,44 @@ def validate_job_title_rule(individual):
                 "error": "Job Title must be at least 4 letters and contain no numbers"
             })
 
+
     return errors
+
+def validate_usual_hours_limit_rule(individual):
+
+    errors = []
+
+    usual_hours_header = normalise_header("Usual hours of work")
+    usual_hours_answers = individual.get_answers(usual_hours_header)
+
+    if usual_hours_answers:
+        for hours_ans in usual_hours_answers:
+            raw_hours = hours_ans["value"]
+
+            if raw_hours is None or str(raw_hours).strip() == "":
+                continue
+
+            try:
+                hours = float(raw_hours)
+            except (ValueError, TypeError):
+                continue
+
+            if hours > 60:
+                        errors.append({
+                            "file": individual.file_name,
+                            "sheet": individual.sheet_name,
+                            "row": individual.excel_row,
+                            "column": hours_ans["column"],
+                            "header": usual_hours_header,
+                            "error": (
+                                "Usual hours of work is more than 60 — "
+                                "Please justify."
+                            )
+                        })
+
+
+    return errors
+
 
 
 def validate_bonus_received_rule(individual):
@@ -380,16 +419,15 @@ def validate_bonus_received_rule(individual):
                         )
                     })
 
-           
 
 
     return errors
 
 
 
-# =========================
-# Additional
-# =========================
+    # =========================
+    # Column-Adding Functions
+    # =========================
 
 def add_ft_pt_column(ws, headers):
     """

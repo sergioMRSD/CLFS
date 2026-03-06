@@ -43,3 +43,46 @@ Total number of years in employment (age - age started employment - duration of 
 Pls check if other languages indicated in free text can be recoded to one of the languages listed.
 Individuals whose main job last week was a paid apprenticeship , traineeship or internship are usually on fixed-term contract employment rather than permanent employment or casual/on-call employment.
 Pls check if religion indicated in free text for Other Christians and Others can be recoded to one of the religions listed.
+
+Tolerance Value Checks
+
+Income	
+a) ≥$10,000 for part-timers
+b) ≤ $300 for SC/PR part-timers who are employees, employers, own account workers
+c) ≤$755 for NSF
+d) ≥ $,2500 for age ≤19
+e) Group 1/2/X1000-X5000 SSOCs < age of 35, whose income ≥ $30,000 and <$200,000
+f) Group 1/2/X1000-X5000 SSOCs ≥ age of 35, whose income ≥ $50,000 and <$200,000
+g) Group 3 SSOCs whose income >$10,000
+h) Group 4-8 SSOCs whose income > $7,000
+i) Group 9 SSOCs whose income >$4,000
+j) Anyone income ≥ $200,000
+
+Bonus
+Full time NSF whose bonus > 0
+Anyone whose bonus = 13
+SC/PRs whose in Group 1-3, Bonus >12 and Bonus < 100
+SC/PRs whose in Group 4-9, Bonus >6 and Bonus < 100
+E Pass/ S Pass , Bonus >12 and Bonus < 100
+ID Type 5-11, Bonus >6 and Bonus <100
+Part Time workers, whose bonus ≥ 5
+Anyone bonus ≥ 100
+
+Hours Worked
+Anyone who works >99 hours
+Group 1/2/3 SSOCs who works ≤10 or  ≥50 hours
+Group 4-9 SSOCs who works ≤10 or  ≥25 hours
+Working while schooling but works >40 hours
+
+Interest
+Age <18, and interest received from savings, dividends, investments  ≥ $10,000
+Age ≥18, and interest received from savings, dividends, investments  ≥ $600,000
+
+Rental Income
+Person staying in HDB 1/2 room with rental income > $0
+
+Cash in Kind/Allowances
+Cash in kind ≥$24,000
+
+Amount received from sources other than employment
+Amount received from sources other than employment  and the above (e.g regular pension payments, regular annuity payouts (excluding CPF Life/Retirement Sum Scheme payouts), social welfare grants etc.)  ≥$19,000

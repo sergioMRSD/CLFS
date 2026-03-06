@@ -1,0 +1,45 @@
+Job title must be a text with at least 4 letter and cannot be purely numerical
+Age at which you started employment cannot be below 12 and above 90
+Persons taking up work on such 'freelance' platforms are commonly self-employed and working on their own account without hiring employees on a continuous basis. Are you sure a person who has taken up 'freelance' work through such online platforms was not an own account worker at any time in the last 12 months? Please clarify with respondent on the job arrangement and amend response for the above question if necessary.
+Q: Have you utilised any of the following programmes/initiatives to upgrade your skills or switch jobs? - If 'None of the above' was selected then cannot choose other options. To auto-correct the cell-output to only 'None of the above'
+Q: What is your religion? - Cannot have 'No religion' and another option selected together
+Populate SSOC based on job title and job description and have another column of SSOC code next to the column of 'Main tasks / duties' for each household member
+Populate SSEC based on Highest Academic Qualification and insert new column next to Highest Academic Qualification column for each household member
+Populate SSIC based on company name and Strata file. Insert new column next to Name of Establishment you were working last week? column for each household member and paste in the valid SSIC code
+Populate Part-time/Full-time based on working hours and insert new column next to Usual hours of work for each household member (For both CURRENT and PREVIOUS employment)
+The name of the previous /current company must have a minimum of 3 letters and should not be purely numerical digits. 
+Please enter a bonus in the format  0.0, 1.255, 2.000, etc.
+If ‘Others’ was chosen for place of birth, ensure that it is a valid country name
+If ‘Others’ was chosen, check if text filled after 'Others:' is a denomination of one of the religion options. If it is, help to re-classify the text back to one of the given options 
+"If respondent choose 'Yes' for ""Have you ever obtained any Vocational or Skills certificates/qualifications, (e.g. (WSQ) and (ESS) certificates, or formal certifications that validate knowledge and skills in a particular field)?"" 
+A subsequent question would appear asking respondent to select which professional certification they have attained. Help to break down respondent's answer into 5 new columns: Care Economy, Artificial Intelligence, Digital Skills (excluding Artificial Intelligence), Green Economy and Industry 4.0"
+The 5-digit SSIC code under Name of Company must be a valid SSIC 5 -Digit code
+Coding for present occupation must be a valid code that can be found in SSOC 2024.
+Whether respondent is a student must be a valid code.
+Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please  confirm that the 'Others' option cannot be grouped into the options provided.
+Highest academic qualification attained must be a valid SSEC 2020 code.
+Please verify the number of children born.
+Household reference person should be placed as member 01 of the household.
+Age at which you started employment must be a valid code.
+Whether would like to revise answer about interest earned must be a valid code
+Please enter bonus in the format  0.0, 1.255, 2.000, etc.
+Persons taking up work on such 'freelance' platforms are commonly self-employed and working on their own account without hiring employees on a continuous basis. Are you sure a person who has taken up 'freelance' work through such online platforms was not an own account worker at any time in the last 12 months? Please clarify with respondent on the job arrangement and amend response for the above question if necessary.
+Name of previous company must not be blank.
+Coding for present industry must be a valid code that can be found in SSIC 2020.
+None of the members in this household are Chinese. Are you sure the language or dialect that this person second most frequently speak at home is Mandarin or a Chinese dialect?
+Coding for last industry must be a valid code that can be found in SSIC 2020.
+Field of study for highest academic qualification attained must be a valid SSEC 2020 code.
+Others free text must not be blank  if WHE_HQA = 799  (Others) was selected.
+Please fill in a valid Singapore postal code for your workplace address.
+Coding for last occupation must be a valid code that can be found in SSOC 2024.
+Employment status must be a valid code.
+A household must have 1 household reference person.
+None of the members in this household are Chinese. Are you sure the language or dialect that this person most frequently speak at home is Mandarin or a Chinese dialect?
+Are you sure the monthly income earned from this OAW job is less than $200.
+Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.
+Are you sure the last drawn gross monthly income from the most recent overseas work experience  was   S$200,000 or more? Pls check if last drawn monthly income reported is referring to monthly income or annual income, or reported in Singapore dollars. If annual income, pls amend response to that based on monthly income. If referring to amount in foreign currency, pls amend response to that based on Singapore dollars.
+System to prompt: "Please do not enter any leading zeroes, symbols or alpha characters for usual travelling time."
+Total number of years in employment (age - age started employment - duration of employment breaks) is shorter than years in current job  (B38 B37). Pls check response to questions B38. B61 and B62, B37, B57 and B58 and amend any incorrect information.
+Pls check if other languages indicated in free text can be recoded to one of the languages listed.
+Individuals whose main job last week was a paid apprenticeship , traineeship or internship are usually on fixed-term contract employment rather than permanent employment or casual/on-call employment.
+Pls check if religion indicated in free text for Other Christians and Others can be recoded to one of the religions listed.

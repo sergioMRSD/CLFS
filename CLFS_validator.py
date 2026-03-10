@@ -1276,16 +1276,18 @@ def create_output_directory():
     return output_dir
 
 
-def create_validation_report(rule_errors: list[dict], source_filename: str) -> Optional[Path]:
+def create_validation_report(rule_errors: list[dict], source_filename: str, validated_df: Optional[pd.DataFrame] = None) -> Optional[Path]:
     """
     Create a validation report Excel file with summary and details sheets.
 
     Sheet 1: Summary of errors with frequency counts
-    Sheet 2: Detailed errors with Response ID and Full Name
+    Sheet 2: Detailed errors with Response ID and Full Name (with corrections column)
+    Sheet 3: Complete Dataset (validated data with corrections applied)
 
     Args:
         rule_errors: List of error dicts
         source_filename: Input filename
+        validated_df: Optional DataFrame containing the complete validated dataset
 
     Returns:
         Path to the report file if created
@@ -1298,6 +1300,9 @@ def create_validation_report(rule_errors: list[dict], source_filename: str) -> O
     report_path = output_dir / f"{filename}_validation_report.xlsx"
 
     details_df = pd.DataFrame(rule_errors)
+    
+    # Add "corrections" column (initially empty) for agents to fill in
+    details_df["corrections"] = ""
 
     summary_df = (
         details_df
@@ -1310,6 +1315,28 @@ def create_validation_report(rule_errors: list[dict], source_filename: str) -> O
     with pd.ExcelWriter(report_path, engine="openpyxl") as writer:
         summary_df.to_excel(writer, sheet_name="Summary", index=False)
         details_df.to_excel(writer, sheet_name="Details", index=False)
+        
+        # Add complete dataset sheet if provided
+        if validated_df is not None:
+            validated_df.to_excel(writer, sheet_name="Complete Dataset", index=False)
+
+    # Apply yellow highlighting to the corrections column in Details sheet
+    wb = load_workbook(report_path)
+    
+    # Highlight corrections column in Details sheet
+    if "Details" in wb.sheetnames:
+        ws_details = wb["Details"]
+        yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+        
+        # Find the corrections column (should be the last column)
+        corrections_col_idx = len(details_df.columns)  # 1-indexed in Excel
+        
+        # Apply yellow highlight to header and all data cells in corrections column
+        for row in range(1, ws_details.max_row + 1):
+            ws_details.cell(row=row, column=corrections_col_idx).fill = yellow_fill
+    
+    wb.save(report_path)
+    wb.close()
 
     print(f"\n✓ Validation report saved to: {report_path}")
     return report_path
@@ -2161,8 +2188,8 @@ def main():
         
         print(f"\nRULES 2-13 Summary: {len(rule_errors)} errors found")
 
-        # Create validation report (summary + details)
-        create_validation_report(rule_errors, filename)
+        # Create validation report (summary + details + complete dataset)
+        create_validation_report(rule_errors, filename, modified_df)
         
         # Save validated output if changes were made
         if changes or error_cells:

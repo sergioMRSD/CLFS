@@ -1,0 +1,47 @@
+									
+Question	Alias	Warnings	Validation_Msg	Reason	Processing	Collection (MSOL-Respondents)	Collection (MSOL- Interviewers)	Comments	DC Vals
+"I1
+Difficulty in seeing "	DIFF_See	To update							
+"I2
+Difficulty in hearing"	DIFF_ Hear	To update							
+"I3
+Difficulty in walking/climbing steps/transferring "	DIFF_Move 	To update							
+"I3a
+Difficulty in walking "	DIFF_Walk	To update							
+"I3b
+Difficulty in transferring"	DIFF_Trans	To update							
+"I4
+Difficulty in remembering"	DIFF_Rem	If DIFF_Rem = "4" (Cannot do at all) and (ACTVITY_ST_WR  [A22] = "1"-"6" (Employed) or I_WHYNOWORK = "01" (Pursuing full-time study), "02" (Pursuing part-time study), "03" (awaiting the start of academic year), "04" (awaiting NS call-up), "05" (awaiting examination results) or "06" (attending courses/training), to flag out for confirmation.	Are you sure a person who cannot remember at all is working or is pursuing full-time/part-time studies, awaiting start of academic year/NS call-up/examination results or attending courses/training? [Please probe tactfully]		X		X		1559
+"I4
+Difficulty in self-care activities "	DIFF_Care 	If all members in household selected DIFF_Care='4' (cannot do at all), to flag out for verification.	All members in this household are unable to take on self-care activities at all. Please verify if there are any care-giver(s) staying in this household, and if yes to add in as household member(s) and collect information from these individuals for the survey. [Please probe tactfully]		X		X		1551
+		If (DIFF_Care = "4" (Cannot do at all) or DIFF_Wash = "4" (Cannot do at all) or DIFF_Feed = "4" (Cannot do at all) or DIFF_Toilet = "4" (Cannot do at all) and (ACTVITY_ST_WR [A22] = "1"-"6" (Employed) or I_WHYNOWORK = "01" (Pursuing full-time study) or "02" (Pursuing part-time study), to flag out for confirmation. 	Are you sure a person who cannot perform self-care activities/washing/feeding/using the toilet at all is working or is pursuing full-time/part-time studies? [Please probe tactfully]		X		X	"For variabes DIFF_Wash; DIFF_Feed and DIFF_Toilet, understand that there was intention to remove these initially but with the questions retained, do we need to still check for these?
+
+Suggest to check, since there are relatively few cases hitting these validations and if DOS acquires the data using Stats Act, we will still need to provide."	1560
+		If (DIFF_Care = "4" "3" (Cannot do at all) or DIFF_Wash = "4" (Cannot do at all) or DIFF_Feed = "4" (Cannot do at all) or DIFF_Toilet = "4" (Cannot do at all) and I_WHYNOWORK = "07" (Housework) or "08" (Care for own children aged 12 and below), "21" (care for own children aged above 12), "22" (care for families (including grandchildren)/relatives", "09" (Care for families/relatives), "10" (Care for persons who are not family/relatives), "11" (Doing voluntary/community work), to flag out for confirmation. 	Are you sure a person who cannot perform self-care activities/washing/feeding/using the toilet at all is not working because of housework, taking care of own children/family member/relative/other persons, or doing voluntary/community work? [Please probe tactfully]	If the respondent cannot do self-care activities at all, it is highly unlikely that he/she would be able to take care of another person, housework or doing voluntary/community work. As such, need to probe tactfully to verfiy if the responses to this question and the one on main reason for not working is correctly/wrongly selected.	X		X		1561
+"I5a
+Difficulty in washing"	DIFF_Wash	To update							
+"I5b
+Difficulty in feeding"	DIFF_Feed	To update							
+"I5c
+Difficulty in using toilet"	DIFF_Toilet	To update							
+"I6
+Difficulty in communicating"	DIFF_Comm	To update							
+"I7
+Have long-lasting conditions or difficulty"	"Pwd_Member
+Yes_Phy,  Yes_Visual, Yes_Hear, Yes_ASD, Yes_Intellect, Yes_Oth, Yes_Others"	If E_OCC = '1', '8', '9', '31', '35', '71', '72', '73', '74', '211', '213', '214', '215', '216', '217', '221', '222', '223', '225', '321', '322', '323', '324', '511', '512', '44121' - '44129', '541', '750', '752', '753', '754', '2261', '2262', '2263', '2264', '2267', '2268', '2269', '2653', '3251', '3254', '3257', '3259', '3315', '3332', '3334', '3351', '3355', '3431', '3432', '3434', '5141', '5142', '75110', '7512', '7519', '32559', '34332', '34409', '36205', '51492', '51499', and visual impairment is selected for a member (Yes_Visual = 1), system to prompt for reconfirmation.	Person who has visual impairment is unlikely to be working in his/her current occupation. [Please probe tactfully if respondent is in the following occupation.]		X		X		1552
+		If E_OCC = '71', '72', '74', '81', '83', '214', '215', '217', '310', '313', '314', '315', '316', '317', '511', '541', '754', '2161', '2162', '2165', '2653', '3111', '3112', '3113', '3114', '3115', '3116', '3117', '3121', '3129', '3257', '3259', '3351', '3355', '4214', '7521', '7529', '33492', '34409', '36205', '75220', and physical impairment is selected for a member (Yes_Phy = 1), system to prompt for reconfirmation. 	Person who has physical impairment is unlikely to working in his/her current occupation. [Please probe tactfully if respondent is in the following occupation.]		X		X		1553
+		If a member has intellectual disability (Yes_Intellect = 1) and (EDUC = '51'-'92' or WSQ_EDUC = '51'-'83' or E_OCC = '11110'-'39910'), system should prompt for verification.	Are you sure a person who has intellectual disability  has diploma or higher qualifications or working in a managerial, professional or associate professional /technician job? [Please probe tactfully]		X		X		1554
+		If a member has autistic spectrum disorder (Yes_ASD = 1) and (EDUC = '51'-'92' or WSQ_EDUC = '51'-'83' or E_OCC = '11110'-'39910'), system should prompt for verification.	Are you sure a person who has autistic spectrum disorder has diploma or higher qualifications or working in a managerial, professional or associate professional/technician job? [Please probe tactfully]		X		X		1555
+		If a member has autistic spectrum disorder (Yes_ASD = 1) and E_OCC = '40', '511', '514', '517', '5195', '521', '523', '524' (excl '52492'), '53', '54', '59', '4214', system should prompt for verification.	Are you sure a person who has autistic spectrum disorder is working in this occupation? [Please probe tactfully]		X		X		1556
+		If a member has intellectual disability (Yes_Intellect= 1) and E_OCC= '40', '511', '514', '517', '5195', '521', '523', '524' (excl '52492'), '53', '54', '59', '4214', system should prompt for verification.  	Are you sure a person who has intellectual disability is working in this occupation? [Please probe tactfully]		X		X		1557
+		"Others listing for long-lasting difficulties  (Yes_Others), system to prompt for verification
+"	"Please check if free text in Others for question J5 refers to one or more of the long-lasting difficulites listed (i.e. physical, visual, hearing impairment, autistic spectrum disorder, intellectual disability). If yes, pls select the appropriate options and remove free text from Others.
+
+If temporary impairment, medical or mental conditions is indicated in Others free text, or if nil/no condition is indicated, pls remove them.
+
+If free text specified is an elaboration of difficulties already selected, please delete the free text from Others, retain the difficulties selected,and shift corresponding elaboration into notes instead.
+
+If developmental disabilities (e.g. Global Developmental Delay, Down Syndrome), genetic disorders (e.g. Fragile X Syndrome, Fetal Alcohol Spectrum disorder, Noonan's Syndrome, Angelman's Syndrome, Cornelia De Lange Syndrome, Microcephaly) or unable to speak/mute are indicated in Others free text, pls retain them."	"Screen through Others listing to:
+1) Remove items that are not long lasting difficulties (e.g. diabetes, cancer, nil)
+2) Classify into the options provided if appropriate
+3) If it is elaboration of difficulties already selected, to delete from this field and move it to Notes, so that we won't wrongly count the person as having multiple conditions."	X		X		1558

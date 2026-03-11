@@ -1,0 +1,16 @@
+Question	Alias	Routing/ Question format properties	Errors 	Validation_Msg	Reason	Changes for CLFHS 2025	Processing	Collection (MSOL-Respondents)	Collection (MSOL- Interviewers)	DC Val	System
+SECTION F		Question appears only for Persons with residential status (RESIDENTIAL_ST = “1” (in Singapore, residential unit) or “6”/ “7” / “4” (outside Singapore for less than 6 months/ 6 months/ > 6 to < 12 months) excluding foreign domestic helpers on work permit (RELH= '12' and ID_TYPE='05'				New Section	X	X	X		
+"F1
+Attend Pre-school"	Attend_pre_sch	To update					X		X		
+"F2
+Whether respondent is a student"	STDNT	To update									
+"F3
+Full-time or part-time student"	SCHOOL_FTPT	To update									
+"F4
+Level of formal education currently attending"	EDUC_ATTEND	To update									
+"F5
+Highest academic grade passed or qualification attained"	EDUC_5	To update									
+"F6
+Usual Travel mode to school"	TRANSPORT_SCH	To update									
+"F7
+Usual Travel time to school"	TRVL_TIME_SCH	To update									

@@ -1304,6 +1304,28 @@ def create_validation_report(rule_errors: list[dict], source_filename: str, vali
     # Add "corrections" column (initially empty) for agents to fill in
     details_df["corrections"] = ""
 
+    # Add household-level Remarks context next to corrections for agent review.
+    remarks_values = [""] * len(details_df)
+    if validated_df is not None and not validated_df.empty and "row" in details_df.columns:
+        remarks_col = _find_column_name(list(validated_df.columns), "Remarks")
+        if remarks_col:
+            extracted_values = []
+            max_idx = len(validated_df) - 1
+            for row_value in details_df["row"]:
+                try:
+                    source_row_idx = int(row_value) - 1
+                except (TypeError, ValueError):
+                    source_row_idx = -1
+
+                if 0 <= source_row_idx <= max_idx:
+                    remarks_value = validated_df.at[source_row_idx, remarks_col]
+                    extracted_values.append("" if pd.isna(remarks_value) else str(remarks_value))
+                else:
+                    extracted_values.append("")
+            remarks_values = extracted_values
+
+    details_df.insert(details_df.columns.get_loc("corrections") + 1, "Remarks", remarks_values)
+
     summary_df = (
         details_df
         .groupby(["rule", "column", "message"], dropna=False)
@@ -1328,8 +1350,8 @@ def create_validation_report(rule_errors: list[dict], source_filename: str, vali
         ws_details = wb["Details"]
         yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
         
-        # Find the corrections column (should be the last column)
-        corrections_col_idx = len(details_df.columns)  # 1-indexed in Excel
+        # Find the corrections column index (1-indexed in Excel)
+        corrections_col_idx = details_df.columns.get_loc("corrections") + 1
         
         # Apply yellow highlight to header and all data cells in corrections column
         for row in range(1, ws_details.max_row + 1):

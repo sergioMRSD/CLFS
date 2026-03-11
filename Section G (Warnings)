@@ -1,0 +1,17 @@
+										
+	Question	Alias	Warning	Validation_Msg	Reason	Collection (MSOL- Interviewers)	Collection (MSOL-Respondents)	Processing	Comments	DC Vals
+	"G2 
+Any non-work income"	E_SC	No warning validations							
+	"G1
+Amount received from interest, dividends & other investment sources "	"
+E_SC_AMT1A"	If E_SC_AMT1A ≥ 10000 and Age is < 18 years, system to prompt for re-confirmation	Are you sure the amount received for interest, dividends and other investment sources for a person below 18 years old is $10,000 or more in the last 12 months?	Quite rare for a young person to receive so much interest/dividends.	X		X		1501
+			If age >= 18 years and E_SC_AMT1A >= $600,000, system to prompt for re-confirmation	Are you sure the total amount received from interest, dividends and other investment sources in the last 12 months is more than or equal to $600,000?		X		X		1502
+	"G3a
+Amount received from rents (including rent from houses and fixed assets, subletting)  "	"
+E_SC_AMT2A"	If E_SC_AMT2A > 0 and Age is < 18 years, system to prompt for re-confirmation 	Are you sure a person below 18 years old receives rental income?	Quite rare for a young person to have a property and collect rental.	X		X		1503
+			If age >= 18 years and E_SC_AMT2A >= $600,000, system to prompt for re-confirmation	Are you sure the total amount received from rents in the last 12 months is more than or equal to $600,000?		X		X		1504
+	"G3b
+Amount received from regular cash allowances or contributions (including alimony) from children, relatives, friends not staying in this household"	E_SC_AMT3A	 If E_SC_AMT3A >= $600,000, system to prompt for re-confirmation 	Are you sure the total amount received from regular cash allowances/contributions (including alimony) from children, relatives, friends not staying in this household in the last 12 months is more than or equal to $600,000?		X		X		1505
+	"G3c
+Amount received from sources other than work and the above (e.g. social welfare grants, regular pension payments, regular annuity payouts (excluding CPF Life/Retirement Sum Scheme payouts), etc.)  "	"
+E_SC_AMT4A"	If  E_SC_AMT4A >= $600,000, system to prompt for re-confirmation	Are you sure the total amount received from sources other than work and sources  in questions I2 (a) to (c) in the last 12 months is more than or equal to $600,000?		X		X		1507

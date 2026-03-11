@@ -1276,7 +1276,37 @@ def create_output_directory():
     return output_dir
 
 
-def create_validation_report(rule_errors: list[dict], source_filename: str, validated_df: Optional[pd.DataFrame] = None) -> Optional[Path]:
+def _apply_dataset_highlights(
+    ws,
+    changes: dict,
+    error_cells: set[tuple[int, int]]
+):
+    """Apply the same change/error highlights used in validated output sheets."""
+    orange_fill = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
+    yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+
+    for (row_idx, col_idx), (_, new_val) in changes.items():
+        # Excel rows are 1-indexed and include one header row.
+        excel_row = row_idx + 2
+        excel_col = col_idx + 1
+        cell = ws.cell(row=excel_row, column=excel_col)
+        cell.fill = orange_fill
+        cell.value = new_val
+
+    for (row_idx, col_idx) in error_cells:
+        excel_row = row_idx + 2
+        excel_col = col_idx + 1
+        cell = ws.cell(row=excel_row, column=excel_col)
+        cell.fill = yellow_fill
+
+
+def create_validation_report(
+    rule_errors: list[dict],
+    source_filename: str,
+    validated_df: Optional[pd.DataFrame] = None,
+    changes: Optional[dict] = None,
+    error_cells: Optional[set[tuple[int, int]]] = None,
+) -> Optional[Path]:
     """
     Create a validation report Excel file with summary and details sheets.
 
@@ -1288,6 +1318,8 @@ def create_validation_report(rule_errors: list[dict], source_filename: str, vali
         rule_errors: List of error dicts
         source_filename: Input filename
         validated_df: Optional DataFrame containing the complete validated dataset
+        changes: Optional dictionary of changed cells
+        error_cells: Optional set of error cell coordinates
 
     Returns:
         Path to the report file if created
@@ -1356,6 +1388,11 @@ def create_validation_report(rule_errors: list[dict], source_filename: str, vali
         # Apply yellow highlight to header and all data cells in corrections column
         for row in range(1, ws_details.max_row + 1):
             ws_details.cell(row=row, column=corrections_col_idx).fill = yellow_fill
+
+    # Make complete dataset sheet a visual copy of validated output (same highlights)
+    if "Complete Dataset" in wb.sheetnames and (changes or error_cells):
+        ws_dataset = wb["Complete Dataset"]
+        _apply_dataset_highlights(ws_dataset, changes or {}, error_cells or set())
     
     wb.save(report_path)
     wb.close()
@@ -1395,25 +1432,7 @@ def save_with_highlights(
     wb = load_workbook(output_path)
     ws = wb.active
     
-    # Blue highlight for changed cells
-    orange_fill = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
-    yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
-    
-    for (row_idx, col_idx), (old_val, new_val) in changes.items():
-        # Excel rows are 1-indexed and we need to account for header row
-        excel_row = row_idx + 2  # +1 for 1-indexing, +1 for header
-        excel_col = col_idx + 1  # +1 for 1-indexing
-        
-        cell = ws.cell(row=excel_row, column=excel_col)
-        cell.fill = orange_fill
-        cell.value = new_val
-
-    # Apply yellow highlights for errors (no value changes)
-    for (row_idx, col_idx) in error_cells:
-        excel_row = row_idx + 2
-        excel_col = col_idx + 1
-        cell = ws.cell(row=excel_row, column=excel_col)
-        cell.fill = yellow_fill
+    _apply_dataset_highlights(ws, changes, error_cells)
     
     wb.save(output_path)
     print(f"\n✓ Validated file saved to: {output_path}")
@@ -2211,7 +2230,7 @@ def main():
         print(f"\nRULES 2-13 Summary: {len(rule_errors)} errors found")
 
         # Create validation report (summary + details + complete dataset)
-        create_validation_report(rule_errors, filename, modified_df)
+        create_validation_report(rule_errors, filename, modified_df, changes, error_cells)
         
         # Save validated output if changes were made
         if changes or error_cells:

@@ -1,0 +1,35 @@
+Question & Alias	Routing/ Question format properties	Errors 	Validation_Msg	Reason	Changes for CLFHS 2025	Collection (MSOL- Interviewers)	Collection (MSOL-Respondents)	Processing	Comments 	DC Val
+SECTION G	For persons with RESIDENTIAL_ST = “1” (in Singapore, residential unit) or “6”/ “7” / “4” (outside Singapore for less than 6 months/ 6 months/ > 6 to< 12 months) excluding foreign domestic helpers on work permit				Y	X	X	X		
+"G1
+Interests and savings received
+E_SC_AMT1A"	"For persons aged below 18 years, go to G2.
+Otherwise for persons aged 18 years and above, go to G3."				Y					
+"G2
+Any non-work income
+(E_SC)"	To display if AGE < 18					X	X	X		184
+	For respondents who need to answer this question, E_SC can only take on values "1" or "2"		Whether received any income from non-work sources in the last 12 months must be a valid code.			X	X	X		184
+	"If E_SC = '1' (Yes), system to route to G3.
+
+Else, if E_SC = '2' (No) and persons outside Singapore > 6 to < 12 months (RESIDENTIAL_ST='4') , go to H2.
+
+Otherwise,
+For persons aged < 5 years, end of survey
+
+For persons aged ≥ 5 years, Go to Section I
+"				Y	X	X	X		
+"G3
+Other sources (interest, dividends, other investment sources) 
+(E_SC_AMT2A;
+E_SC_AMT3A;
+E_SC_AMT4A)"	"To display if:
+a) AGE ≥ 18 OR
+b) AGE < 18 and E_SC  = '1' (Yes)"					X	X	X		185-188
+	Entry up to 7-digit numeric code. No alphabet, leading zeroes and decimal place would be captured. 		Please enter integer only (up to 7 digits allowed).			X	X	X		
+	Check for leading zeros, alpha characters and symbols, system to negate these entries. 					X	X	X		
+		If AGE < 18 and E_SC ='1' and E_SC_INTAMT E_SC_AMT1A = 0 and E_SC_RENTAMT E_SC_AMT2A = 0 and E_SC_CASHAMT E_SC_AMT3A = 0 and E_SC_OTHAMT E_SC_AMT4A = 0, to flag out as Error.	If you have received income from non-work sources, at least one response category has to be a non zero amount.			X	X	X		731
+	"For persons outside Singapore > 6 to < 12 months (RESIDENTIAL_ST='4') , go to H2.
+
+Otherwise,
+For persons aged < 5 years, end of survey
+
+For persons aged ≥ 5 years, Go to Section I"				Y	X	X	X		

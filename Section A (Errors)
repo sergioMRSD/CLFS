@@ -1,0 +1,314 @@
+
+Question_No	Question_Desc	Question_Aliases 	Routing / Question format properties	Errors	Validation_Msg	Reason	Changes for CLFHS 2025	Processing	Collection (MSOL-Respondents)	Collection (MSOL- Interviewers)	Remarks	System/Offline		DC Val	Change from 18012025
+	Tenancy of Household 	TENH	Tenancy of household must be a valid code from '1'-'6' and cannot be blank.		Tenancy of household must be a valid code and cannot be blank.			X		X			Val 1	1	
+	Tenancy of Household 	TENH		If tenancy for all household members is not the same, to flag out as Error. 	All household members should have the same tenancy.			X		X			Val 68	301	
+	Tenancy of Household 	TENH		For housing units with more than 1 household, and at least 1 household has tenancy = "Owns and house/flat is fully paid for" (TENH=1) or "Owns with outstanding  housing loan" (TENH = 2), there should not be another household with tenancy = "Rents whole house/flat." (TENH = 3)	If household owner is staying in this housing unit, there should not be another household with tenancy indicated as Rents whole house/flat.	"(1) If owner household is indeed staying in the house, the tenant household could at most have rented room(s) in the dwelling unit, but not the whole house.
+
+(2) If tenant household indeed has rented the whole house, it is likely that the owner household is not actually staying in the housing unit itself, but somewhere else."		X		X			Val 69	302	
+	Tenancy of Household 	TENH		If there is more than 1 household with tenancy = "Rents whole house/flat", to flag out as Error. 	There should not be more than 1 household who had rented the whole of the dwelling unit house/flat.	It is likely that either or both households has rented room(s) in the dwelling unit, rather than the whole dwelling unit.		X		X			Val 70	303	
+A1	Household Number	SRN counter		SRN_counter should be a positive integer, i.e. 1, 2, 3 and so on. (Cannot be zero)	SRN_counter should be a positive integer.			X	X	X	Based on discrepancy observed in CLFS 2021		Val 1734	2	
+A2	S/No. (PIN) (Codes range from 01 to 50) (SN)	Member_NO	PIN must be a valid 2-digit code from 01-50, and cannot be blank		Serial number of the household members must be a valid 2-digit code, and cannot be blank.			X		X			Val 3	3	
+A2	S/No. (PIN) (Codes range from 01 to 50) (SN)	Member_NO		There should not be a duplicate record of each household member. 		To check for duplicate information		X	X	X				304	
+A2	S/No. (PIN) (Codes range from 01 to 50) (SN)	Member_NO		If the S/No within the same household are not in running sequence, to flag out for confirmation.	Serial number of the household members are not in running sequence.	To make sure that all records in the household have been exported, and no duplicate serial numbers within the same household.		X		X			Val 18	305	
+A3	Name	Member_Name		Invalid Name with Numeric Digits, or contains no letter at all.	Name should not have numeric digit, and should contain at least 1 letter.	Shift from Warning to Error. Was previously flagged out by DOS for CLFS 2022 			X	X			Val 14	909	
+A4	NRIC/BC/ FIN	NRIC	If NRIC is blank and NRIC can be found in pre-populated data.		Please refer to pre-populated data to see if full NRIC can be filled.					x	Shift to warnings This check is for NRIC is blank but NRIC is available from pre-populated and hence will prompt interviewers to fill in NRIC details from pre-populated data.			4	
+A4	NRIC/BC/ FIN	NRIC		"If NRIC is invalid, system should prompt error for verification (i.e. NRIC is invalid. Please enter a valid NRIC.)
+
+On MEMBERLIST page
+
+1st byte should be S, T, F, G , M or blank
+2nd to 4th byte should be numeric from 0-9 or blank
+5th to 8th byte should be numeric
+9th byte should be A, B, C, D, E, F, G, H, I, J or Z for NRIC/UIN starting with S or T
+9th byte should be K, L, M, N, P, Q, R, T, U, W, X for NRIC/UIN starting with F, G 
+9th byte should be K, L, J, N, P, Q, R, T, U, W, X for NRIC/UIN starting with M
+For partial NRIC, 9th byte cannot fall outside the letters indicated above.
+Length of NRIC/UIN keyed in cannot be more than 9 bytes in length and cannot be shorter than 5 bytes (except blanks).
+For full NRIC, checksum based on 2nd-8th bytes should yield a letter that is the same as the letter in the 9th byte (see tabs ""UIN_FIN Algorithm (S, T, F, G)"" and ""UIN_FIN Algorithm (M series)"").
+NRIC provided must be of length ranging from 5 (last 4 digits + ending letter) to 9 (full NRIC)"	NRIC is invalid. Please enter a valid NRIC.	To check for correct NRIC					Field to be remove in system	Offline	Val 15	348	
+A4	NRIC/BC/ FIN	NRIC		For partial NRIC with last 7 numeric digits provided (but starting letter is blank) and ID_TYP="01" (Singapore citizen) or "02" (Permanent resident), compute checksum based on 2nd to 8th bytes. If it does not yield a letter that is the same as the letter in the 9th byte, this is an invalid (partial) NRIC and to be flagged as Error.	Partial NRIC provided is invalid [7 numeric digits]. Please enter a valid NRIC or check if NRIC can be found in tableau.						Field to be remove in system	Offline	Val 1283	349	Y
+A4	NRIC/BC/ FIN	NRIC		For partial NRIC with last 5 or 6 numeric digits provided, year of birth ≥  1968 and ID_TYP="01" (Singapore citizen) or "02" (Permanent resident), compute checksum by taking 2nd and 3rd byte as the last 2 digits of year of birth and 4th-8th bytes based on what is provided by respondent. If it does not yield a letter that is the same as the letter in the 9th byte, this is an invalid (partial) NRIC and to be flagged as Error.	Partial NRIC provided is invalid [5/6 numeric digits]. Please enter a valid NRIC or check if NRIC can be found in tableau.						Field to be remove in system	Offline	Val 1284	350	Y
+A4	NRIC/BC/ FIN	NRIC		For partial NRIC with last 4 numeric digits provided, year of birth ≥ 1968 and ID_TYP="01" (Singapore citizen) or "02" (Permanent resident), compute checksum by taking 2nd and 3rd byte as the last 2 digits of year of birth, 5th-8th bytes based on what is provided by respondent, and simulate the 4th byte with the digits 0-9. If none of the 10 simulated checksums yield a letter that is the same as the letter in the 9th byte, this is an invalid (partial) NRIC and to be flagged as Error.	Partial NRIC provided is invalid [4 numeric digits]. Please enter a valid NRIC or check if NRIC can be found in tableau.						Field to be remove in system	Offline	Val 1285	351	Y
+A4	NRIC/BC/ FIN	NRIC		The same full NRIC/Birth Certificate/FIN should not appear more than once in the dataset	There is another record in the dataset with the same NRIC. Pls check which is the correct record to be retained, and which is the wrong record to be deleted.	NRIC/Birth Certificate/FIN is a unique identifier.  If the same NRIC/Birth Certificate/FIN appears more than once in the dataset, need to flag out the cases to Collection team for further investigation.						Offline	Val 19	307	Y
+A5	Relationship to  household reference person 	RELH	Relationship to household reference person must be a valid code from 01-13, and cannot be blank.		Relationship to household reference person must be a valid code and cannot be blank.			X	X	X			Val 4	5	
+A5	Relationship to household reference person 	RELH		There must be only one Household reference person in each household, otherwise, system should prompt error for verification.	Same household cannot have more than 1 household reference person.	There should only be one Household reference person in each household.		X	X	X			Val 22	308	
+A5	Relationship to household reference person 	RELH		If none of the members in the household is the household reference person (i.e. zero household reference person), system should prompt as Error.	A household must have 1 household reference person.			X	X	X	To cater to cases where there is no one who is household reference person in the household, which was observed for some records in the 2021 dataset when the survey was in progress and had to be rectified.		Val 1735	355	
+A5	Relationship to household reference person 	RELH		Household reference person should be member 01 in the household. If the household reference person is someone other than member 1, to flag as an Error.	Household reference person should be placed as member 01 of the household.			X	X	X	Based on discrepancy observed in CLFS 2021		Val 1736	356	
+A6	Date of Birth 	DOB, AGE	Date of birth cannot be blank and need to be in DD/MM/YYYY format.		Date of birth cannot be blank and must be in a valid date format.			X	X	X			Val 5	6	
+A6	Date of Birth 	DOB, AGE	If year of date of birth (YYYY) < 1888, to flag as error.		Year of birth should not be before 1888, please provide a correct date of birth.			X	X	X	There has been cases in previous years where a year of birth that was way out of range was selected, e.g. 1087. If feasible, suggest to set a minimum year roughly based on the earliest birth year that can be found in MHA records, and block out all birth years before that.		Val 1771	236	
+A6	Date of Birth 	DOB, AGE	Age cannot be blank and must be an integer >= 0		Age cannot be blank and must be an integer >= 0			X	X	X			Val 5	6	
+A6	Date of Birth 	DOB, AGE		If NRIC/FIN start with 'S' and year of birth ≥ 2000, system to flag out as error.	Person with NRIC beginning with 'S' should be born in 1999 or earlier.	NRIC starting with 'S' are for those born in 1999 or earlier.		X		X	Field to be remove in system	Offline	Val 77	309	Y
+A6	Date of Birth 	DOB, AGE		If NRIC/FIN start with 'T' and year of birth < 2000, system to flag out as error.	Person with NRIC/birth certificate number beginning with 'T' should be born in 2000 or later.	NRIC starting with 'T' are for those born in 2000 or later.		X		X	Field to be remove in system	Offline	Val 78	310	Y
+A6	Date of Birth 	DOB, AGE		If NRIC/FIN start with "S", 1st 2 digits is < 68, and 2nd byte = "0" or "1", to flag out as error if year of birth >= 1968. 	Person with NRIC beginning with 'S0' or 'S1' should be born in 1967 or earlier.	Persons with such NRIC are born in 1967 or earlier (though 2nd and 3rd digit does not correspond to birth year).		X		X	Field to be remove in system	Offline	Val 79	311	Y
+A6	Date of Birth 	DOB, AGE		If NRIC/FIN start with "S", 1st 2 digits is < 68, and 2nd byte ≠ "0" or "1", to flag out as error if year of birth (DOB) ≥ 1975. 	Person with NRIC beginning with 'S2' or 'S3' should be born in 1967 or earlier.			X		X	Field to be remove in system	Offline	Val 80	312	Y
+A6	Date of Birth 	DOB, AGE		If NRIC/FIN start with "S", first 2 digits is ≥ 68, to flag out as error if last 2 digits of year of birth does not equal first 2 digits of NRIC.  	Last 2 digits of year of birth should be the same as the first 2 digits of NRIC.	Persons with such NRIC are born in 1968 or later, with 1st 2 digits of NRIC equal to the last 2 digits of year of birth.		X		X	Field to be remove in system	Offline	Val 82	313	Y
+A6	Date of Birth 	DOB, AGE		If NRIC/FIN start with "T", to flag out as error if last 2 digits of year of birth does not equal 1st 2 digits of NRIC/BC number. 	Last 2 digits of year of birth should be the same as the first 2 digits of NRIC/BC.	For persons with NRIC/BC beginning with "T", 1st 2 digits of NRIC should be the same as the last 2 digits of year of birth.		X		X	Field to be remove in system	Offline	Val 83	313	Y
+A6	Date of Birth 	DOB, AGE		Name : Census 2010 Rule - the date of birth can not be later than today						X				6	
+A6	Date of Birth 	DOB, AGE		If AGE as at 30 Jun 2024 computed by system does not tally with date of birth, to flag out as Error. 	Computed age as at 30 Jun 2024 does not tally with date of birth.			X		X	Field to be remove in system	Offline	Val 11	314	
+A6	Date of Birth 	DOB, AGE		If AGE ≥ 120, system to prompt error for verification.				X		X			Val 699	315	
+A7	Sex	SEX	Sex must not be blank and must be either "1" (male) or "2" (female)		Sex must not be blank and must be a valid code.			X	X	X			Val 699	7	
+A8	Race	RACE	Race must not be blank and must be a value from "1"-"5"		Race must not be blank and must be a valid code.			X	X	X			Val 7	8	
+A9	Place of Birth 	COUNTRY_BT	If COUNTRY_BT = non match with DOS codes, system to display a field to capture as free text. If the remarks field is empty, system to prompt error.		An answer is required.			X	X	X			Val 10	9	
+A9	Place of Birth 	COUNTRY_BT	If COUNTRY_BT= non match with DOS codes, to flag out as Error for recoding.		Place of birth must not be blank and must be a valid code.			X		X			Val 10	9	
+A9	Place of Birth 	COUNTRY_BT		Country_BT=Oth. COUNTRY_BT_IR is not answered OR COUNTRY_BT_IR < 10 char	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please  confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped witht the options provided		X		X				360	
+A10	Identification Type 	ID_TYP	Identification type must not be blank and must be a value from "01"-"11"		Identification type must not be blank and must be a valid code.			X	X	X			Val 8	10	
+A10	Identification Type 	ID_TYP		"If NRIC starts with ’S’ or ‘T’ or ends with 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'Z', then ID Type must be ‘Citizen’ or ‘PR’. System to flag out as Error if ID_TYP=""03""-""11"". 
+"	"Person with NRIC/Birth Cert Number starting with -S-/-T- or ending with ""A"", ""B"", ""C"", ""D"", ""E"", ""F"", ""G"", ""H"", ""I"" or ""Z"" should usually be a citizen or permanent resident. 
+(For foreign children born in Singapore but not a Singapore citizen/PR, their FIN and birth certificate number will differ. Pls indicate their FIN number and not the birth certificate number)."			X		X	"Field to be remove in system
+
+Additional information in red as ops feedback that interviewers had the misconception that FIN and BC number were the same for foreign children born in Singapore (despite them not being a citizen/PR) from some cases in MLFS"	Offline	Val 84	316	
+A10	Identification Type 	ID_TYP		If NRIC starts with "F" ,"G" or "M" or  ends with 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'T', 'U', 'W', 'X' and identification type = "Citizen' or "PR", to flag out as Error.	Person with NRIC /FIN beginning with “F” , “G” or "M" or ending with "K", "L", "M", "N", "P", "Q", "R", "T", "U", "W", "X" should be a foreigner.			X		X			Val 85	317	
+A10	Identification Type 	ID_TYP		If ID_TYP = '09' (New Born Foreign Baby or Child Without Identification Documentation Yet) and AGE ≥ 15 years old, system should prompt error for verification.	If the person's age is 15 years or older, the identification type should not be a new born foreign baby or child without identification documentation yet.			X		X			Val 702	318	
+A11	Residential Status 	RESIDENTIAL_ST	Residential status must not be blank and must be a value from "1"-"5"		Residential status must not be blank and must be a valid code.			X	X	X			Val 9	11	
+A11	Residential Status 	RESIDENTIAL_ST		If AGE = 0 and RESIDENTIAL_ST = '5' (outside Singapore ≥ 12 months), to flag out as Error.	A person who has not reached his/her 1st birthday cannot be outside Singapore for 12 months or longer. Pls check age and response to Where are you currently staying and amend any errors.			X	X	X				362	
+A11	Residential Status 	RESIDENTIAL_ST	If persons aged 15 and above, go A12.	If persons aged 15 and above, go A12.			Y	X	X	X					
+A11	Residential Status 	RESIDENTIAL_ST	If RESIDENTIAL_ST = ‘2’ (i.e. Staying in Institutional Unit) and persons aged < 15, system to end survey.	If RESIDENTIAL_ST = ‘2’ (i.e. Staying in Institutional Unit) and persons aged < 15, system to end survey.			Y	X	X	X					
+A11	Residential Status 	RESIDENTIAL_ST	If RESIDENTIAL_ST = ‘5’ (i.e. Outside SG ≥ 12 months) and persons aged < 15, go to Section H	If RESIDENTIAL_ST = ‘5’ (i.e. O.utside SG ≥ 12 months) and persons aged < 15, go to Section H			Y	X	X	X					
+A11	Residential Status 	RESIDENTIAL_ST		For a particular HH, if all the members’ RESIDENTIAL_ST = ‘2’ (i.e. Residing in Institutional Unit), interviewers should  set the survey status and case status to ‘Problem Case – ‘Vacant/Gone Away/Moved/Box Full’. System to flag out as Error.	All the members are residing in an Institutional Unit, please set the survey status to Problem Case - Vacant			X		X			Val 66	358	
+A11	Residential Status 	RESIDENTIAL_ST	"If RESIDENTIAL_ST = '1' (In Singapore, Residential Unit) or '3' (Overseas ≤ 6 months):
+
+For those AGE < 15 years old,  go to Section J I.
+
+For those AGE >= 15 years old, go to question A13 A14 for Singapore citizens and PRs (ID_TYP = ""01"" or ""02""), and question A23 for foreigners (ID_TYP = ""03""-""11"")."					X	X	X					
+A12	Marital Status 	MARITAL_ST	This question only applies to those (i.e. Singapore Citizen or Singapore Permanent Resident) aged 15 & over.					X	X	X			Val 13	13	
+A12	Marital Status 	MARITAL_ST	Marital status must be a valid code from "1"-"5" and must not be blank.		Marital status must not be blank and must be a valid code.			X	X	X			Val 12	13	
+A12	Marital Status 	MARITAL_ST		If RELH = ‘02’ (i.e. Husband/Wife) and MARITAL_ST ≠ ‘2’ (i.e. Married) or '5' (separated), system should prompt as error for verification.	Marital status of Husband/Wife should be married or separated.	If the RELH is husband/wife, then the person's marital status must be married or separated.		X		X			Val 58	319	
+A12	Marital Status 	MARITAL_ST		If RELH = ‘04’ (i.e. Son/daughter-in-law) and MARITAL_ST = ‘1’ (i.e. single), system should prompt as error for verification.	Marital status of son/daughter-in-law should not be single.	If the RELH is son/daughter-in-law, then the marital status should not be single.		X		X			Val 59	320	
+A12	Marital Status 	MARITAL_ST		If MARITAL_ST of household reference person = "1", "3", "4"  (i.e.single/widowed/divorced) and there is at least 1 person with RELH = ‘02’ (i.e.  Husband/Wife) in the household, system should prompt as error for verification.	 Household reference person is single/widowed/divorced and should not have a husband/wife.	Household reference person is single/widowed/divorced and should not have a husband/wife		X	X	X			Val 50	321	
+A12	Marital Status 	MARITAL_ST		If RELH = '01' (Household reference person) and RELH = '02' (Husband/Wife) have different Marital Status (e.g. one is Married and the other is Separated) and marital status of RELH='01' and RELH='02' are not blank, to throw out as query list. 	The household reference person and his/her wife/husband should have the same marital status. 	People will usually select correct response. This is to catch any typo.		X		X			Val 51	322	
+A12	Marital Status 	MARITAL_ST		If RELH = '01' (Household reference person) and MARITAL_ST = '1'  (Single) or '4' (Divorced), and there is a 1 or more parent-in-law (RELH = '06') in the same household, to flag out as Error. 	Household reference person is single/divorced and should not have a parent-in-law.			X		X			Val 54	323	
+A12	Marital Status 	MARITAL_ST	"For persons,
+ Staying in institutional unit, RESIDENTIAL_ST = '2' - End of survey
+ Outside SG ≥ 12 months RESIDENTIAL_ST = '5' - Go to Section H"				Y								
+A12	Marital Status 	MARITAL_ST	"For persons,
+ Staying in institutional unit, RESIDENTIAL_ST = '2' - End of survey
+ Outside SG ≥ 12 months RESIDENTIAL_ST = '5' - Go to Section H"				Y								
+A12	Main reason for living abroad	RSN_LIVE_ABD	To display if RESIDENTIAL_ST [A11] = '4' (Outside Singapore > 6 to < 12 months), '5' (Outside Singapore ≥ 12 months)					X	X	X				12	
+A12	Main reason for living abroad	RSN_LIVE_ABD	For those with RESIDENTIAL_ST [A11] = '4' (Outside Singapore > 6 to < 12 months), '5' (Outside Singapore ≥ 12 months), RSN_LIVE_ABD must take on value "1", "2" or "3" and cannot be blank.		Main reason for living abroad must not be blank and must be a valid code.			X	X	X			Val 694, Val 693	12	
+			" Otherwise,
+-For female Singapore Citizens or Permanent Residents, ID_TYP = '01', '02', aged 15 – 27 who are married, widowed, divorced or separated, Marital_ST = '2' to '5',
+
+-For female Singapore Citizens or Permanent Residents, ID_TYP = '01', '02', aged 15 – 27 aged 28 and over
+
+-For female foreigners (except foreign domestic helpers holding work permit RELH= '12' and ID_TYP ='05') aged 15 and over.
+
+Go to A13.
+
+Else, refer to routing instructions on the section for family characteristics [FC]"				Y								
+A13 	No. of children given birth to	CHILDNO	Check for symbols, leading zeros and alpha characters for CHILDNO, system to negate these entries.		Please enter digits without commas, symbols or decimals			X	X	X				14	
+A13 	No. of children given birth to 	CHILDNO	No. of children born ranges from 00-20. 		Please verify the number of children born.			X	X	X				14	
+A13 	No. of children given birth to 	CHILDNO	"This question only applies to:
+1) ID_TYP = '01' or '02' (Singapore Citizens or PRs) and SEX = '2' (Female) and AGE = 15 - 27 and MARITAL_ST = '2 - 5' (Married/ Widowed/ Divorced/ Separated)
+
+2) ID_TYP = '01' or '02' (Singapore Citizens or PRs)  and SEX = '2' (Female) and AGE ≥ 28
+
+3) ID_TYP= '03, 04, 06-11' Foreigners (except foreign domestic helpers holding work permit) aged 15 and over. RELH= '12' and ID_TYP ='05']
+
+<To match in admin records for singles Marital_ST ='1' aged 15-27 who are Singapore citizens or permanent residents ID_TYP= '01' or '02'>"				Y	X	X	X			Val 16, Val 97	14	
+A13 	No. of children given birth to 	CHILDNO	For foreign domestic helpers RELH= '13'. Go to B33 				Y								
+FC1	Parent of each household member	MOTHER, FATHER	[FC1:  For all persons excluding individuals in institutional unit RESIDENTIAL_ST='2', foreign domestic helpers on work permit, RELH= '12' and ID_TYP ='05']				New Qns								
+															
+FC2	Spouse/ partner of each household member	SPOUSE, PARTNER	[FC1:  For all persons aged above 15, excluding individuals in institutional unit RESIDENTIAL_ST='2', foreign domestic helpers on work permit, RELH= '12' and ID_TYP ='05']				New Qns								
+FC2	Spouse/ partner of each household member	SPOUSE, PARTNER	For persons aged below 2 years old, go to F1. Otherwise, go to A14.				New Qns								
+A14	Number of languages and dialects spoken at home	LANG_HOME	LANG_HOME must be a valid code from "1"-"3" and must not be blank.		Number of languages and dialects spoken at home must not be blank and must be a valid code.		New Qns	X	X	X					Y
+A14	Number of languages and dialects spoken at home	LANG_HOME	"For persons who usually speak 1 or more language/dialect at home (A14 = 1 or 2), go to A15.
+
+Otherwise,
+For persons aged 2 – 4  years. Go to F1.
+
+For persons aged 5-14 years. Go to A27.
+
+For persons aged ≥ 15 years . Go to A17."				New Qns								
+A15	Language or dialect spoken most frequently at home	LANG,OTH_LANG,LANG_CHI,LANG_IND,LANG_OTHS,OTH_LANG_IR	"LANG must be a valid code: 71,41,11,57,23,21,22,01,02,03 and must not be blank.
+LANG_CHI,LANG_IND,LANG_OTHS,OTH_LANG must be a valid code from the drop down list."		Language or dialect spoken most frequently at home must not be blank and must be a valid code.		New Qns	X	X	X					Y
+A15	Language or dialect spoken most frequently at home	LANG,OTH_LANG,LANG_CHI,LANG_IND,LANG_OTHS,OTH_LANG_IR	"(LANG == 01 and LANG_CHI == 39) OR (LANG == 02 and LANG_IND == 59) OR 
+(LANG == 03 and LANG_OTHS  == 49/99) is selected and OTH_LANGmust not be blank"		Others free text must not be blank  if Others in the dropdown list was was selected.		New Qns	x	x	x					Y
+A15	Language or dialect spoken most frequently at home	LANG,OTH_LANG,LANG_CHI,LANG_IND,LANG_OTHS,OTH_LANG_IR		"(LANG == 01 and LANG_CHI == 39) OR (LANG == 02 and LANG_IND == 59) OR 
+(LANG == 03 and LANG_OTHS  == 49/99). OTH_LANG_IR is not answered OR OTH_LANG_IR < 10 char"	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please  confirm that the 'Others' option cannot be grouped into the options provided.		New Qns	X	X	X					Y
+A15	Language or dialect spoken most frequently at home	LANG,OTH_LANG,LANG_CHI,LANG_IND,LANG_OTHS,OTH_LANG_IR	"For persons who usually speak 1 or more language/dialect at home (A14 = 1 or 2), go to A15.
+
+Otherwise,
+For persons aged 2 – 4  years. Go to F1.
+
+For persons aged 5-14 years. Go to A27.
+
+For persons aged ≥ 15 years . Go to A17."				New Qns								
+A16	Language or dialect spoken second most frequently at home	SECOND_LANG,SECOND_LANG_CHI,SECOND_LANG_IND,SECOND_LANG_OTHS,OTH_SECOND_LANG,OTH_SECOND_LANG_IR	"SECOND_LANG must be a valid code: 71,41,11,57,23,21,22,01,02,03 and must not be blank.
+OTH_SECOND_LANG,SECOND_LANG_CHI,SECOND_LANG_IND,SECOND_LANG_OTHS must be a valid code from the drop down list."		Language or dialect spoken second most frequently at home must not be blank and must be a valid code.		New Qns	X	X	X					Y
+A16	Language or dialect spoken second most frequently at home	LANG,OTH_LANG,LANG_CHI,LANG_IND,LANG_OTHS,OTH_SECOND_LANG_IR	"(SECOND_LANG == 01 and SECOND_LANG_CHI == 39) OR 
+(SECOND_LANG == 02 and SECOND_LANG_IND == 59) OR 
+(SECOND_LANG == 03 and SECOND_LANG_OTHS == 49/99) is selected and OTH_LANG must not be blank"		Others free text must not be blank  if Others in the dropdown list was was selected.		New Qns	x	x	x					Y
+A16	Language or dialect spoken second most frequently at home	LANG,OTH_LANG,LANG_CHI,LANG_IND,LANG_OTHS,OTH_SECOND_LANG_IR		"(SECOND_LANG == 01 and SECOND_LANG_CHI == 39) OR 
+(SECOND_LANG == 02 and SECOND_LANG_IND == 59) OR 
+(SECOND_LANG == 03 and SECOND_LANG_OTHS == 49/99). OTH_SECOND_LANG_IR is not answered OR OTH_SECOND_LANG_IR < 10 char"	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please  confirm that the 'Others' option cannot be grouped into the options provided.		New Qns	X	X	X					Y
+A16	Language or dialect spoken second most frequently at home	LANG,OTH_LANG,LANG_CHI,LANG_IND,LANG_OTHS,OTH_SECOND_LANG_IR		"If LANG = SECOND_LANG for all codes except 'Other Chinese Dialects'/ 'Other Indian Dialects'/ 'Other Malay Dialects'/'Other Languages/Dialects'), system to prompt error for verification. 
+""The First and Second Most Frequently Spoken Languages/Dialects at Home should not be the same."""	The First and Second Most Frequently Spoken Languages/Dialects at Home should not be the same.		New Qns	X	X	X					Y
+A16	Language or dialect spoken second most frequently at home	LANG,OTH_LANG,LANG_CHI,LANG_IND,LANG_OTHS,OTH_SECOND_LANG_IR	"For persons aged 2 – 4  years. Go to F1
+
+For persons aged 5-14 years. Go to A27
+
+For persons aged ≥ 15 years. Go to A17"				New Qns								
+A17	Language you are able to read in.	LANG_LIT, LANG_ABL1, LANG_ABL2, LANG_ABL3, LANG_ABL4, LANG_ABL5, LANG_ABL6, LANG_ABL7, LANG_ABL8,LANGLT_OTH_IR,LangLtX_Oth (X=1-8)	"LANG_LIT must be a valid code: 01 or 00 and must not be blank.
+IF LANG_LIT is '01', system to display list LANG_LIT.
+
+System should allow selection of a maximum of up to 8 languages
+
+"		Language you are able to read in. must not be blank and must be a valid code.		New Qns	X	X	X					Y
+A17	Language you are able to read in.	LANG_LIT, LANG_ABL1, LANG_ABL2, LANG_ABL3, LANG_ABL4, LANG_ABL5, LANG_ABL6, LANG_ABL7, LANG_ABL8,LANGLT_OTH_IR,LangLtX_Oth (X=1-8)	If LANG_ABLx (x = 1-8) = ‘91’ (Others), system to display a field LangLtX_Oth (X=1-8) must not be blank.		Others free text must not be blank  if Others in the dropdown list was was selected.		New Qns	X	X	X					Y
+A17	Language you are able to read in.	LANG_LIT, LANG_ABL1, LANG_ABL2, LANG_ABL3, LANG_ABL4, LANG_ABL5, LANG_ABL6, LANG_ABL7, LANG_ABL8,LANGLT_OTH_IR,LangLtX_Oth (X=1-8)		(LANG_ABL1 == 91 OR LANG_ABL2 == 91 OR LANG_ABL3 == 91 OR LANG_ABL4 == 91 OR LANG_ABL5 == 91 OR LANG_ABL6 == 91 OR LANG_ABL7 == 91 OR LANG_ABL8 == 91). LANGLT_OTH_IR is not answered OR LANGLT_OTH_IR < 10 char	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please  confirm that the 'Others' option cannot be grouped into the options provided.		New Qns	X	X	X					Y
+A17	Language you are able to read in.	LANG_LIT, LANG_ABL1, LANG_ABL2, LANG_ABL3, LANG_ABL4, LANG_ABL5, LANG_ABL6, LANG_ABL7, LANG_ABL8,LANGLT_OTH_IR	For all persons aged 15 years and above, excluding foreign domestic helpers on work permit, RELH= '12' and ID_TYP ='05']				New Qns								
+A18	Religion	RELIGION	For all persons aged 15 years and above, excluding foreign domestic helpers on work permit, RELH= '12' and ID_TYP ='05']				Y								
+A18	Religion	RELIGION	For those with ID_TYP = ‘01’ or ‘02’ (i.e. Singapore Citizen or Singapore Permanent Resident) , aged 15 & over with residential status = '1' (In Singapore, Residential Unit) and '3' (Outside Singapore, ≤ 6 months), Religion must not be blank and must be a value from the following: '01,11,21,31,41,51,61,70,80'. OTH_RELIGION must be a valid code from te drop down list.		Religion must not be blank and must be a valid code.		Y	x	x	x	New Question.			243	Y
+A18	Religion	Religion,OTH_RELIGION_OTH	(Oth_Christianity == 79 OR OTH_RELIGION == 99) is selected and OTH_RELIGION must not be blank		Others free text must not be blank  if Religion='80' (Others) was selected.			x	x	x	New Question.			243	
+A18	Religion	Religion,OTH_RELIGION_OTH		If Oth_Christianity == 79 OR OTH_RELIGION == 99 . OTH_RELIGION_OTH_IR is not answered OR OTH_RELIGION_OTH_IR < 10 char.System prompt for confirmation that others cannot be grouped into the options provided.	Others' or 'Christinaity, Other denomination' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped witht the options provided		X		X	New Question.			361	Y
+A19	Highest Academic Qualification Attained	EDUC	"This question only applies to Singaporeans and PRs aged 15 and over excluding,
+foreign domestic helpers on work permit, RELH= '12' and ID_TYP ='05'
+ 
+Refer to Classification of Educational Qualification Attained (without WSQ and ESS) (SSEC 2020)."				Y	X	X	X			Val 118, Val 108	15	
+A19	Highest Academic Qualification Attained	EDUC	The highest academic qualification must be a valid code from SSEC 2020 (01-04, 11-12, 21-23, 31-34, 39, 41-44, 48-49, 51-52, 61-63, 69, 71-72, 81, 91-92).	 To flag out as Error if it is an invalid code.	Highest academic qualification attained must be a valid SSEC 2020 code.			X	X	X			Val 118	15	
+A19	Highest Academic Qualification Attained	EDUC	"If EDUC = '42'-'44' or ‘51’ to ‘83’ (i.e. Degree, Diploma or professional qualifications,  NITEC/higher NITEC/master NITEC) and age 15 years and above, system to route to FIELD [A20]
+
+Otherwise, system to proceed to EVER_WSQ [A24] "				Y	X	X	X					
+A20	Major Field of Study	FIELD	This question only applies if EDUC = '42'-'44' or ‘51’ to ‘83’ (i.e.Degree, Diploma or professional qualifications, NITEC/higher NITEC/master NITEC) and age 15 years and above.				Y	X	X	X			Val 116, Val 106	16	
+A20	Major Field of Study	FIELD	The field of study must be a valid 4-digit code from SSEC 2020.	 To flag out as Error if it is an invalid code.	Field of study for highest academic qualification attained must be a valid SSEC 2020 code.			X	X	X			Val 116	16	
+A21	Place of Study 	PLACE	This question only applies if EDUC = '42'-'44' or ‘51’ to ‘83’ (i.e.Degree, Diploma or professional qualifications, NITEC/higher NITEC/master NITEC) and age 15 years and above.					X	X	X			Val 122, Val 112	17	
+A21	Place of Study 	PLACE	Place of study of highest academic qualification must be a valid code "1" or "2".		Place of study for highest academic qualification must be a valid code.			X	X	X			Val 122	17	
+A21	Place of Study 	PLACE	"If PLACE = '1' (Singapore), system to proceed to WHEDU [A22]
+
+Otherwise, system to proceed to WHE_HQA [A23]"				Y	X	X	X					
+A22	Place of Study 	WHEDU	This question only applies if EDUC = '42'-'44' or ‘51’ to ‘83’ (i.e.Degree, Diploma or professional qualifications, NITEC/higher NITEC/master NITEC) and age 15 years and above and PLACE = Singapore.			The question is only for those qualification which is ITE and above.		X	X	X			Val 120, Val 110	18	
+A22	Place of Study 	WHEDU	Institution that awarded highest academic qualification must be a valid code from "01"-"13"		Institution that awarded highest academic qualification must be a valid code.			X	X	X			Val 120	18	
+A22	Place of Study 	WHEDU		"If EDUC = 42, 44 (NITEC, master NITEC or equivalent) and WHEDU = 01-08, 11, 12 (local autonomous universities, local polytechnics, NAFA, LASALLE), or EDUC = 43 (higher NITEC or equivalent) and WHEDU = 01-02, 04-07, 11, 12 (local autonomous universities excluding NIE, NAFA, LASALLE), to flag out as Error.
+"	Highest academic qualification and institution that awarded this qualification are inconsistent. NITEC/higher NITEC/master NITEC or equivalent qualifications are not awarded by local universities, local polytechnics, NAFA or LASALLE			X		"X
+"			Val 147	325	
+A22	Place of Study 	WHEDU		If EDUC = 51, 52 (Polytechnic Diploma, Polytechnic Post-Diploma) and WHEDU in local autonomous university or ITE (i.e. WHEDU = 01-07, 09), to flag out as error "	Local autonomous universities and ITE do not award polytechnic diploma or polytechnic post-diploma.			X		X	SUSS (formerly SIM University) has become a local autonomous university.		Val 143	326	
+A22	Place of Study 	WHEDU		If EDUC = 62 (Diploma qualifications e.g. NIE diploma, SIM diploma, LaSalle diploma, NAFA diploma) and WHEDU ≠  NTU, NIE, Public Sector Training Institutions, Nanyang Academy of Fine Arts, LASALLE College of the Arts, Pte Institutions, to flag out as error. 	Institution that awarded Diploma qualifications e.g. NIE diploma, SIM diploma, LaSalle diploma, NAFA diploma should not be local universities, polytechnics or ITEs	Education and/or place of study could have been miscoded.  For example, the person may be a polytechnic diploma holder instead.		X		X			Val 141	328	
+A22	Place of Study 	WHEDU		If EDUC = 61 (ITE Diploma) and WHEDU ≠ ITE, system to prompt as Error.	If highest academic qualification is ITE diploma, it should be awarded by ITE.			X		X			Val 151	327	
+A22	Place of Study 	WHEDU		If EDUC = 63, 69 (qualifications by professional bodies, Advanced diploma) and WHEDU = 01-09 (local universities, local polytechnics, ITE), system to prompt as Error.	Highest academic qualification and institution that awarded this qualification are inconsistent. Qualifications awarded by professional bodies and other advanced diploma, post-diploma qualifications are not awarded by local universities, local polytechnics, or ITE			X		X			Val 153	329	
+A22	Place of Study 	WHEDU		If EDUC = 71, 72, 81, 91, 92 (Degree, Graduate Diploma, Master, Doctorate) and WHEDU = '08', '09' (Poly or ITE), system to prompt as Error.	Such certificates (under highest qualification) are generally awarded by Universities, Private institutions or Public Sector Training Institutions. Are you sure  this certificate was awarded by a polytechnics or ITE?" [Yes or No].		Y	X		"X
+"			Val 139	330	Y
+A22	Whether HQA obtained from NIE	NIE_HQA	To display this verification question if FIELD = 0111-0130 and WHEDU = 02 (NTU)					X	X	X					
+A22	Whether HQA obtained from NIE	NIE_HQA		If NIE_HQA = 1 (Yes) and and WHEDU! = 03 (NIE), system to prompt error for verification.	Respondent has confirmed that he/she has obtained his/her highest academic qualification (HQA) from National Institute of Education. Please amend answer to the question on place of study for HQA to "National Institute of Education".	This will be prompted to interviewers ONLY. For responses where place of study for HQA still remains as NTU even after verification (Yes), interviewers will be prompted to amend WHEDU to NIE (option 3)		X		X				357	
+A22	Whether HQA obtained from NIE	NIE_HQA	Whether HQA obtained from NIE must be a valid code "1" or "2".					X	X	X					
+A23 	Highest academic qualification obained outside of Singapore	WHE_HQA	This question only applies if EDUC = '42'-'44' or ‘51’ to ‘83’ (i.e.Degree, Diploma or professional qualifications, NITEC/higher NITEC/master NITEC) and age 15 years and above and PLACE = Outside of Singapore.				Y								Y
+A23 	Highest academic qualification obained outside of Singapore	WHE_HQA	"WHE_HQA must be a valid code: 411,211,311,132,141,001 and must not be blank.
+
+"		Foreign countriy where highest academic qualification was obtained must not be blank and must be a valid code.										
+A23 	Highest academic qualification obained outside of Singapore	WHE_HQA	(WHE_HQA = 001) is selected and WHE_HQA_OTH must not be blank		Others free text must not be blank  if WHE_HQA = 001 (Others) was selected.			x	x	x	New Question.				
+A24	Ever obtained any vocational qualifications (include WSQ / ESS) 	EVER_WSQ		"This question only applies to Singaporeans and PRs aged 15 and over excluding,
+foreign domestic helpers on work permit, RELH= '12' and ID_TYP ='05'"			Y	X	X	X			Val 124, Val 114	19	
+A24	Ever obtained any vocational qualifications (include WSQ / ESS) 	EVER_WSQ	Ever obtained any vocational qualifications must be a valid code "1" or "2".		Whether ever obtained any vocational qualifications must be a valid code.			X	X	X			Val 124	19	
+A24	Ever obtained any vocational qualifications (include WSQ / ESS) 	EVER_WSQ	If EVER_WSQ = '1' (Yes), system to proceed to WSQ_EDUC [A25].				Y	X	X	X					
+A24	Ever obtained any vocational qualifications (include WSQ / ESS) 	EVER_WSQ	For Ever_WSQ ='2' Refer to routing conditions after A25e				Y	X	X	X					
+A24	"
+Ever obtained any vocational qualifications (include WSQ / ESS) "	EVER_WSQ	If EVER_WSQ = '2' (No) and 15 years old ≤ AGE < 40 years old, system to proceed to ACTVITY_ST_WR [A23].					X	X	X					
+A25	Vocational or WSQ Qualifications 	WSQ_EDUC	This question appears only if EVER_WSQ = '1' (Yes).					X	X	X			Val 119, Val 109	20	
+A25a	Vocational or WSQ Qualifications 	WSQ_EDUC	"Listing to include the following codes only:
+00, 04, 11, 12, 13, 21, 22, 23, 24, 33, 34, 35, 39, 42, 43, 44, 45, 46, 47, 49, 51, 52, 61, 62, 63, 64, 65, 69, 82, 83, N1, N2, N3, N4, N9"	"To flag out as error if the codes fall outside the following list:
+00, 04, 11, 12, 13, 21, 22, 23, 24, 33, 34, 35, 39, 42, 43, 44, 45, 46, 47, 49, 51, 52, 61, 62, 63, 64, 65, 69, 82, 83, N1, N2, N3, N4, N9"	Highest vocational qualification attained must be a valid code.			X		X			Val 119	20	
+A25a	Vocational or WSQ Qualifications 	WSQ_EDUC	If WSQ_EDUC = '42'-'44' or ‘51’-‘83’ (i.e. Postgraduate diploma/certificate, Diploma or professional qualifications, NITEC/higher NITEC/master NITEC), system to proceed to WSQ_Field [A25b]. Otherwise, refer to routing instruction after A25.					X	X	X					Y
+A25a	Vocational or WSQ Qualifications 	"WSQ_EDUC
+"	If WSQ_EDUC not in '42'-'44' or ‘51’-‘83’ (i.e. Postgraduate diploma/certificate, Diploma or professional qualifications, NITEC/higher NITEC/master NITEC) and AGE ≥ 40 years old, system to proceed to RETIRED [A26] [A21].					X	X	X					Y
+A25a	Vocational or WSQ Qualifications 	"WSQ_EDUC
+"	If WSQ_EDUC not in '42'-'44' or ‘51’-‘83’ (i.e. Postgraduate diploma/certificate, Diploma or professional qualifications, NITEC/higher NITEC/master NITEC) and 15 years old ≤ AGE < 40 years old, system to proceed to ACTVITY_ST_WR [A23] [A22].					X	X	X					Y
+A25b	Type of vocational qualification 	WSQ_Field	This question only applies if WSQ_EDUC = '42'-'44' or ‘51’-‘83’ (i.e. Postgraduate diploma/certificate, Diploma or professional qualifications, NITEC/higher NITEC/master NITEC).					X	X	X			Val 117, Val 107	21	
+A25b	Type of vocational qualification 	WSQ_Field	The field of study must be a valid 4-digit code from SSEC 2020. To flag out as Error if it is an invalid code.		Field of study for highest vocational qualification attained must be a valid SSEC 2020 code.			X	X	X			Val 117	21	
+A25c	Type of vocational qualification 	WSQ_WHR	This question only applies if WSQ_EDUC = '42'-'44' or ‘51’-‘83’ (i.e. Postgraduate diploma/certificate, Diploma or professional qualifications,  NITEC/higher NITEC/master NITEC).					X	X	X			Val 123, Val 113	22	
+A25c	Type of vocational qualification 	WSQ_WHR	Place of study of highest vocational qualification must be a valid code "1" or "2".		Place of study of highest vocational qualification must be a valid code.			X	X	X			Val 123	22	
+A25c	Type of vocational qualification 	WSQ_WHR		If WSQ_WHR = '2' (outside Singapore) and WSQ_EDUC = 64, 65, 82, 83, system should prompt as error for verification.  	SkillsFuture Singapore (SSG) or the former WDA is the main awarding body of all WSQ certifications although reputable training institution may also be partners.  Please select Singapore as the place of study for WSQ certifications	SSG/former WDA is the main awarding body of all WSQ certification although reputable training institution may also be partners.  We will treat SSG/former WDA as the institution if WSQ is awarded. 		X		X			Val 166	332	
+A25c	Type of vocational qualification 	WSQ_WHR	If WSQ_WHR = '1' (Singapore), system to proceed to WSQ_Place [A25d].					X	X	X					Y
+A25c	Type of vocational qualification 	WSQ_WHR	If WSQ_WHR = '2' (Outside Singapore) system to proceed to A25e.					X	X	X					Y
+A25c	Type of vocational qualification 	WSQ_WHR	If WSQ_WHR = '2' (Outside Singapore) and 15 years old ≤ AGE < 40 years old, system to proceed to ACTVITY_ST_WR [A23].					X	X	X					
+A25d	Type of vocational qualification 	WSQ_Place	This question only applies if WSQ_EDUC = '42'-'44' or ‘51’ to ‘83’ (i.e. Postgraduate diploma/certificate, Diploma or professional qualifications,  NITEC/higher NITEC/master NITEC) and WSQ_WHR = '1' (Singapore)					X	X	X			Val 121, Val 111	23	
+A25d	Type of vocational qualification 	WSQ_Place	Institution that awarded highest vocational qualification must be a valid code from "01"-"14"		Institution that awarded highest vocational qualification must be a valid code.			X	X	X			Val 121	23	
+A25d	Type of vocational qualification 	WSQ_Place		If WSQ_EDUC = 64 or 65 (WSQ Diploma or WSQ Specialist Diploma), 82, 83 (WSQ Graduate Cert and WSQ Graduate Diploma) and WSQ_Place ≠ '10' (SkillsFuture Singapore or the former WDA), system to prompt error for verification.	SkillsFuture Singapore (SSG) or the former WDA is the main awarding body of all WSQ certifications although reputable training institution may also be partners.  Please select SkillsFuture Singapore or the former WDA as the institution for WSQ certifications	We have confirmed with SkillsFuture or (the former WDA) that they are the main awarding body of all WSQ certification although reputable training institution may also be partners.  We will treat SkillsFuture as the institution if WSQ is awarded. 		X		X			Val 157	333	
+A25d	"
+Type of vocational qualification "	WSQ_Place		"If WSQ_EDUC = 42, 44 (NITEC, master NITEC or equivalent) and WSQ_Place = 01-08, 10, 12, 13 (local autonomous universities, local polytechnics, SkillsFuture Singapore or the former WDA, NAFA, LASALLE), to flag out as Error.
+
+
+OR 
+
+WSQ_EDUC = 43 (higher NITEC or equivalent) and WSQ_Place = 01-02, 04-07, 10, 12, 13 (local autonomous universities excluding NIE, SkillsFuture Singapore or the former WDA, NAFA, LASALLE), to flag out as Error.
+"	"Highest vocational qualification and institution that awarded this qualification are inconsistent. NITEC/master NITEC or equivalent qualifications are not awarded by local universities, local polytechnics, SkillsFuture Singapore or the former WDA, NAFA or LASALLE
+
+OR 
+
+""Highest vocational qualification and institution that awarded this qualification are inconsistent. Higher NITEC or equivalent qualifications are not awarded by local universities, SkillsFuture Singapore or the former WDA, NAFA or LASALLE "			X		X			Val 148	334,335	
+A25d	"
+Type of vocational qualification "	WSQ_Place		If WSQ_EDUC = 51, 52 (Polytechnic Diploma, Polytechnic Post-Diploma) and WSQ_Place in local autonomous university, or ITE, SkillsFuture Singapore or the former WDA (i.e. WSQ_PLACE = 01-07, 09, 10), to flag out as error.	(Highest vocational qualification) Local autonomous universities, ITE, SkillsFuture Singapore or the former WDA do not award polytechnic diploma or polytechnic post-diploma.			X		X			Val 144	336	
+A25d	"
+Type of vocational qualification "	WSQ_Place		If WSQ_Place ≠ '09' (ITE) and WSQ_EDUC = 61 (ITE Diploma), system to prompt error.	If highest vocational qualification is ITE diploma, it should be awarded by ITE.			X		"X
+"			Val 152	337	
+A25d	"
+Type of vocational qualification "	WSQ_Place		If WSQ_EDUC = 62 (Diploma qualifications e.g. NIE diploma, SIM diploma, LaSalle diploma, NAFA diploma) and WSQ_Place ≠  '02', '03', '11', '12, '13', '14' (NTU, NIE, Public Sector Training Institutions, Nanyang Academy of Fine Arts, LASALLE College of the Arts, Pte Institutions), to flag out as error.	Institution that awarded Diploma qualifications e.g. NIE diploma, SIM diploma, LaSalle diploma, NAFA diploma should not be local universities, polytechnics, ITEs, SSG or the former WDA.	Education and/or place of study could have been miscoded.  For example, the person may be a polytechnic diploma holder instead.		X		X			Val 142	338	
+A25d	Type of vocational qualification 	WSQ_Place		If WSQ_EDUC = 63, 69 (qualifications by professional bodies, Advanced diploma) and WSQ_PLACE = 01-10 (local universities, local polytechnics, ITE, SSG or the former WDA), system to prompt as Error.	Highest vocational qualification and institution that awarded this qualification are inconsistent. Qualifications awarded by professional bodies and other advanced diploma, post-diploma qualifications are not awarded by local universities, local polytechnics, ITE, SSG or the former WDA			X		"X
+"					
+A25e	Type of vocational qualification 	WHE_HQA_WSQ	"For Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7'). Go to PQ1
+
+ Otherwise,
+ Go to A27 if 5-14 years, else go to A28 if ≥ 15 years"				Y	X		"X
+"			Val 154	339	
+A25e	Type of vocational qualification 	WHE_HQA_WSQ	"For Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7'). Go to PQ1
+
+ Otherwise,
+ Go to A27 if 5-14 years, else go to A28 if ≥ 15 years"				Y	X		"X
+"					
+PQ1	Where did you obtain your professional certification	PROCERT1,PROCERT2, PROCERT3, PROCERT4, PROCERT5	"For Singapore Citizen and Permanent Resident aged 15 years and above staying in 
+Singapore residential unit (A11 = 1a)/outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7')]"				New Qns								
+PQ1	Where did you obtain your professional certification	PROCERT1,PROCERT2, PROCERT3, PROCERT4, PROCERT5	PROCERT1,PROCERT2, PROCERT3, PROCERT4, PROCERT5 were not selected		At least one of the options for PQ1 must not be blank and must be a valid code.		New Qns	X	X	X					Y
+PQ1	Where did you obtain your professional certification	PROCERT1,PROCERT2, PROCERT3, PROCERT4, PROCERT5	PROCERT1,PROCERT2, PROCERT3, PROCERT4 should not be selected if PROCERT5 was selected.				New Qns	X	X	X					Y
+PQ2	Utilisation of programmes/initiatives to upgrade skills or switch jobs	PRGM_USED1-PRGM_USED10	"For Singapore Citizen and Permanent Resident aged 15 years and above staying in 
+Singapore residential unit (RESIDENTIAL_ST = '1')/outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7')]"				New Qns								Y
+PQ2	Utilisation of programmes/initiatives to upgrade skills or switch jobs	PRGM_USED1-PRGM_USED10	"For Singapore Citizens or Permanent Residents aged 40 and above. Go to A26.
+
+For Singapore Citizens or Permanent Residents aged below 40 or foreigners. Go to A28
+"				New Qns								Y
+A26 	Ever Retired 	RETIRED, RETAGE	Question applies to Singapore Citizens or Permanent Residents aged 40 and above					X	X	X			Val 709, Val 707	24	
+A26 	Ever Retired 	RETIRED, RETAGE	Whether ever retired should only take on value "1" or "2"		Whether ever retired must be a valid code.			X	X	X			Val 709	24	
+A26 	Ever Retired 	RETIRED, RETAGE		"If RETIRED = '1' (Yes), system to display field (RETAGE).
+
+System to set RETAGE minimum value = 16 years old, maximum = 120 years old"				X	X	X			Val 710, Val 708	25	
+A26 	Ever Retired 	RETAGE		If RETAGE > AGE, system to prompt error.  	A person's retired age cannot be greater than his current age.	The person would have retired before his current age and not after.		X		X			Val 717	340	
+A27	Current Labour Force Status (AGE 5-14)	ACTIVITY_ST_5	For persons aged 5 years to 14 years, not staying in instiutional unit or are outside Singapore >=12 months.				New Qns								
+A27	Current Labour Force Status (AGE 5-14)	ACTIVITY_ST_5	Current labour force status (ACTVITY_ST_5) must be a valid code from '1'-'4', and must not be blank for those aged 4-15.		Current labour force status must not be blank and must be a valid code.		New Qns	X	X	X					Y
+A28	Current Labour Force Status 	ACTVITY_ST	For persons aged 15 years and above.		Current labour force status must not be blank and must be a valid code.		Y	X	X	X			Val 115, Val 105	26	
+A28	Current Labour Force Status 	ACTVITY_ST	Current labour force status (ACTVITY_ST) must be a valid code from '1'-'8', and must not be blank for those aged 15 & over		Current labour force status must not be blank and must be a valid code.			X	X	X			Val 115, Val 105	26	
+A28	Current Labour Force Status 	ACTVITY_ST_WR	If  ACTIVITY_ST_WR = ‘1-6’ (i.e. Working), system to route to Section B: Employed Persons.					X	X	X					
+A28	Current Labour Force Status 	ACTVITY_ST_WR	"If ACTVITY_ST_WR = '7' (i.e. Not working), system to route to questions A29 to determine if the person should be routed to the Unemployed Persons or Persons Outside the Labour Force Section. 
+"			"If person is actively looking and available, system should route to Unemployed Persons. In addition, this also includes persons who are not looking for work in the last 4 weeks, but are starting their new job within the next 3 months and are available to work in the next 2 weeks.
+
+Otherwise, system should route to Persons Outside the Labour Force"	Y	X	X	X					
+A28	Current Labour Force Status 	ACTVITY_ST_WR	Please refer to the LF status routing tab for detailed breakdown and alias specification.					X	X	X					
+A28	Current Labour Force Status 	ACTVITY_ST_WR		If RELH = ‘12’ (i.e. Domestic helper), RESIDENTIAL_ST = "1" (In Singapore, residential unit) or "3" (Outside Singapore, <= 6 months) and ID_TYP = ‘01’ or ‘02’ (i.e. Singapore Citizen or Singapore Permanent Resident) and ACTVITY_ST_WR ≠ 1 (Working (including employee or self-employed and those in full-time, part-time, permanent or term contract employment), system should prompt as error for verification.	Relationship = Domestic helper has to be Working (including employee or self-employed and those in full-time, part-time, permanent or fixed-term contract or casual/on-call employment) 	The current labour force status of a domestic helper should be option 1 (Working (including employee or self-employed and those in full-time, part-time, permanent, fixed-term contract or casual/on-call employment).		X		X			Val 190	341	
+A28	Current Labour Force Status 	ACTVITY_ST_WR	If  RELH = ‘12’ (i.e. Domestic helper), RESIDENTIAL_ST = "1" (In Singapore, residential unit) or "3" (Outside Singapore, <= 6 months) and ID_TYP ≠ ‘01’ or ‘02’ (i.e. Singapore Citizen or Singapore Permanent Resident) ), system should set ACTVITY_ST_WR = '1' ((Working (including employee or self-employed and those in full-time, part-time, permanent or term contract employment), go to Section E (Foreigners)			"System to auto-populate values for Domestic Helper.  To reduce respondent burden.
+
+"		X	X	X			Val 190	210	
+A28	Current Labour Force Status 	ACTVITY_ST_WR	If ACTVITY_ST_WR = '2' (Full-time National Service), system should set E_EMPST = '1' (Employee) and  Typ_Biz = '2' (Government), E_OCC_Desc = Armed forces duties, E_OCC_Ttl = Singapore armed forces personnel, E_OCC = 'X3000' (S'pore Armed Forces Personnel),  ind_des = Armed forces/Police/Civil defence and E_Ind = 84221 (Armed Forces) and E_NATURE_EMP = '1' (Full-time), system to proceed to E_WFH_MTH [B16]			"System to auto-populate values for Full-time NS.  To reduce respondent burden.
+
+Allow to change Ind to 84232 (Police) or 84235 (Civil Defence) - build an error check that it can only be either 84221, 84232 or 84235."		X	X	X			Val 185-Val 189	212	
+A28	Current Labour Force Status 	ACTVITY_ST_WR		If ACTVITY_ST_WR = ‘2’ (Full-time National Service) and SEX = ‘2’ (Female), system should prompt as error for verification. 	Females should not be serving full-time national service.	Females should not be serving full-time national service.		X	X	X			Val 182	342	
+A28	Current Labour Force Status 	ACTVITY_ST_WR		If ACTVITY_ST_WR = ‘2’ (Full-time National Service) and ID_TYP ≠ ‘01’ or ‘02’ (i.e. Foreigners), system to prompt as error. 	Only Singapore Citizen or PRs can be in Full-Time National Service.	Only Singapore Citizen or PRs can be in Full-Time National Service.		X		X			Val 184	343	
+A28	Current Labour Force Status 	ACTVITY_ST_WR		If ACTVITY_ST_WR = '2' (full-time NS) and AGE < 16 years, system to prompt as error for verification. 	Males can only serve National Service when they reach 16.5 years old.	Males can only serve full-time National Service when they reach 16.5 years old.		X		X			Val 183	344	
+A29	Whether actively looking for job in the past 4 weeks	ACTVITY_ST_4W_DESC	This question only applies to persons who answered Not Working to question on current labour force status. (i.e. ACTVITY_ST_WR = '7' (Not Working))					X	X	X			Val 923, Val 924	27	
+A29	Whether actively looking for job in the past 4 weeks	ACTVITY_ST_4W_DESC	Whether actively looking for a job in the past 4 weeks should only take on value "1" or "2"		Whether actively looking for a job in the past 4 weeks must be a valid code.			X	X	X					
+A29	Whether actively looking for job in the past 4 weeks	ACTVITY_ST_4W_DESC	If ACTVITY_ST_4W_DESC = '1' (Yes), system to proceed to ACTVITY_ST_2W_DESC [A34]. Otherwise go to ACTVITY_ST_12M [A30].				Y	X	X	X					
+A30	"
+Whether actively looked for a job at any time during the past 12 months "	ACTVITY_ST_12M_DESC 	This question only applies to  ACTVITY_ST_WR = '7' (Not Working) and persons who were not actively looking for job in the past 4 weeks (ACTVITY_ST_4W_DESC = '2' (No))					X	X	X			Val 925, Val 926	28	
+A30	"
+Whether actively looked for a job at any time during the past 12 months "	ACTVITY_ST_12M_DESC 	Whether actively looking for a job at any point in time from 12 months ago till now should only take on value "1" or "2"		Whether actively looking for a job at any point in time from 12 months ago till now must be a valid code.			X	X	X					
+A31	Whether want to work at present 	INTEND_Work	This question only applies to  ACTVITY_ST_WR = '7' (Not Working)  and persons who were not actively looking for job in the past 4 weeks (ACTVITY_ST_4W_DESC = '2' (No))					X	X	X			Val 927, Val 928	29	
+A31	Whether want to work at present 	INTEND_Work	Whether want to work at present should only take on value "1" or "2"		Whether want to work at present must be a valid code.			X	X	X					
+A31	"
+Whether want to work at present "	INTEND_Work	If INTEND_Work = '1' (Yes), system to proceed to START_job [A32]. Otherwise go to ACTVITY_ST_2W_DESC [A34].				Y	X	X	X					
+A32	Whether already secured a job 	START_job	This question only applies to persons who  want to work at present (INTEND_Work = '1' (Yes)) [A31]				Y	X	X	X			Val 929, Val 930	30	
+A32	Whether already secured a job 	START_job	Whether already secured a job should only take on value "1" or "2"		Whether already secured a job must be a valid code.			X	X	X				30	
+A32	Whether already secured a job 	START_job	If START_job = '1' (Yes), system to proceed to When_Newjob [A33]. Otherwise go to ACTVITY_ST_2W_DESC [A34].					X	X	X					
+A33	How soon expected to start working in new job	When_Newjob	This question only applies to persons who are waiting to start a new job they had already obtained  (START_job = '1' (Yes))					X	X	X			Val 932, Val 933	31	
+A33	How soon expected to start working in new job	When_Newjob	How soon expected to start working in this new job should only take on value "1"-"4"		How soon expected to start working in this new job must be a valid code.			X	X	X				31	
+A34	Whether available to work in the next 2 weeks 	ACTVITY_ST_2W_DESC	This question only applies to persons who answered Not Working to question on current labour force status. (i.e. ACTVITY_ST_WR = '7' (Not Working))					X	X	X			Val 934, Val 935	32	
+A34	Whether available to work in the next 2 weeks 	ACTVITY_ST_2W_DESC	Whether available to work in the next 2 weeks should only take on value "1" or "2"		Whether available to work in the next 2 weeks must be a valid code.			X	X	X				32	
+A34	Whether available to work in the next 2 weeks 	ACTVITY_ST_2W_DESC	If When_Newjob = '1' (2 weeks or less from now), system to prepopulate ACTVITY_ST_2W_DESC = '1' (Yes), respondents to proceed to answering the unemployed section (Section C for Singapore citizens and PRs and Section F for Foreigners)					X	X	X	Prepopulation Field 		Val 936	in pega	
+A34	Whether available to work in the next 2 weeks 	ACTVITY_ST_2W_DESC	If ACTVITY_ST_4W_DESC [A23] [A29] = '1' (Yes) and ACTVITY_ST_2W_DESC = '2' (No), system to proceed to When_AvailWk [A35]. Otherwise refer to 'Current LF status routing' tab for further routing instructions.					X	X	X					
+A35	When available to work	When_AvailWk	This question only applies to persons who were actively looking for job in the past 4 weeks (ACTVITY_ST_4W_DESC [A29] = '1' (Yes)) and Unavailable to work in the next 2 weeks (ACTVITY_ST_2W_DESC = '2' (No)) [A34]					X	X	X			Val 938, Val 939	33	
+A35	When available to work	When_AvailWk	When available to work should only take on value "1", "2" or "3"		When available to work must be a valid code.										
+A35	When available to work	When_AvailWk	System to refer to 'Current LF status routing' tab for further routing instructions.					X	X	X	As this is a key routing, is it possible to include a back-end check to flag out cases where they are routed to the wrong section based on their combination of answers to A23-A29 pls? We had some cases which were routed to the wrong section in CLFS 2021, so it will be useful to include a back-end check to safeguard against such potential discrepancies.		Val 940	215-218	

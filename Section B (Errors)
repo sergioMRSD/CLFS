@@ -1,0 +1,533 @@
+Question	Alias	Routing / Question format properties	Errors 	Validation_Msg	Reason	Changes for CLFHS 2025	Processing	Collection (MSOL-Respondents)	Collection (MSOL- Interviewers)	Remarks	DC Val	Changes from 18012025
+SECTION B		To display this section forfor persons aged 5 years and above.					X	X	X			
+"B1
+Employment Status (E_EMPST)"	E_EMPST	Employment status must be a valid code from '1'-'4'		Employment status must be a valid code.			X	X	X		34	
+			If  employment status (E_EMPST) ≠ ’1’ (Employee) and RELH = '12'  (Domestic helper), system to prompt as error for verification.	Employment status for domestic helper should be Employee.			X	X	"X 
+"		401	
+												
+		For Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is an employee, E_EMPST = '1'. Go to B2.				Y	X	X	X			
+		For Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is an employer or OAW ,E_EMPST= '3' or '4'. Go to B4.				Y	X	X	X			
+		For Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is CFW, E_EMPST= '4'. Go to B8. 				Y	X	X	X			
+		Otherwise, go to B9.				Y	X	X	X			
+"B2
+Type of business for employee (Typ_Biz)"	Typ_Biz	This question applies to Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is an employee, E_EMPST = '1' and excluding full-time National Servicemen (i.e. exclude ACTVITY_ST = '2')		Type of business must be a valid code.		Y	X	X	X		35	
+		Typ_Biz must be a valid code from '1'-'4'		Type of business must be a valid code.			X	X	X		35	
+			If RELH = ‘12’ (Domestic helper), system to set type of business (Typ_Biz) = ‘4’ (Unregistered business). If type of business is changed, system to prompt as error for verification. "Type of business for domestic helper should be Unregistered business.”	Type of business for domestic helper should be Unregistered business.			X		"X 
+"		402	
+"B3
+Whether main job last week was a paid apprenticeship, traineeship, or internship
+(PAID_APP)"	PAID_APP	This question applies to Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is an employee, E_EMPST = '1' and excluding full-time National Servicemen (i.e. exclude ACTVITY_ST = '2')					X	X	X			
+		Default “Yes” for respondents whose ACTVITY_ST = 4 (Schooling but currently undergoing paid internship/traineeship/apprenticeship)				Y						
+		PAID_APP should only take on values '1' or '2'		PAID_APP Whether main job last week was a paid apprenticeship, traineeship or internship must be a valid code.			X	X	X		244	
+		System to proceed to to E_OCC [B9].										
+"B4
+Type of business (Typ_Biz_EO)"	Typ_Biz_EO	This question applies to Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is an employer or OAW ,E_EMPST= '3' or '4' and excluding full-time National Servicemen (i.e. exclude ACTVITY_ST = '2')				Y						
+		Typ_Biz_EO should only take on values '1', '3' or '4'		Type of business must be a valid code.			X	X	X		36	
+"B5
+Owner/partner of ACRA registered business 
+(OWN_REG)"	OWN_REG	This question applies to Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is an employer or OAW ,E_EMPST= '3' or '4' and excluding full-time National Servicemen (i.e. exclude ACTVITY_ST = '2')				Y						
+		OWN_REG should only take on values '1' or '2'		Whether you are an owner/partner of an ACRA-registered business in this job must be a valid code.			X	X	X		237	
+		If OWN_REG = 1 (Yes), system to proceed to whether business is incoporated (BIZ_INC) [B6]. Else, proceed to E_OCC  [B7]					X	X	X			
+"B6
+Is business incorporated
+(BIZ_INC)"	BIZ_INC	This question applies to Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is an employer or OAW ,E_EMPST= '3' or '4' and excluding full-time National Servicemen (i.e. exclude ACTVITY_ST = '2')				Y						
+		BIZ_INC should only take on values '1' or '2'		Whether the business is incorporated must be a valid code.			X	X	X		238	
+					To consider augmenting survey results with other admin sources e.g. CEIS subscription Annexes) if possible							
+"B7
+Ability to set prices for the goods or services provided
+SET_PRICE,
+SET_PRICE_OTH"	"SET_PRICE,
+SET_PRICE_OTH"	This question applies to Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is an employer or OAW ,E_EMPST= '3' or '4' and excluding full-time National Servicemen (i.e. exclude ACTVITY_ST = '2')					X	X	X			
+		For respondents who need to answer this question, SET_PRICE  can only take on values "1" , "2" ,"3" ,"4", '5' or '6'.		Whether usually set the price for goods or services in this job must be a valid code.			X	X	X		242	
+			If E_OCC = 83221 (taxi driver) or 83226 (private-hire car driver) and SET_PRICE ≠ '4' (No, prices are set by a third party (e.g. intermediary/agency)), to prompt for verification.	These occupations' services are usually fixed/set by a third party intermediary (e.g. ComfortDelgro), please verify and choose the stated option if so. 			Warning in template, Error under offline validations				2619 2725	
+			If E_OCC = 83226 (private-hire car driver) and H_Online1 = 1 (ride-hailing apps) and SET_PRICE ≠ '4' (No, prices are set by a third party (e.g. intermediary/agency), to prompt error for verification.	Private-hire car drivers' services are usually fixed/set by a third party intermediary (e.g. Grab, Gojek, Ryde or TADA), please verify and choose the stated option if so.			Error under offline validations				2620 2726	
+			If E_OCC = 83211 (motorcycle delivery man), 83212 (delivery man using motorised personal mobility aids/devices), 83222 (chauffeur), 83223 (van driver), 83224, 83225, 83229 (other car and light goods vehicle drivers), 93310 (hand/pedal vehicle driver), 96299 (other elementary workers n.e.c.) and company name (NameCo) contain the following keywords:  (Grab, Grabfood, Deliveroo, Foodpanda, WhyQ, Teleport, GrabMart, Pandamart, Oddle Eats, Deliver.sg, GrabExpress, Uparcel, Pickupp,  Lalamove,  GOGOX or Amazon Flex) and SET_PRICE ≠ '4' (No, prices are set by a third party (e.g. intermediary/agency)), to prompt error for verification.	Delivery/food delivery/grocery-delivery/parcel/item/courier delivery drivers' services are usually fixed/set by a third party intermediary (e.g. Grabfood, Deliveroo, Foodpanda), please verify and choose the stated option if so.			Error under offline validations				2621 2727	
+			If E_OCC = 83211 (motorcycle delivery man), 83212 (delivery man using motorised personal mobility aids/devices), 83222 (chauffeur), 83223 (van driver), 83224, 83225, 83229 (other car and light goods vehicle drivers), 93310 (hand/pedal vehicle driver), 96299 (other elementary workers n.e.c.) and (H_Online2 = 1 (food-delivery apps) or H_Online3 = 1 (grocery-delivery apps) or H_Online4 = 1 (parcel/item/courier deliver apps)) and SET_PRICE ≠ '4' (No, prices are set by a third party (e.g. intermediary/agency)), to prompt error for verification.	Delivery/food delivery/grocery-delivery/parcel/item/courier delivery drivers' services are usually fixed/set by a third party intermediary (e.g. Grabfood, Deliveroo, Foodpanda), please verify and choose the stated option if so.			Error under offline validations				2622 2728	
+			If SET_PRICE = '6' (Others) is selected, system to display a field to specify the reason. If the "Please specify" field is empty, system to prompt error.	An answer is required. Please specify who sets the price for the goods or services provided in the job.			X	X	X		2623 2729	
+			SET_PRICE=6 (Others). SET_PRICE_OTH_IR is not answered OR SET_PRICE_OTH_IR < 10 char.System prompt for confirmation that others cannot be grouped into the options provided.	'Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped witht the options provided		X		X		456	
+"B8
+Type of business (Typ_Biz_CFW)"	Typ_Biz_CFW	This question applies to Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is CFW, E_EMPST= '4'.				New Qns						
+		Typ_Biz_CFW should only take on values '1', '3' or '4'		Type of business must be a valid code.		New Qns	X	X	X	Val 724		
+		System to proceed to  E_OCC  [B9]				New Qns	X	X	X			
+"B3
+Whether salary paid by employment/labour contracting agency (Emp_Agency)"	Emp_Agency	To display if  E_EMPST = ‘1’ (Employee), excluding those who are full-time National Servicemen (i.e. excluding ACTVITY_ST_WR = '2')					X	X	X			
+		For respondents who need to answer this question, Emp_Agency can only take on values "1" or "2".		Whether salary is paid by an employment/labour contracting agency must be a valid code.			X	X	X		80	
+			If present occupation (E_OCC) = 54110 / 54121 / 54122 / 54130 /X3000 and Emp_Agency = ‘1’, system to prompt as error for verification.	Uniformed officers in Police, and Customs, Prisons, Civil Defence or Armed Forces cannot be employed by an agency			X		X		418	
+			If present occupation (E_OCC) = 33510 (Customs/Immigration Officer) or 33551 (Police Inspector) and Emp_Agency = '1', system to prompt as error for verification 	Customs/Immigration officer and police inspector should not be employed by an employment/labour contracting agency.			X		X		419	
+		If Emp_Agency = '1' (Yes), system to proceed to EA_Deployed [B4]. Otherwise go to E_OCC [B9]					X	X	X			
+"B4
+Deployment to another company (EA_Deployed)"	EA_Deployed	To display if E_EMPST = ‘1’ (Employee) and Emp_Agency [B3] [B34] = '1' (Yes)					X	X	X			
+		For respondents who need to answer this question, EA_Deployed can only take on values "1" or "2".		Whether deployed to work in another company under the company's supervision must be a valid code.			X	X	X		81	
+		System to proceed to E_OCC [B9] for E_EMPST = '1' (Employee)					X	X	X			
+"B9
+Present Occupation (E_OCC)"	E_OCC		Refer to the Occupation codes in SSOC 2020. The arrangement of the occupational classification in iMSS is based on alphabetical order. 				X	X	X		38	
+			The occupational codes in the system are at 5-digit level.  					X	X			
+			If present occupation (E_OCC) = blank or 'oth' or other invalid code.	Coding for present occupation must be a valid code that can be found in SSOC 2020.	invalid occupation code		X		X		38	
+			If present occupation (E_OCC) = 83211 (Motorcycle deliveryman), 83222-83229 (Car, Van and Light Goods Vehicle Drivers), 83311-83329 (Heavy Truck and Bus Drivers) and AGE < 18, to flag out as Error. 	A person aged below 18 should not be a driver, as he/she would not have a driving license.			X		X		1601	
+			If present occupation (E_OCC) = 83221 (taxi driver) and (AGE < 30 or identification type ≠ '01' (Singapore citizen)), to flag out as Error. 	A taxi driver should be at least 30 years old and Singapore citizen.	According to LTA website (http://www.lta.gov.sg/content/ltaweb/en/public-transport/taxis/industry-matters-for-taxi-drivers/driving-a-taxi-in-singapore.html), a taxi driver must be Singaporean and aged at least 30 years.		X		X		1602	
+			If present occupation (E_OCC) = 83311 (bus driver) and AGE < 21, to flag out as Error. 	A bus driver should be at least 21 years old.			X		X		1620	
+			If present occupation (E_OCC) = 83221 (taxi driver) , 83226 (private-hire car driver) or 83311 (bus driver), and AGE ≥ 75, to flag out as Error. 	A taxi driver, private-hire car driver or bus driver should be less than 75 years old based on the age limit set by LTA.	Based on the license requirements for taxi driver vocational license, private-hire car driver vocational license and bus driver vocational license, these drivers can only drive up to the point they reach age 75.		X		X		1603	
+			If present occupation (E_OCC) = 83431 (crane/hoist operator (excluding port), 83432 (crane operator (on-site)) or 83439 (other crane, hoist and related equipment operator), and AGE < 21, to flag out as Error.	A crane, hoist and related equipment operator should be at least 21 years old.	Based on licensing requirement from MOM.		X		X		1646	
+			If present occupation (E_OCC) = ('11110, '11121', '11122', '13491', '26120', '33510', '33551', '33591', 33592', 33593', '33599', '54121', '54122', '54130') and Employment Status (E_EMPST) ≠ 1 (i.e. Employee), system should display error for verification 	Employment status of Legislator, Senior Government & Statutory Board official, National Security, Civil Defence and Immigration Managerial Officer, Judge, Government Associate Professional, Police Officer, Narcotics Officer, or Prison Officer should be Employee.	Persons in these occupations cannot be self-employed		X		X 		1604	
+			If E_OCC = 31572 (Train service supervisor), 31596 (Train operations officer) or 83110 (Train operator) and employment status (E_EMPST) ≠ '1' (Employee), to flag out as Error. 	Employment status of a Train service supervisor, Train operations officer or  Train operator should be employee			X		X		1605	
+			If E_Occ = 53113 (Child/After school care centre worker) or 53115 (Educarer) and Employment status ≠ '1' (i.e. Employee), system to display error for verification 	Child/After school care centre worker or Educarer should be employee	Childcare worker has to be employee.		X		X		1607	
+			If E_OCC = 83221 (Taxi Driver) and employment status (E_EMPST) = ’2’ (Employer) or '4' (Contributing Family Worker) , system to prompt as error for verification. 	Employment status for Taxi Driver should not be employer or contributing family worker			X		X		1608	
+			If E_OCC = 83221 (Taxi Driver) and employment status (E_EMPST) = ’1’ (Employee) , system to prompt as error for verification. “Employment status for Taxi Driver  should not be employee ".	Employment status for Taxi Driver should not be employee 			X		X	HDT has ceased operations	1608	
+			If E_OCC = 83226 (Private Hire Car Driver) and employment status (E_EMPST) = ’2’ (Employer) or '4' (Contributing Family Worker) , system to prompt as error for verification. 	Employment status for Private Hire Car Driver should not be Employer or Contributing Family Worker			X		X		1609	
+			If present occupation (E_OCC) = ‘94101’ or ‘94102’ and employment status (E_EMPST) = ’2’ or ‘3’, system should prompt as error for verification. “Employment status for kitchen/stall assistant should not be employer or own account worker.”	Employment status for kitchen/stall assistant should not be employer or own account worker.	Employment status for kitchen/stall assistant should not be employer or own account worker		X		X		1610	
+			If present occupation (E_OCC) = ‘X3000’, 'X4000', 'X5000' (SAF personnel, foreign armed forces personnel, foreign diplomatic personnel) and employment status (E_EMPST) ≠ ’1’ (Employee), system should prompt as error for verification. 	Employment status for Singapore Armed Forces personnel , foreign armed forces personnel and foreign diplomatic personnel should be employee.	Employment status for Singapore Armed Forces personnel should be employee.		X		X		1611	
+			If present occupation (E_OCC) = '11110', '11121', '11122', '13491', '26120', '33510', '33551', '33591', 33592', 33593', '33599', '54121', '54122', '54130', X3000') and Type of Business (Typ_Biz) ≠ 2 (Government Ministry/Stat Board), system should display error for verification 	Type of business for Occupation = Legislator, Senior Government & Statutory Board official, National Security, Civil Defence and Immigration Managerial Officer, Judge, Government Associate Professional, Police Officer, Narcotics Officer, Prison Officer or Singapore armed forces personnel should be Government Ministry or Statutory Board	Persons in these occupations should be working in a government ministry or statutory board		X		X		1612	
+			If present occupation (E_OCC) = 11140 Senior official of political party organisation, 11150 Senior official of employers', workers' and other economic-interest organisation, 11160 Senior official of humanitarian & other special-interest organisation and Type of Business (Typ_Biz) = 2 (Government Ministry/Statutory Board), to flag out as error. 	Type of business for a senior official of political party organisation, employers', workers' and other economic interest organisation, humanitarian & other special-interest organisation should not be Government Ministry/Statutory Board.			X	X	X		1646	
+			If present occupation (E_OCC) = 11201 (Managing Director/Chief Executive Officer) and Typ_Biz = 2 (Government Ministry/Statutory Board), to flag out as Error. 	Pls confirm if this person is indeed working for a government ministry/statutory board. If chief executive officer or managing director of a statutory board, occupation should be coded as 11122 instead.			X	X	X		1647	
+			If E_OCC = 26112 (In-house legal counsel (except judiciary, ministries & stat boards) and type of business (Typ_Biz) = '2' (Government ministry/statutory board), to flag out as Error. 	Occupational code 26112 is not for persons working in government ministries and statutory boards. Please check and amend current occupation and/or type of business.			X		X		1613	
+			If E_OCC = 31572 (Train service supervisor), 31596 (Train operations officer) or 83110 (Train operator) and Type of Business (Typ_Biz) ≠ '1' (Registered Business), to flag out as Error.	A Train service supervisor, Train operations officer or Train operator should be working in a registered business. Note that SBS Transit/SMRT  are not government ministries/statutory boards, but private companies			X		X		1614	
+			If E_OCC = 36910 (Private tutor), Employment status (E_EMPST) = '3' (Own Account) and Type of Business (Typ_Biz_EO) ≠ ’4’ (Unregistered Business) , system to prompt as error for verification.	Type of business for Private tutor should be Unregistered Business.	Those private tutors who does tutoring on their own basis should be considered "Unregistered business".		X		X		1615	
+			If present occupation (E_OCC) = ‘53113’ (Child/After School Care Centre Worker) or '53115' (Educarer) and type of Business (Typ_Biz) = '4’ (unregistered business), system should prompt as error for verification. 	 A child care worker cannot be working in an unregistered business			X		X		1617	
+			If E_OCC = 83221 (Taxi Driver) and Type of Business (Typ_Biz_EO) OR (TYP_BIZ) = '2’ (Government) or '3' (Cooperative or society) , system to prompt as error for verification. 	Type of business for Taxi Driver should not be Government or Cooperative/Society.			X		X		1618	
+			If E_OCC = 83221 (Taxi Driver) and Type of Business (Typ_Biz_EO) OR (TYP_BIZ) = '1’ (Registered Business) and E_EMPST = '3' (Own Account Worker), system to prompt as error for verification. 	Type of business for Taxi Driver who is an own account worker should be Unregistered Business (Note that taxi drivers who are own account workers are not employees of the taxi company, and so type of business should not be registered business).			X		X		1644	
+			If E_OCC = 83226 (Private Hire Car Driver) and Type of Business (Typ_Biz_EO) OR (TYP_BIZ)  = '2’ (Government) or '3' (Cooperative or society), system to prompt as error for verification. 	Type of business for Private Hire Car Driver should not be Government Ministry/Statutory Board or Society, Co-operative or Not-for-profit Organisation.	Uber and Grabcar drivers who have their own cars were previously are required to register a sole proprietorship business, and type of business for them will be registered business. Other Uber and Grabcar drivers who are under the new (current) regulations should have type of business = unregistered business.		X		X		1619	
+			If present occupation (E_OCC) = 54110 / 54121 / 54122 / 54130 /X3000 and Emp_Agency = ‘1’, system to prompt as error for verification.	Uniformed officers in Police, and Customs, Prisons, Civil Defence or Armed Forces cannot be employed by an agency			X		X		418	
+			If present occupation (E_OCC) = 33510 (Customs/Immigration Officer) or 33551 (Police Inspector) and Emp_Agency = '1', system to prompt as error for verification 	Customs/Immigration officer and police inspector should not be employed by an employment/labour contracting agency.			X		X		419	
+		"For Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is employed. Go to B10.
+
+Otherwise go to B16"				Y						
+"B10
+Skills needed for job/busniness
+SKILLS_NEED_JOB"	SKILLS_NEED_JOB	This question is for Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is employed excluding full-time National Servicemen (i.e. exclude ACTVITY_ST = '2')					X	X	X			
+		SKILLS_NEED_JOB should only take on values '1' -'3'.		SKILLS_NEED_JOB Which of the following statements best describe your skills in relation to what is needed for your job/business must be a valid code.			X	X	X		245	
+"B11
+Describe, importance of skills, level of skills needed, own level of skills and ability to apply application of skills to job/business
+JTS,LS,NS,CS,FLS,PSS,CPS,TSCHS,PS"		This question is for Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is employed excluding full-time National Servicemen (i.e. exclude ACTVITY_ST = '2')					X	X	X			
+	(a) JTS_01, JTS_02, JTS_03	"JTS_01 and JTS_03 should only take on values '1'-'4'.
+JTS_02 should only be answered if JTS_01 is '1'-'3' and only take on values '1'-'3'."		JTS_01 to JTS_03 Answers to questions (i) to (iii) for Job-specific/Technical skills must be a valid codes.			X	X	X		246	
+	(b) LS_01, LS_02, LS_03	"LS_01 and LS_03 should only take on values '1'-'4'.
+LS_02 should only be answered if LS_01 is '1'-'3' and only take on values '1'-'3'."		LS_01 to LS_03 Answers to questions (i) to (iii) for Literacy skills must be a valid codes.			X	X	X		247	
+	(c) NS_01, NS_02, NS_03	"NS_01 and NS_03 should only take on values '1'-'4'.
+NS_02 should only be answered if NS_01 is '1'-'3' and only take on values '1'-'3'."		NS_01 to NS_03 Answers to questions (i) to (iii) for Numeracy skills must be a valid codes.			X	X	X		248	
+	(d) CS_01, CS_02, CS_03	"CS_01 and CS_03 should only take on values '1'-'4'.
+CS_02 should only be answered if CS_01 is '1'-'3' and only take on values '1'-'3'."		CS_01 to CS_03 Answers to questions (i) to (iii) for Computer skills must be a valid codes.			X	X	X		249	
+	(e) FLS_01, FLS_02, FLS_03	"FLS_01 and FLS_03 should only take on values '1'-'4'.
+FLS_02 should only be answered if FLS_01 is '1'-'3' and only take on values '1'-'3'."		FLS_01 to FLS_03 Answers to questions (i) to (iii) for Foreign language skills must be a valid codes.			X	X	X		250	
+	(f) PSS_01, PSS_04	"PSS_01 should only take on values '1'-'4'.
+PSS_04 should only be answered if PSS_01 is '1'-'3' and only take on values '1'-'3'."		PSS_01 and/or PSS_04 Answers to questions (i) and (iv) for Problem solving skills must be a valid codes.			X	X	X		251	
+	(g) CPS_01, CPS_04	"CPS_01 should only take on values '1'-'4'.
+CPS_04 should only be answered if CPS_01 is '1'-'3' and only take on values '1'-'3'."		CPS_01 and/or CPS_04 Answers to questions (i) and (iv) for Communication and presentation skills must be a valid codes.			X	X	X		252	
+	(h) TS_01, TS_04	"TS_01 should only take on values '1'-'4'.
+TS_04 should only be answered if TS_01 is '1'-'3' and only take on values '1'-'3'."		TS_01 and/or TS_04 Answers to questions (i) and (iv) for Team working skills must be a valid codes.			X	X	X		253	
+	(i) CHS_01, CHS_04	"CHS_01 should only take on values '1'-'4'.
+CHS_04 should only be answered if CHS_01 is '1'-'3' and only take on values '1'-'3'."		CHS_01 and/or CHS_04 Answers to questions (i) and (iv) for Customer handling skills must be a valid codes.			X	X	X		254	
+	(j) PHYS_01, PHYS_04	"PHYS_01 should only take on values '1'-'4'.
+PHYS_04 should only be answered if PHYS_01 is '1'-'3' and only take on values '1'-'3'."		PHYS_01 and/or PHYS_04 Answers to questions (i) and (iv) for Physical skills must be a valid codes.			X	X	X		255	
+"B12
+Level of qualification needed to carry out the tasks and duties of job/business
+JOB_REQ_EDUC"	JOB_REQ_EDUC	This question is for Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') who is employed excluding full-time National Servicemen (i.e. exclude ACTVITY_ST = '2')					X	X	X			
+		JOB_REQ_EDUC should only take on values '1'-'8'.		JOB_REQ_EDUC Level of qualification needed to carry out the tasks and duties of your job/business must be a valid code.			X	X	X		256	
+"B13
+Whether create original works or involved in inventing or innovating products or processes Deal with IP matters (E_CREATE_IP)
+"	E_CREATE_IP	Applies to E_OCC which falls under Annex A SSOC 2024 codes (*occupation key words	E_CREATE_IP must only take on valid values "1" or "2"	Whether create original works or involved in inventing or innovating products or processes must be a valid code.		New Qns	X	X	X		240	
+"B14
+Deal with IP matters 
+(E_DEAL_IP)"	"E_DEAL_IP
+"		E_INCOME_IP E_DEAL_IP  must only take on valid values "1" or "2"	Whether required to deal with and/or address IP matters must be a valid code.			X	X	X		241	
+			If E_DEAL_IP = 2 (No) and E_OCC  = ‘12195’ Intellectual property manager, ‘21495’ Intellectual Property Engineer, ‘24251’ Intellectual Property Agent, ‘24252; Intellectual Property Examiner, '33153' Intangible asset valuer and '33291' Intellectual property brokers and transaction specialists	A person in this occupation is likely to deal with and/or address IP matters, whether as a service provider or for themselves or their organisation.			X		X		2618	
+		If E_INCOME_IP E_DEAL_IP = '1' (Yes), system to proceed to E_TIME_IP [B10]. Otherwise, proceed to NameCo [B11].					X	X	X			
+"B15
+Time spent with IP matters (E_TIME_IP)"	E_TIME_IP		E_TIME_IP  must only take on valid values "1" or "2"	Whether spend more than 50% of total working time on these IP matters must be a valid code.			X	X	X		241	
+"B16
+Name of Company "	NameCo		If the 5-digit industry code under Name of company is not the same as the 5-digit industry code in Question B12 (Industry), system to prompt as Error.  	The 5-digit SSIC code under Name of Company and question on industry must be the same.			X		X		1622, 39	
+		This question is for persons aged 5 years and above										
+		"To retain 2017 logic of exporting UEN for companies within CEIS, variable NameCo_UEN
+
+This will be used for further matching with other databases with UEN "					X					
+"B17
+Present Industry (E_IND)"	E_IND		Refer to the Industry codes in SSIC 2020.				X	X	X		40	
+		This question is for persons aged 5 years and above										
+			The industrial codes in the system are at 5-digit level.				X	X	X		40	
+			If last industry (E_IND) = blank or 'OTH' or other invalid code.	Coding for present industry must be a valid code that can be found in SSIC 2020.	"invalid industry code
+
+Note: Code 00000 added as an internal code for ""Activities not adequately defined"", following DOS's practice for Census 2020"		X		X		40	
+		"3 different display depending on which question is answered
+
+When Typ_Biz is answered:
+(Please give the nature of business/main activity undertaken by your establishment)
+
+When Typ_Biz_EO is answered:
+(Please answer based on the nature of business or trade that you operated rather than that of the client organisation/intermediary which you have provided services to)
+
+When Typ_Biz_CFW is answered:
+(Please answer based on the nature of business or trade that your family operated rather than that of the client organisation/intermediary which you have provided services to) "					X	X	X			
+			If relationship to household reference person (RELH) = '12'  (domestic helper) and (identification type in "01" (Singapore citizen) or "02" (Permanent resident)), and (present occupation (E_OCC) ≠ ‘91300’ or and present industry (E_IND) ≠ ‘97001’), system to prompt either error for verification.	Occupation for domestic helper should be 91300” or Industry for domestic helper should be 97001			X		"X 
+"		211	
+			If present industry (E_IND) = '64110', '65301', ‘84110 – 84239 ’, '85301' and employment status (E_EMPST) ≠ ‘1’ (Employee), system should prompt as error for verification. 	 Employment status of employed person working in this industry should be employee.			X		X		1624	
+			If present industry (E_IND) = '97001'-'97002', employment status ≠ '1' (employee), to flag out as Error. 	Person employed in this industry should not be self-employed. If he/she is an independent service provider of cooking, gardening, tutoring, babysitting or cleaning services, the industry should be classified under the appropriate service-producing industry instead.			X		X		1625	
+			If present industry (E_IND) = ‘01111-03209’ (Agriculture and Fishing), ‘08101 – 09002’ (Mining and Quarrying and Service Activities Incidental to Oil and Gas Extraction), ‘10101-32909’ (Manufacturing), '41001'-'43909' (Construction), ‘46100-47802’ (Wholesale and retail trade), ‘55101- 56200’ (Accommodation & Food Services),  ‘97001-97002’ (Domestic activities) and Typ_Biz = ‘2’ (i.e. Government Ministry or Statutory Board), system to prompt as error for verification.	Government ministries cannot be in this industry.	Government ministries cannot be in those industries.		X		X		1626	
+			"If present industry (E_IND) = '35101'-'35300', '37000', '38100', '38301', '38309' and Typ_Biz = '2' (i.e. Government Ministry or Statutory Board), to flag out as Error.
+"	There are no government ministries or statutory boards in this industry. Please check industry coding and type of business. Note that SP Services, Singapore Power, SP Powergrid Limited are private companies and not government ministries/statutory boards.			X		X		1627	
+			If present industry (E_IND) = '49101'-'53200' and E_IND ≠ '52229' (Transportation & Storage, excluding the code 52229 where Maritime & Port Authority of Singapore is coded), and Typ_Biz= ‘2’ (i.e. Government Ministry or Statutory Board), to flag out as Error.	There are no government ministries or statutory boards in this industry. Please check industry coding and type of business. Note that SBS Transit, SMRT, Singapore Airlines, SATS, PSA, Changi Airport and Singapore Post are private companies and not government ministries/statutory boards.			X		X		1628	
+			If present industry (E_IND) = ‘84110 - 84239’ (Public Admin & Defence), '64110' (Central bank), '65301' (Provident Funding) or '85301' (Polytechnics) and Type of business is not Government Ministry or Statutory Board Typ_Biz  ≠  ‘2’, to flag out for verification.	Type of business for workers in this industry should be Government Ministry/Statutory Board.			X		X		1630	
+			If present industry (E_IND) = '58110'-'71200', '73100'-'82991' and E_IND ≠ '64110', '65301', '68101' (Information & Communications, Financial & Insurance Services, Real Estate Services, Professional Services excl. Scientific Research & Development, Administrative & Support Services excluding the codes for MAS, CPFB, HDB, JTC,  IPOS), and Typ_Biz= ‘2’ (i.e. Government Ministry or Statutory Board), to flag out as Error.	There are no government ministries or statutory boards in this industry. Please check industry coding and type of business. Note that Mediacorp, Temasek Holdings, Singapore Technologies, Certis Cisco and town councils are registered businesses and not government ministries/statutory boards.			X		X		1629	
+			If present industry (E_IND) = '85101'-85509' and E_IND ≠ '85101', '85102', '85211', '85212', '85220', '85301', '85405', '85409', '85502' (Education excluding nurseries & kindergartens, primary schools, secondary schools, junior colleges and centralised pre-university institutes, technical & vocational secondary and post-secondary non-tertiary education, polytechnics, training courses for information and communications, finance and professional services, training courses n.e.c., examination & accreditation agencies for education services) and Typ_Biz = ‘2’ (i.e. Government Ministry or Statutory Board), to flag out as Error.	There are no government ministries or statutory boards in this industry. Pls check industry coding and type of business. Note that autonomous universities like NUS, NTU, SMU, and special schools like Metta School, Pathlight School and Eden School are not government ministries/statutory boards.			X		X		1631	
+			"If present industry (E_IND) = '86101'-88999' and E_IND ≠ '86909', '88913', '88920', '88991' (Health & Social Services, excluding codes with government ministries or statutory boards) and Typ_Biz = ‘2’ (i.e. Government Ministry or Statutory Board), to flag out as Error.
+"	There are no government ministries or statutory boards in this industry. Please check industry coding and type of business. Note that government restructured hospitals (e.g. SGH, NUH, Tan Tock Seng Hospital), polyclinics are not government ministries/statutory boards.			X		X		1632	
+			If present industry (E_IND) = '90001'-96099' and E_IND ≠ '91010', '91029', '91030', '92001', '93119', '93209', '94120', '94919', '94991' (Arts, Entertainment & Recreation, Other Service Activities, excluding codes with government ministries or statutory boards) and Typ_Biz = ‘2’ (i.e. Government Ministry or Statutory Board), to flag out as Error.	There are no government ministries or statutory boards in this industry. Please check industry coding and type of business.			X		X		1633	
+			If present occupation (E_OCC) = '23101' -'23109' (University, Polytechnic &  Higher Education Teachers) and present industry (E_IND) ≠ '85301'-'85509' (Higher Education and Education Services Not Elsewhere Classified), to flag as Error.	Industry of university, polytechnic & higher education teachers should be in 85301 to 85509.			X		X 		(1634) - 1	
+			If present occupation (E_OCC) = '31572' (Train service supervisor), '31596' (Train operations officer) or '83110' (Train operator) and present industry (E_IND) ≠ '49101' (Railroad services) or '49102' (mass rapid transit systems (incl. light rail)), to flag as error. 	Industry of Train service supervisor, Train operations officer and Train operator should be railroad services (49101) or mass rapid transit systems (49102)			X		X		(1634) - 2	
+			If present occupation (E_OCC) = '83221' (Taxi Driver) and present industry (E_IND) ≠ 49214 (Street-hail and ride-hail service providers), system to prompt as error for verification. 	Are you sure a taxi driver is not working in the Street-hail and ride-hail service providers industry?"			X		X		(1634) - 4	
+			If present occupation (E_OCC) = '83226' (Private Hire Car Driver) and present industry (E_IND) ≠ 49214 (Street-hail and ride-hail service providers), system to prompt as error for verification. 	Are you sure the industry of a private hire car driver is not in the Street-hail and ride-hail service providers industry?			X		X		(1634) - 5	
+			If present occupation (E_OCC) = '93209' (Manufacturing Labourers & Related Workers) and present industry (E_IND) ≠ '10101'-'32909' (Manufacturing), to flag as Error.	Industry of Manufacturing Labourers & Related Workers should be in Manufacturing.			X		X		(1634) - 6	
+			If present occupation (E_OCC) = 'X3000' (Singapore Armed Forces Personnel) and present industry (E_IND) ≠ '84221', '84232', '84235' (Armed Forces, Police or Civil Defence), to flag as Error.	Industry of Singapore Armed Forces Personnel should be Armed Forces, Police or Civil Defence.			X		X		(1634) - 8	
+			If employment status (E_EMPST)='3' (own account worker) and current occupation (E_OCC)= (83211 motorcycle deliveryman, 83212 delivery man using motorised personal mobility aids/devices, 83222 Chauffeur, 83223 van driver, 83224, 83225, 83229 other car and light goods vehicle drivers, 93310 hand/pedal vehicle driver or 96299 other elementary workers n.e.c.) and company name (NAMECO_DESC) contains the following keywords: (Grab, Grabfood, Deliveroo, Foodpanda, WhyQ. Teleport, GrabMart, Pandamart, Oddle Eats, Deliver.sg, GrabExpress, Uparcel, Pickupp,  Lalamove,  GOGOX or Amazon Flex) and current industry (E_IND) ≠ 53200 (Courier activities other than national post activities), to flag out as Error. 	Industry code for own account workers working as delivery workers/drivers for these platforms should be 53200 Courier activities other than national post activities			X		X		1635	
+"B18
+Address of workplace"	WORK_LOCATION_TYPE,WORK_LOCATION,BLOCK_NUMBER,ST_NAME,BLDG_NAME,WORK_POSTAL_CODE	This question applies to persons aged 5 years and above excluding foreign domestic helpers on work permit (RELH= '12' and ID_TYPE '05')				New Qns						
+		For Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7'). Go to B19				New Qns						
+		" Otherwise [For SC/PR < 15 years or foreigners], 
+
+– For working persons (A27 [ACTIVITY_ST_5] or A28 [ACTIVITY_ST] =1), persons working while awaiting examination results (A27 = 3), persons working while schooling (A27 [ACTIVITY_ST_5] =4 or A28 [ACTIVITY_ST]=6) and persons undergoing full-time national service or awaiting NS call-up/examination results (A28 [ACTIVITY_ST]=2/5) who are staying in Singapore residential unit (RESIDENTIAL_ST = '1') or outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') and does not work from home (WORK_LOCATION_TYPE=1/2)
+
+Go to B20."				New Qns						
+		"– For persons who work from home (WORK_LOCATION_TYPE=3)
+– For persons staying outside Singapore for more than 6 months (RESIDENTIAL_ST = ""4"") 
+– For persons schooling but currently working in vacation job (A27 = 2 or A28 = 3)
+– For persons schooling but undergoing paid internship/traineeship/apprenticeship (A28 = 4)
+
+Go to B22."				New Qns						
+"B19
+Working from home at any time during the last 4 wks 
+(E_WFH_MTH, WFH_Yes)"	E_WFH_MTH, WFH_Yes	This quesiton applies to Singapore Citizen and Permanent Residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7').										
+		For respondents who need to answer this question, E_WFH_MTH can only take on values "1" or "2"		Whether working from home at any time during the last 4 weeks must be a valid code.			X	X	X		41	
+		For respondents who need to answer WFH_Yes, WFH_Yes can only take on values "1", "2" or "3"		Whether working from home fully or partly during the last 4 weeks must be a valid code.			X	X	X		42	
+		If E_WFH_MTH = 1 (Yes), to display list of options WFH_Yes  for selection 					X	X	X		42	
+"B20
+How do you usually travel to work"	MODETRAN_WK	This question applies to working persons (A27 [ACTIVITY_ST_5] or A28 [ACTIVITY_ST] =1), persons working while awaiting examination results (A27 = 3), persons working while schooling (A27 [ACTIVITY_ST_5] =4 or A28 [ACTIVITY_ST]=6) and persons undergoing full-time national service or awaiting NS call-up/examination results (A28 [ACTIVITY_ST]=2/5) who are staying in Singapore residential unit (RESIDENTIAL_ST = '1') or outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') and does not work from home (WORK_LOCATION_TYPE=1/2).				new qns	X	X	X			
+"B21
+What is the usual travelling time to work? (in minutes) "	TRVL_TIME_WK	This question applies to working persons (A27 [ACTIVITY_ST_5] or A28 [ACTIVITY_ST] =1), persons working while awaiting examination results (A27 = 3), persons working while schooling (A27 [ACTIVITY_ST_5] =4 or A28 [ACTIVITY_ST]=6) and persons undergoing full-time national service or awaiting NS call-up/examination results (A28 [ACTIVITY_ST]=2/5) who are staying in Singapore residential unit (RESIDENTIAL_ST = '1') or outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' or '7') and does not work from home (WORK_LOCATION_TYPE=1/2).				new qns	X	X	X			
+"B22
+Nature of Employment (E_NATURE_EMP)"	E_NATURE_EMP	This question applies to persons aged 5 years and above, excluding Foreign Domestic Helpers (RELH ="12")										
+		For respondents who need to answer this question, E_NATURE_EMP can only take on values "1" or "2"		Whether the job worked last week was a full-time or part-time job must be a valid code.		Y	X	X	X		55	
+		"If  E_NATURE_EMP = ‘2’ (Part-time), system to proceed to Main reason for working part-time ( E_Rsn_Part) [B23] if for Singapore citizens and Permanent residents aged ≥ 15 years and stay in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST= '6' or '7'). Otherwise go to B33.
+
+
+. Otherwise, if  E_NATURE_EMP = ‘1’ (Full-time) go to Income [B33]."					X	X	X			
+			If nature of employment (E_NATURE_EMP) = '2' (part-time) and present occupation (E_OCC) = X3000 (Singapore Armed Forces personnel), to flag out as error	Nature of Employment for Singapore Armed Forces Personnel should be "Full-time".	SAF Personnel (whether NSF or regular servicemen) are working full-time. Non-military personnel working with the SAF (e.g. Defence Executive Officers) should not be coded as X3000.		X		X		1638	
+"B23
+Main reason working part-time (E_Rsn_Part,
+E_Rsnpart_Oth)"	"E_Rsn_Part,
+E_Rsnpart_Oth"	To display if E_NATURE_EMP = ‘2’ (Part-time) and if for Singapore citizens and Permanent residents aged ≥ 15 years and stay in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST= '6' or '7').				Y	X	X	X			
+		For respondents who need to answer this question, E_RSN_PART can only take on values "01"-"05", "07"-"15"		Main reason for working part-time rather than full-time must be a valid code.			X	X	X		56	
+			If E_Rsn_part = '11'(Retired from full-time employment) and RETIRED = '2' (No), to prompt as Error. 	A person who is working part-time because he is retired from full-time employment should have ever retired from any job.			X		X		404	
+			If E_Rsn_part = '13' (Awaiting NS Call-up) and SEX = '2' (Female), system to prompt as error for verification.	Female should not be awaiting NS call-up.	Full-time NS is for males only.		X		X		405	
+			If E_Rsn_part = '12' (Others) is selected, system to display a field to specify the reason. If the "Please specify" field is empty, system to prompt error.	An answer is required. Please specify the main reason why you were worked part-time instead of full-time.			X	X	X		57	
+		If E_Rsn_part = ‘05’ (Care for own children aged 12 and below) or '14' (Care for own children aged above 12), system will proceed to question on Is he/she disabled (E_PT_CAREDISABLED)  [B26]. 					X	X	X			
+		If E_Rsn_part = '15' (Care for families (including  grandchildren) / relatives), system will proceed to question on Working part-time to care for family member/ relatives (E_PT_CAREMEMBER) [B24]. 					X	X	X			
+		If E_Rsn_part ≠ ‘05’, '14'  or '15' , system will proceed to question on Willing to work additional hours (E_ADDL_HRS) [B30]. 					X	X	X			
+			E_Rsnpart=12 is selected (Others). E_Rsnpart_Oth_IR is not answered OR E_Rsnpart_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		460	
+"B24
+Working part-time to care for family member/ relatives (E_PT_CAREMEMBER)"	 E_PT_CAREMEMBER	To display if  E_NATURE_EMP = ‘2’ (Part-time) and  E_Rsn_part = '15' (Care for families (including grandchildren) / relatives)					X	X	X		58	
+		For respondents who need to answer this question, E_PT_CAREMEMBER can only take on values "1", "2", "3", "5" or "6" 		Relationship of person mainly taking care of must be a valid code.			X	X	X		58	
+			If MARITAL_ST in "1" (single) or "4" (divorced) and E_PT_CAREMEMBER = "2" (parent-in-law), to flag out as Error. 	A person who is single or divorced should not have a parent-in-law. Pls check response to this question and marital status.			X	X	X		442	
+			If MARITAL_ST in "1" (single), "3" (widowed) or "4" (divorced) and E_PT_CAREMEMBER = "3" (Husband/wife), to flag out as Error. 	A person who is single, widowed or divorced should not have a husband/wife. Pls check response to this question and marital status.			X	X	X		443	
+"B25
+Age of family member/ relatives  (E_PT_CAREAGE)"	E_PT_CAREAGE	To display if  E_NATURE_EMP = ‘2’ (Part-time) and  E_Rsn_part = '15' (Care for families (including  grandchildren) / relatives)					X	X	X		59	
+		Check for leading zeros, symbols and alpha characters, system to negate these entries.					X	X	X		59	
+		E_PT_CAREAGE should be an integer from 0 to 119		Age of person you are mainly taking care of should be zero or a positive whole number.			X	X	X		59	
+			If mainly taking care of parent  (E_PT_CAREMEMBER = "1") and age of parent (E_PT_CAREAGE) <=AGE, to flag as Error. 	The age of this respondent's parent should be older than the respondent.			X	X	X		445	
+			If mainly taking care of own child aged above 12 (E_PT_CAREMEMBER = "4") and age of child (E_PT_CAREAGE) <= 12, to flag as Error. 	The age of this respondent's child aged above 12 should be older than 12. If mainly taking care of own children aged 12 and below, main reason for working part-time should be Care for own children aged 12 and below			X	X	X		446	
+			If mainly taking care of grandchild (E_PT_CAREMEMBER = "5") and age of grandchild (E_PT_CAREAGE) >= AGE, to flag as Error. 	The age of this respondent's  grandchild should be younger than the respondent			X	X	X		447	
+"B26
+Whether individual is disabled (E_PT_CAREABLE)"	 E_PT_CAREABLE	To display if  E_NATURE_EMP = ‘2’ (Part-time) and  E_Rsn_part = '15' (Care for families (including grandchildren) / relatives) or E_Rsn_part = ‘05’ (Care for own children aged 12 and below) or E_Rsn_part = '14' (Care for own children aged above 12)					X	X	X		60	
+		For respondents who need to answer question on Is he/she disabled, this question can only take on values "1"or "2"		Whether person you are mainly taking care of is disabled must be a valid code.			X	X	X		60	
+"B27
+Whether individual is ill (E_PT_CAREILL)"	(E_PT_CAREILL)	To display if  E_NATURE_EMP = ‘2’ (Part-time) and  E_Rsn_part = '15' (Care for families (including grandchildren) / relatives) or E_Rsn_part = ‘05’ (Care for own children aged 12 and below) or E_Rsn_part = '14' (Care for own children aged above 12)					X	X	X		61	
+		For respondents who need to answer question on Is he/she ill, this question can only take on values "1" or "2"		Whether person you are mainly taking care of is ill must be a valid code.			X	X	X		61	
+"B28
+Reason for working part-time to care for family  / relatives or care for own children (E_LEFT_PREF,  E_LEFT_PREF_Oth)"	E_LEFT_PREF, E_LEFT_PREF_Oth	To display if  E_NATURE_EMP = ‘2’ (Part-time) and  E_Rsn_part ='15' (Care for families (including grandchildren) / relatives) or E_Rsn_part = ‘05’ (Care for own children aged 12 and below) or E_Rsn_part = '14' (Care for own children aged above 12)					X	X	X		62	
+		For respondents who need to answer this question, E_LEFT_PREF can only take on values "1", "2", "3" or "4"		Elaboration on main reason for working part-time rather than full-time (question B27 B24) must be a valid code.			X	X	X		62	
+		If E_LEFT_PREF = ‘4’ (i.e. Others), system to display a field E_LEFT_PREF_Oth to enter the remarks. If the remarks field E_LEFT_PREF_Oth is empty, system to prompt error for verification.		An answer is required. Please specify the main reason for working part-time to care for family  / relatives or care for own children.			X	X	X		63	
+			E_LEFT_PREF='4' 12 is selected (Others). E_LEFT_PREF_OTH_IR is not answered OR E_LEFT_PREF_OTH_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		461	
+"B29
+Whether would work full-time if suitable care services were available and/or affordable
+(E_FT_AFFORD)"	E_LEFT_AFFORD E_FT_AFFORD	To display if  E_NATURE_EMP = ‘2’ (Part-time) and  E_Rsn_part = '15' (Care for families (including grandchildren) / relatives) or E_Rsn_part = ‘05’ (Care for own children aged 12 and below) or E_Rsn_part = '14' (Care for own children aged above 12)					X	X	X		64	
+		For respondents who need to answer this question, E_FT_AFFORD  can only take on values "1" or "2"		Whether will work full-time if suitable care services were available and/or affordable must be a valid code.			X	X	X		64	Y
+"B30
+Willing to work additional hours (E_ADDL_HRS)"	E_ADDL_HRS	To display if  E_NATURE_EMP = ‘2’ (Part-time) 					X	X	X			
+		For respondents who need to answer this question, E_ADDL_HRS can only take on values "1" or "2"		Whether willing to work additional hours must be a valid code.			X	X	X		65	
+		If E_ADDL_HRS = ‘1’ (Yes), system will proceed to question on Available for additional work (E_ADDL_WORK) [B30].  					X	X	X			
+		If E_ADDL_HRS = ‘2’ (No), system will proceed to question on Gross Monthly Income  (Income) [B33]. 					X	X	X			
+"B31
+Available for additional work (E_ADDL_WORK)"	E_ADDL_WORK	To display if  E_NATURE_EMP = ‘2’ (Part-time) and E_ADDL_HRS = ‘1’ (Yes) 					X	X	X			
+		For respondents who need to answer this question, E_ADDL_WORK can only take on values "1" or "2"		Whether available for additional work must be a valid code.			X	X	X		66	
+		If E_ADDL_WORK = ‘1’ (Yes), system will proceed to question on Actively sought additional hours (E_ADD_SC) [B31].  					X	X	X			
+		If E_ADDL_WORK = ‘2’ (No), system will proceed to question on  Gross Monthly Income  (Income) [B32]. 					X	X	X			
+"B32
+Actively sought additional hours (E_ADD_SC)"	E_ADD_SC	To display if  E_NATURE_EMP = ‘2’ (Part-time) and E_ADDL_WORK = ‘1’ (Yes)					X	X	X			
+		For respondents who need to answer this question, E_ADD_SC can only take on values "1" or "2"		Whether actively sought additional hours of work in the past 4 weeks must be a valid code.			X	X	X		67	
+"B33
+Gross Monthly Income (Income)"	Income	Entry up to 7-digit numeric code. No decimal place would be captured.					X	X	X			
+		Check for leading zeros, symbols, and alpha characters, system to negate these entries. 		Please enter digits without commas or decimals.			X	X	X		68	
+			If employment status (E_EMPST) = ‘4’ (i.e. Contributing Family Worker), system can accept a value of 0 as gross monthly income.  If E_EMPST ≠ ‘4’ (i.e. Contributing Family Worker), system to prompt error.	Only Contributing Family Workers can have $0 as their income.	Only Contributing Family Workers can have $0 as their income.		X	X	X		408	
+			If ACTVITY_ST_WR = '2’ (Full-time NS) and (EDUC < '71' or FIELD ≠ '0811'- 0834' (General Medical Sciences, Specialised Medical Sciences, Dentistry)) and Income ≥  $1,700 $1,900 , system should prompt as error for verification.	Monthly income of a full-time NS man who is not a degree holder or has a non-medical degree should not be more than or equal to $1,700 $1,900? Please check if he is a regular servicemen instead of full-time National Servicemen?” [Yes or No].	 Someone with LTA rank has rank pay of $1,280 $1380 and combat/vocational allowance up to $400 $500, so can earn around $1,680 $1880. Anything higher suggests the person is either a Medical Officer, or could be a regular (sign-on) personnel but miscoded as NSF.		X		X	Based on latest updated info on MINDEF website	409	
+"B34
+Bonus in last 12 months (Bonus)"	Bonus	Entry up to  6-digit  numeric codes (0 to 999),  in 3 decimal places. (XXX.XXX). The export csv range will take in values from 000.XXX to 999.XXX		Please enter bonus in the format  0.0, 1.255, 2.000, etc.			X		X		69	
+		System can accept ‘0’ for this field. 			It is possible that the person did not get any bonus.				X			
+			If ACTVITY_ST_WR = "2" (Full-time NS) and Bonus > 0, system to prompt for re-confimation. 	Are you sure the Full-time National Service man received bonus?	National Servicemen with bonus are likely to be regulars rather than full-time Nsmen.		X		X		410	
+		For Singapore Citizens and Permanent Residents ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST = '1')/ outside Singapore for 6 months or less ((RESIDENTIAL_ST= '6' or '7') whose current labour force status is ACTIVITY_ST=1/3/4/5/6, go to B35.				Y						
+		For Singapore Citizens and Permanent Residents ≥ 15 years whose current labour force status is “Undergoing full-time National Service (ACTVITY_ST=2), go to B61.				Y						
+		For foreign domestic helpers holding work permit (RELH=12 and ID_TYP= '05')										
+		Otherwise, go to B37.										
+"B35
+Continuous Employment (Cont_Emp)"	Cont_Emp	For respondents who need to answer this question, Cont_Emp can only take on values "1" or "2"		Whether employed for at least 10 months during the last 12 months must be a valid code.			X	X	X		70	
+"B36
+Jobs held last week (JOBSHELD)"	JOBSHELD	For respondents who need to answer this question, Number of jobs held last week (JOBSHELD) can only take on value "1", "2" or "3"		Number of jobs held last week must be a valid code.			X	X	X		71	
+"B37
+Usual hours worked (Hrs_Wk)"	Hrs_Wk	Question applies to persons aged ≥ 5 years exculding foreign domestic helpers holding work permit (RELH=12 and ID_TYP= '05')										
+		Enter up to 3-digit numeric code. No decimal place would be captured.		Please key in a valid integer.			X	X	X			
+		Check for leading zeros, symbols, and alpha characters, system to negate these entries. 		Please do not enter any leading zeroes for the number of usual hours worked.			X	X	X			
+		Set in question format that Hrs Wk ≥ 1 and ≤ 168.		The number of usual hours worked should be greater than or equal to 1 and less than or equal to 168.	Hours worked cannot be zero. It must be at least one or more.		X	X	X		72	
+			If E_NATURE_EMP = ‘1’ (Full-time) and Hrs_Wk < 35, system to prompt as error for verification. 	A full-time person should usually work 35 hours or more on a weekly basis.	The definition of full-time is that the person must work at least 35 hours or more in a week The normal hours of work of a full-timer is 35 hours or more in a week.  While it is possible that he/she work less than 35 hours a week, this cannot be on a usual basis and so the contradiction need to be flagged out for rectification.		X		X		412	
+		"For Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') who are employees (E_EMPST=1), 
+Go to B38"				Y	X	X	X			
+		"For Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') who are NOT employees (E_EMPST=2,3,4), 
+Go to B45."				Y						
+		"Otherwise,
+– For persons whose current labour force status is “Schooling but currently working in vacation job/ Schooling but undergoing paid internship/traineeship/apprenticeship/ Working while schooling” (ACTVITY_ST_5=2/4 OR ACTVITY_ST=3/4/6), go to F4
+
+– For persons aged 5 – 14 years whose current labour force status is “Working/ Working while awaiting examination results” (ACTVITY_ST_5=1/3), go to F5
+
+– For persons aged ≥ 15 years whose current labour force status is “Working/ Working while awaiting examination results or NS call-up” (ACTVITY_ST=1/5), go Section G (Non-employment income)"				Y						
+		[B38 to B62] For Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') who are employees (B1=1)										
+"B38
+When started work (Start_Wk, Start_Wk_2Dur1A, Start_Wk_3Dur1A, Start_Wk_3Dur1B)"	Start_Wk, Start_Wk_2Dur1A, Start_Wk_3Dur1A, Start_Wk_3Dur1B	To display if  E_EMPST = ‘1’ (Employee) and for Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') 			This question is only for those who are SC and PRs who are employees.	Y	X	X	X			
+		For respondents who need to answer this question, Start_Wk can only take on value "1", "2" or "3"		When began working for current employer must be a valid code.			X	X	X		73	
+		Maximum value for Start_Wk_3Dur1A ≤ 100 years.		Maximum value is 100.	If the persons duration of work is 100 years, he would be above 100 years old.		X		X		73	
+		Check for leading zeros, alpha characters and symbols (e.g. dash) for Start_Wk_2Dur1A, Start_Wk_3Dur1A, Start_Wk_3Dur1B.		Please enter digits without commas or decimals.			X	X	X			
+		"Start_Wk = '2' (1 month to less than 1 year ago) 
+Set  number of months (Start_Wk_2Dur1A) = 1-11"		<Months value>: Please enter value in the range of 1 to 11			X		X		74	
+		"Start_Wk = '3' (1 or more years ago)
+Set  number of years (Start_Wk_3Dur1A) = 1-100"		<Years value>: Please enter value in the range of 1 to 100			X		X		75	
+		"Start_Wk = '3' (1 or more years ago)
+Set  number of months (Start_Wk_3Dur1B) = 0-11"		<Months value>: Please enter value in the range of 0 to 11			X		X		76	
+			If Start_Wk_3DUR1A > AGE or Start_Wk_3Dur1A = AGE and Start_Wk_3Dur1B > 0, system to prompt as error for verification 	The number of years worked should not be greater than or equal to the person's age.	To check for any typo		X		X		416	
+			If years in current job (START_WK) = '3' (1 year or more) and Cont_Emp = '2' (not in continuous employment in the last 12 months), system to prompt as error for verification	If a person worked in his/her current job for 1 year or more, he or she should have been employed for at least 10 months during the last 12 months. 	Error if a person worked in current job for 1 year or more, but indicated that he is not in continuous employment in the last 12 months		X		X		417	
+"B39
+Type of employment (Typ_Emp_TYP, Typ_Emp_DUR)"	Typ_Emp_TYP	To display if  E_EMPST = ‘1’ (Employee) and for Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') 				Y	X	X	X			
+		For respondents who need to answer this question, Typ_Emp_TYP can only take on values "1", "2" or "3"		Type of employment must be a valid code.			X	X	X		77	
+		For respondents with Typ_Emp_TYP = "3", Typ_Emp_DUR can only take on values "3"-"9"		Type of employment (specific fixed-term contract duration) must be a valid code.			X	X	X		78	
+			If present occupation (E_OCC) = 36991 (relief teacher) and Typ_EMP_TYP = '1' (permanent employee), system to prompt as error.	A relief teacher covers or stands in for teachers. Type of employment should not be permanent.	A relief teacher covers or stands in for teachers. It is a contradiction if their type of employment is permanent.		X	X	X		1639	
+			If present occupation (E_OCC) = X3000 (SAF personnel) and Typ_Emp_TYP = ‘2’ (Casual / On-call employment), system to prompt as error for verification. 	SAF Personnel cannot be on casual / on-call employment.			X		X		1640	
+		If Typ_Emp_TYP = 1 (Permanent Employee), system to route to whether started off as a fixed term contract employee (Start_TC_Ey) [B40]				Y	X	X	X			
+		If Typ_Emp_TYP = 2 (Casual/On-call Employee) or 3 (Fixed Term contract employee), system to route to whether given paid leave or compensation (Ann_Lve) [B41]. 				Y	X	X	X			
+"B40
+Start off as fixed term contract employee (Start_TC_Ey)"	Start_TC_Ey	To display if  E_EMPST = ‘1’ (Employee) and Typ_Emp_TYP [B39] = '1' (Permanent Employee) and if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') 				Y	X	X	X			
+		For respondents who need to answer this question, Start_TC_Ey can only take on values "1" or "2".		Whether started off as a fixed-term contract employee must be a valid code.			X	X	X		79	
+"B41
+Paid Leave (Ann_Lve)"	Ann_Lve	To display if  E_EMPST = ‘1’ (Employee) and if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') 				Y	X	X	X			
+		For respondents who need to answer this question, Ann_Lve can only take on values "1" or "2".		Whether employer gave you paid leave or compensation in lieu of it must be a valid code.			X	X	X		82	
+			If present industry (E_IND) = ‘84110-84239 ’ (Public Administration & Defence) and Typ_Emp_TYP = ‘1’ (Permanent) and Ann_Lve ≠ ‘1’ (Yes), system to prompt error for verification .	Permanent Employees in Government bodies should be entitled to paid leave.			X		X		420	
+"B42
+Paid Sick Leave (Sick_Lve)"	Sick_Lve	To display if E_EMPST = ‘1’ (Employee) and if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') 				Y	X	X	X			
+		For respondents who need to answer this question, Sick_Lve can only take on values "1" or "2".		Whether employer gave you paid sick leave when you were  on MC must be a valid code.			X	X	X		83	
+			If present industry (E_IND) = ‘84110-84239 ’ (Public Administration & Defence) and Typ_Emp_TYP = ‘1’ (Permanent), Sick_Lve ≠ ‘1’ (Yes), system to prompt error for verification .	Permanent Employees in Government bodies should be entitled to paid sick leave.			X		X		421	
+"B43
+Rest Day (Rest_Dy)"	Rest_Dy	To display if E_EMPST = ‘1’ (Employee) and if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') 				Y	X	X	X			
+		For+A207+C208 For respondents who need to answer this question, Rest_Dy can only take on values "1" or "2".		Whether employer gave you at least one rest day each week must be a valid code.			X	X	X		84	
+			If present industry (E_IND) = ‘84110-84239 ’ (Public Admin & Defence) and  Typ_Emp_TYP = ‘1’ (Permanent) and Rest_Dy ≠ ‘1’ (Yes), system to prompt error for verification.	Permanent Employees in Government bodies should be entitled to rest day			X		X		422	
+		For employees (E_EMPST=1) whose current labour force status is working (ACTVITY_ST=1), go to B44				Y						
+		For employees (E_EMPST=1) whose current labour force status is (ACTVITY_ST=3/4/5/6), go to B47				Y						
+"B44
+Reasons for taking up job (Employee) (E_Rsn_Job, E_Job_Keen, E_Job_Keen_Oth, E_Job_Not_Keen,
+E_Job_Not_Keen_Oth )
+"	"E_Rsn_Job, E_Job_Keen, E_Job_Keen_Oth, E_Job_Not_Keen,
+E_Job_Not_Keen_Oth "	"To display if employees (E_EMPST=1) who are working persons (i.e. ACTVITY_ST =1 (Working (including employee or self-employed and those in full-time, part-time, permanent, fixed-term contract or casual/on-call employment))) only] And,
+
+For Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') who are employees (B1=1)"			Y	Y	X	X	X		50	
+		For respondents who need to answer this question, E_Rsn_Job can only take on values "1" or "2"		Whether keen or not keen in the job must be a valid code.			X		X			
+		If E_Rsn_Job = '1' (Keen), to display list of options E_Job_Keen (01-14) for selection (multiple responses allowed)					X	X	X		51	
+		If E_Rsn_Job = '1' (Keen), at least 1 of the options from 01-14 for E_Job_Keen must be selected. To flag out as Error if none of the 14 options are selected.		Please indicate the reason(s) for taking up this job.			X	X	X			
+		If E_Rsn_Job = '2' (Not Keen), to display list of options E_Job_Not_Keen (01-06) for selection (multiple responses allowed)					X	X	X		53	
+		If E_Rsn_Job = '2 (Not Keen), at least 1 of the options from 01-06 for E_Job_Not_Keen must be selected. To flag out as Error if none of the 6 options are selected.		Please indicate the reason(s) for taking up this job.			X	X	X			
+			If E_Job_Keen = '14' (Others) is selected, system to display a field to specify the reason. If the "Please specify" field is empty, system to prompt error.	An answer is required. Please specify reason(s) why you were keen in this job and took it up.			X	X	X		52	
+			If E_Job_Not_Keen = '06' (Others) is selected, system to display a field to specify the reason. If the "Please specify" field is empty, system to prompt error.	An answer is required. Please specify reason(s) why you were not keen in this job and still took it up.			X	X	X		54	
+			E_Job_Not_Keen=06 is selected (Others). E_Job_Not_Keen_Oth_IR is not answered ORE_Job_Not_Keen_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		459	
+			E_Job_Keen=14 is selected (Others). E_Job_Keen_Oth_IR is not answered OR E_Job_Keen_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		458	
+"B45
+Reasons for taking up job (Self Employed) (E_RsnJob_SE
+E_RsnJob_SE_Oth)
+"	" E_RsnJob_SE
+E_RsnJob_SE_Oth"	"To display if ACTVITY_ST_WR = '1' (Working) and E_EMPST = 2 or 3 or 4 (Employer/Own Account Worker/Contributing Family Worker) and,
+
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') "				Y	X	X	X		47	
+		Allows multiple selection If option listing is displayed					X	X	X			
+		If ACTVITY_ST_WR = "1" (Working) and E_EMPST = 2, 3 or 4 (Employer/Own Account Worker/Contributing Family Worker), at least 1 of the options from 01-13 must be selected. To flag out as Error if none of the 13 options are selected.		Please indicate the reason(s) for working as a self-employed person.			X	X	X		47	
+			E_RsnJob_SE12 = '1' (Others). E_RsnJob_SE_Oth_IR is not answered OR E_RsnJob_SE_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	'Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		457	
+			If E_RsnJob_SE12 = '1' (Others) is selected, system to display a field to specify the reason. If the "Please specify" field is empty, system to prompt error 	An answer is required. Please specify reason(s) for working as a self-employed person.			X	X	X		48	
+"B46
+Whether prefer to be an employee or self-employed  (E_Pref_Ey)"	E_Pref_Ey	"To display if ACTVITY_ST_WR = '1' (Working) and E_EMPST = 2 or 3 or 4 (Employer/Own Account Worker/Contributing Family Worker) and,
+
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') "				Y	X	X	X			
+		For respondents who need to answer this question, E_Pref_Ey can only take on values "1" or "2"		Whether prefer to be an employee or self-employed must be a valid code.			X		X		49	
+		Default E_Pref_Ey = 1 ( Employee)  if E_RsnJob_SE [B18] = 02 ONLY (i.e. options 01, 03-13 are not selected). To skip question for interviewers/ supervisors if this defaulting is applied					X	X	X		49	
+"B47
+Satisfied with job (E_Job_Sat)"	E_Job_Sat	"For employed persons (i.e., employees or self-employed) and,
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') "				Y						
+		For respondents who need to answer this question, E_Job_Sat can only take on values "1" or "2"		Whether satisfied with current job must be a valid code.			X	X	X		85	
+"B48
+Employed looking for job (E_Look_Job)"	E_Look_Job	"For employed persons (i.e., employees or self-employed) and,
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') "				Y						
+		If E_Look_Job = ‘1’ (Yes), system to proceed to steps taken to look for job during the last 4 weeks (E_Steps_Job) [B45].  Otherwise, proceed to JOB_CHG E_When_Left [B53].					X	X	X			
+		For respondents who need to answer this question, E_Look_Job can only take on values "1" or "2".		Whether actively looking for a new job must be a valid code.			X	X	X		86	
+"B49
+Steps taken to look for job during the last 4 weeks
+(E_Steps_Job, E_Steps_Job_Oth)"	E_Steps_Job, E_Steps_Job_Oth	"To display if  E_Look_Job [B48] = ‘1’ (Yes) and,
+
+For employed persons (i.e., employees or self-employed) and,
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') "				Y	X	X	X			
+			At least one of options 01-15 must be selected. If no option selected, to flag out as Error.	Please ensure that at least one option is selected.			X	X	X		87	
+			"If E_Step_Job only has selection for '12' (Read about job openings on newspapers, internet or job portals but did not fill up any job applications), '13' (Participated in training) or '14' (Wait for opportunities to be headhunted but did not take any action), and none of '01'-'11' is selected, to flag out for verification.
+"	Only passive steps of job search were selected. Pls verify if respondent actively sought work in the last 4 weeks, if yes to indicate the active job search step(s) taken, if no to amend answer to question on whether actively looking for a new job  to "No".			X	X	X		441	
+			If  E_Steps_Job = '15' (i.e. Others), system to display a field (E_Steps_Job_Oth) to enter the remarks. If the remarks field is empty, system to prompt error.	An answer is required. Please specify steps taken to look for job during the last 4 weeks.			X	X	X		88	
+			E_Steps_Job15='1' (Others). E_Steps_JobOth_IR is not answered OR E_Steps_JobOth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		462	
+"B50
+Whether looking for permanent job  (E_Perm_Job)"	E_Perm_Job	"To display if  E_Look_Job [B48] = ‘1’ (Yes) and,
+
+For employed persons (i.e., employees or self-employed) and,
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')"				Y	X	X	X			
+		For respondents who need to answer this question, E_Perm_Job can only take on values "1" or "2"		Whether looking for a permanent job must be a valid code.			X	X	X		89	
+"B51
+Employed available for new job (E_Avail_Job)"	E_Avail_Job	"To display if E_Look_Job [B48] = ‘1’ (Yes) and, 
+For employed persons (i.e., employees or self-employed) and,
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') "				Y	X	X	X			
+		For respondents who need to answer this question, E_Avail_Job can only take on values "1" or "2"		Whether available to start work on the new job upon quitting the current job must be a valid code.			X	X	X		90	
+		If E_Avail_Job = ‘1’ (Yes), system will proceed to Employed utilize skills (E_Skills) [B52] .  Otherwise, proceed to JOB_CHG [B53] .					X	X	X			
+"B52
+Employed utilize skills (E_Skills)"	E_Skills	"To display if E_Avail_Job [B51] = '1' (Yes) and,
+For employed persons (i.e., employees or self-employed) and,
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') "					X	X	X			
+		For respondents who need to answer this question, E_Skills can only take on values "1" or "2"		Whether main reason for looking for a new job is to utilise skills more fully must be a valid code.			X	X	X		91	
+"B53
+Job change in last 2 years (JOB_CHG,
+JOBC_NO)"	"JOB_CHG,
+JOBC_NO"	For respondents who need to answer this question, JOB_CHG can only take on values "1" or "2"		Whether changed job(s) in the last 2 years must be a valid code.			X	X	X		92	
+		For Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') 				Y						
+		If Job change (JOB_CHG) = ‘1’ (Yes), system to display question on No of job changes (JOBC_NO)					X	X	X		93	
+		Set in question format that JOBC_NO ≥ 1 and ≤ 200		Number of job change(s) should be between 1 to 200.	There will be a warning message if the no of job changes exceeds a certain number.		X	X	X		93	
+		Leading zero check/symbols/alpha characters for number of job changes (JOBC_NO)		Please do not enter any leading zeroes/symbols/alpha characters for the number of job changes.			X	X	X		2733	
+		If JOB_CHG = '1' (Yes) system to proceed to E_When_Left [B50]. 					X	X	X			
+		If JOB_CHG = '2' (No) and 25 ≤ AGE ≤ 64 [excluding full-time NS men (A22 ≠ 2)] and E_EMPST [B1] ="1" (Employee) and E_NATURE_EMP [B18] = "1" (full-time), system to proceed to Len_EMP_Dur [B53]. 					X	X	X			
+		If JOB_CHG = '2' (No) and (AGE < 25 or AGE > 64 or E_EMPST = "2"-"4" (employer, own account worker, contributing family worker) or E_NATURE_EMP [B18] = "2" (part-time) [excluding full-time NS men (A22 ≠ 2)], system to proceed  to B61, else go to B54.. 				Y	X	X	X			
+			If job change in last 2 years (JOB_CHG) = '2' (did not changed jobs in the last 2 years) and Start_Wk = '1' (less than 1 month ago) or Start_Wk = "2" (1 month to less than 1 year ago) and Start_Wk_2Dur1A < 10 months, in continuous employment in the last 12 months (Cont_Emp = 1), to flag out as error. 	Years in current job is < 10 months and  no job change in last 2 years suggests that the current job is the only one the respondent has worked in. This would imply that he/she was not employed for at least 10 months during the last 12 months.			X		X		423	
+			If JOB_CHG = '1' (changed jobs in the last 2 years) and Start_Wk = '3' (1 or more years ago) and ((Start_Wk_3Dur1A > 2 or (Start_Wk_3Dur1A = 2 and Start_Wk_3Dur1B > 0)), system to prompt error.	If the person has changed jobs in the last 2 years, he/she should not have been with the current employer for more than 2 years.			X		X		424	
+"B54
+When left last job (E_When_Left)"	E_When_Left	To display if JOB_CHG [B53] = '1' (Yes) and if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') 				Y	X	X	X			
+		For respondents who need to answer this question, E_When_Left can only take on values "1" or "2"		When left last job must be a valid code.		Y	X	X	X		94	
+			If when left last job (E_When_Left) = '1' (less than 1 year ago) and Start_Wk = '3' (1 year or more), to prompt as error for verification. 	Respondent has started work in current job for 1 year or more. Are you sure he only left his last job less than 1 year ago?			X		X		425	
+"B55
+Nature of Employment in last job (E_Lst_FTPT)"	E_Lst_FTPT	"To display if  JOB_CHG [B53] = '1' (Yes) and 
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') "				Y	X	X	X		95	
+		For respondents who need to answer this question, E_Lst_FTPT can only take on values "1" or "2"		Whether working full-time or part-time in last job must be a valid code.			X	X	X		95	
+			If nature of employment in last job (E_Lst_FTPT) = '2' (part-time) and last occupation (E_Lst_OCC) = X3000 (Singapore Armed Forces personnel), to flag out as error	Nature of Employment in last job for a person who last worked as a Singapore Armed Forces Personnel should be "Full-time".			X		X		1738	
+"B56
+Employment status in last job (E_Lst_EMPST)"	E_Lst_EMPST	To display if  JOB_CHG [B53] = '1' (Yes),  if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') 				Y	X	X	X			
+		For respondents who need to answer this question, E_Lst_EMPST can only take on values "1"-"4"		Employment status in last job must be a valid code.			X	X	X		96	
+		If employment status in last job (E_Lst_EMPST) = '1' (Employee), system to display question on employment type in last job (LST_EMP_TYP) [B57]					X	X	X			
+		If employment status in last job (E_Lst_EMPST) = '2'/'3'/'4'(Employer/OAW/CFW), system to display question on last occupation (E_Lst_Occ) [B58]					X	X	X			
+"B57
+Type of employment in last job (LST_EMP_TYP)"	LST_EMP_TYP, LST_EMP_DUR	" To display if JOB_CHG [B53] = '1' (Yes) and E_Lst_EMPST = ‘1’ (Employee) and,
+
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')"				Y	X	X	X			
+			If nature of employment in last job (E_Lst_FTPT) = '2' (part-time) and last occupation (E_Lst_OCC) = X3000 (Singapore Armed Forces personnel), to flag out as error	Nature of Employment in last job for a person who last worked as a Singapore Armed Forces Personnel should be "Full-time".			X		X			
+		For respondents who need to answer this question, LST_EMP_TYP can only take on values "1", "2" or "3"		Type of employment in last job must be a valid code.			X	X	X		97	
+		For respondents with LST_EMP_TYP = "3", LST_EMP_DUR can only take on values "3", "7" or "8"		Type of employment (specific fixed-term contract duration) in last job must be a valid code.			X	X	X		98	
+"B58
+Last Occupation (E_Lst_Occ)"	E_Lst_Occ	"To display if  JOB_CHG [B53] = '1' (Yes) and 
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') "				Y	X	X	X			
+		Refer to the Occupation codes in SSOC 2020. The arrangement of the occupational classification in iMSS is based on alphabetical order at 5-digit level.					X	X	X			
+			If last occupation (E_Lst_Occ) = blank or 'oth' or other invalid code, system to prompt error.	(Last job) Coding for last occupation must be a valid code that can be found in SSOC 2020. 	invalid occupation code		X		X		99	
+			If  last occupation (E_Lst_Occ) = ('11110, '11121', '11122', '13491', '26120', '33510', '33551', '33591', 33592', 33593', '33599', '54121', '54122', '54130') and previous Employment Status  (E_Lst_EMPST) ≠ 1 (i.e. Employee), system should display error for verification.	 (Last job) Employment status of Legislator, Senior Government & Statutory Board official, National Security, Civil Defence and Immigration Managerial Officer, Judge,  Government Associate Professional, Police Officer, Narcotics Officer, or Prison Officer should be Employee.	Persons in these occupations cannot be self-employed		X		X 		1704	
+			If E_Lst_Occ = 31572 (Train service supervisor), 31596 (Train operations officer) or 83110 (Train operator) and last employment status (E_Lst_EMPST) ≠ '1' (Employee), to flag out as Error. 	(Last job) Employment status of a Train service supervisor, Train operations officer or Train operator should be employee.			X		X		1705	
+			If E_Lst_Occ= 53113 (Child/after school care centre worker) or 53115 (Educarer) and previous Employment status (E_Lst_EMPST) ≠ '1' (i.e. Employee), system to display error for verification.	(Last job) Child/after school care centre worker or Educarer should be employee.	Childcare worker has to be employee.		X		X		1707	
+			If E_Lst_Occ = 83211 (Motorcycle deliveryman), 83222-83229 (Car, Van and Light Goods Vehicle Drivers), 83311-83329 (Heavy Truck and Bus Drivers) and AGE < 18, to flag out as Error.	A person aged below 18 should not be a driver in his/her  last job, as he/she would not have a driving license.			X		X		1701	
+			If E_Lst_Occ = 83221 (Taxi Driver) and  last employment status (E_Lst_EMPST) = ’2’ (Employer) or '4' (Contributing Family Worker), system to prompt as error for verification. 	(Last job) Employment status for Taxi Driver should not be employer or contributing family worker.			X		X		1708	
+			If E_Lst_Occ = 83221 (Taxi Driver) and  last employment status (E_Lst_EMPST) = ’1’ (Employee) and PREV_CO does not contain "HDT", system to prompt as error for verification. 	(Last job) Employment status for Taxi Driver should not be employee".			X		X	Keep the HDT portion until 2022, as HDT ceased operations in the second half of 2021 and can still appear as the last job this year and next year	1708	
+			If E_Lst_Occ = 83226 (Private Hire Car Driver) and last employment status (E_LST_EMPST) = ’2’ (Employer) or '4' (Contributing Family Worker), system to prompt as error for verification. 	(Last job) Employment status for Private Hire Car Driver should not be Employer or Contributing Family Worker.			X		X		1709	
+			If last occupation (E_Lst_Occ) = ‘94101’ or ‘94102’ and last employment status (E_LST_EMPST) = ’2’ or ‘3’, system should prompt as error for verification. 	Last employment status for kitchen/stall assistant should not be employer or own account worker	Last employment status for kitchen/stall assistant should not be employer or own account worker		X		X		1710	
+			If last occupation (E_Lst_Occ) = ‘X3000’, 'X4000', 'X5000' (SAF personnel, foreign armed forces personnel, foreign diplomatic personnel) and last employment status (E_Lst_EMPST) ≠ ’1’ (Employee), system should prompt as error for verification. 	 (Last job) Employment status for Singapore Armed Forces personnel , foreign armed forces personnel and foreign diplomatic personnel should be employee.	Employment status for Singapore Armed Forces personnel should be employee.		X		X		1711	
+			If  last occupation (E_Lst_Occ) = 83221 (taxi driver) and (AGE < 30 or identification type ≠ '01' (Singapore citizen)), to flag out as Error.	A person previously working as a taxi driver should be at least 30 years old and Singapore citizen.			X		X		1702	
+			If last occupation (E_Lst_Occ) = 83311 (bus driver) and AGE < 21, to flag out as Error.	(Last job) A bus driver should be at least 21 years old.			X		X		1720	
+			If last occupation (E_LST_OCC) = 83221 (taxi driver), 83226 (private-hire car driver) or 83311 (bus driver), and AGE ≥ 77, to flag out as Error. 	A person aged 77 & over should not have been a taxi driver, private-hire car driver or bus driver in the last 2 years, based on the age limit set by LTA.			X		X		1703	
+			If last occupation (E_LST_OCC) = 83431 (crane/hoist operator (excluding port)), 83432 (crane operator (on-site)) or 83439 (other crane, hoist and related equipment operator), and AGE < 21, to flag out as Error.	(Last job) A person who worked as a crane, hoist and related equipment operator in the last job should be at least 21 years old.	Based on licensing requirement from MOM.		X		X		1747	
+			If last occupation (E_Lst_Occ) = 36991 (relief teacher) and LST_EMP_TYP = '1' (permanent employee), system to prompt as error. 	(Last job) A relief teacher covers or stands in for teachers. Type of employment should not be permanent.	A relief teacher covers or stands in for teachers. It is a contradiction if their type of employment is permanent.		X		X		1739	
+			If last occupation (E_Lst_Occ) = X3000 (SAF personnel) and LST_EMP_TYP = ‘2’ (Casual / On-call employment), system to prompt as error for verification. 	(Last job) SAF Personnel cannot be on casual / on-call employment.	SAF Personnel cannot be on casual / on-call employment.		X		X		1740	
+"B59
+Name of Last Company (PrevCo)
+"	PrevCo	"To display if  JOB_CHG [B49] = '1' (Yes) and,
+
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') "					X	X	X			
+			If the 5-digit industry code under Name of last company is not the same as the 5-digit industry code in last Industry, system to prompt as Error.   	The SSIC for last industry does not tally with the code for the question on name of previous company.			X		X		100, 1722	
+"B60
+Last Industry (E_Lst_Ind) "	E_Lst_Ind	To display if  JOB_CHG [B49] = '1' (Yes) and if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') 					X	X	X			
+			Refer to the Industry codes in SSIC 2020. The arrangement of the industrial classification in iMSS is based on alphabetical order at 5-digit level.				X	X	X		101	
+			If last industry (E_Lst_Ind) = blank or 'OTH' or other invalid code, system to prompt error.	Coding for last industry must be a valid code that can be found in SSIC 2020. 	"invalid industry code
+
+Note: Code 00000 added as an internal code for ""Activities not adequately defined"", following DOS's practice for Census 2020"		X				101	
+			If last industry (E_Lst_Ind) = '64110', '65301', ‘84110-84239’, '85301' and last employment status (E_LST_EMPST) ≠ ‘1’ (Employee), system should prompt as error for verification. 	Last employment status of a person previously working in this industry should be employee.			X		X		1724	
+			If last industry (E_Lst_Ind) = '97001'-'97002', previous employment status (E_LST_EMPST) ≠ '1' (employee), to flag out as Error. 	Last employment status of a person who was previously employed in this industry should not be self-employed. If he/she was an independent service provider of cooking, gardening, tutoring, babysitting or cleaning services, the last industry should be classified under the appropriate service-producing industry instead.			X		X		1725	
+			"If last occupation (E_Lst_Occ) = '23101' -'23109' (University, Polytechnic & Higher Education Teachers) and previous industry (E_Lst_Ind) ≠ '85301'-'85509' (Higher Education and Education Services Not Elsewhere Classified), to flag as Error.
+"	Last industry of a person previously working as university, polytechnic & higher education teachers should be in 85301 to 85509.			X		X		(1734) - 1	
+			If last occupation (E_Lst_Occ) = '31572' (Train service supervisor), '31596' (Train operations officer) or '83110' (Train operator) and previous industry (E_Lst_Ind) ≠ '49101' (Railroad services) or '49102' (mass rapid transit systems (incl. light rail)), to flag as error. 	Last industry of a person previously working as Train service supervisor, Train operations officer and Train operator should be railroad services (49101) or mass rapid transit systems (49102)"			X		X		(1734) - 2	
+			If last occupation (E_Lst_Occ) = '83221' (Taxi Driver) and last industry (E_Lst_Ind) ≠ 49214 ( Street-hail and ride-hail service providers), system to prompt as error for verification.	Are you sure a person previously working as taxi driver was not working in the Street-hail and ride-hail service providers industry?"			X		X		(1734) - 4	
+			If last occupation (E_Lst_Occ) = '83226' (Private Hire Car Driver) and previous industry (E_Lst_Ind) ≠ 49214 (Street-hail and ride-hail service providers industry), system to prompt as error for verification. 	Are you sure the last industry of a person previously working as private hire car driver is not  in Street-hail and ride-hail service providers?"			X		X		(1734) - 5	
+			If last industry (E_Lst_Ind) ≠ '10101'-'32909' (Manufacturing) and last occupation (E_Lst_Occ) = '93209' (Manufacturing Labourers & Related Workers), to flag as Error.	Last industry of a person previously working as Manufacturing Labourers & Related Workers should be in Manufacturing.			X		X		(1734) - 6	
+			If  last occupation (E_Lst_Occ) = 'X3000' (Singapore Armed Forces Personnel) and  last industry (E_Lst_Ind) ≠ '84221', '84232', '84235' (Armed Forces, Police or Civil Defence), to flag as Error.	Last industry of a person previously working as Singapore Armed Forces Personnel should be Armed Forces, Police or Civil Defence.			X		X		(1734) - 8	
+			If last employment status (E_Lst_EMPST)='3' (own account worker) and last occupation (E_Lst_Occ)= 83211 Motorcycle deliveryman, 83212 Delivery man using motorised personal mobility aids/devices, 83222 Chauffeur, 83223 Van driver, 83224, 83225, 83229 Other car and light goods vehicle driver, 93310 hand/pedal vehicle driver or 96299 other elementary workers n.e.c.) and name of previous company (PrevCo_DESC) contains the following keywords: (Grab, Grabfood, Deliveroo, Foodpanda, WhyQ, AirAsia, AirAsia Food, Teleport, Grabmart, Pandamart, Oddle Eats, Deliver.sg, GrabExpress, Uparcel, Pickupp, Lalamove, GOGOX, or Amazon Flex) and last industry (E_Lst_Ind) ≠ 53200 (Courier activities other than national post activities), to flag out as Error. 	Last industry code for previous own account workers previously working as delivery workers/drivers for these platforms should be 53200 Courier activities other than national post activities			X		X		1735	
+		If 25 ≤ AGE ≤ 64 and E_EMPST = '1' (Employee)  [excluding full-time NS men (A23 ≠ 2)], system to proceed to AGE_START_EMP [B57]. Else go to PWM_Emp [B59].                                                                               					X	X	X			
+Ever relocated from SG to other countries for work	E_RLC,E_RLCFIRST, E_RLCDUR	For Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') 				new Qns						
+"B57
+Age of first job after completing education
+AGE_START_EMP"	AGE_START_EMP	To display if 25 ≤ AGE ≤ 64 and E_EMPST = '1' (Employee)  [excluding full-time NS men (A23 ≠ 2)]					X	X	X			
+		Check for leading zeros, alpha characters and symbols (e.g. dash) for AGE_START_EMP		Please enter digits without commas or decimals.			X	X	X			
+		"AGE_START_EMP should only take on integer values from 7-64   '25'-'64'.
+"		AGE_START_EMP Age at which you started employment must be a valid code.			X	X	X		257	
+			If AGE_START_EMP > AGE, to flag out as error.	The age you started employment cannot be higher than your current age.			X	X	X		466	
+"B58
+Breaks in employment
+EMP_BREAK,EMP_BREAK_Y,EMP_BREAK_M"	EMP_BREAK,EMP_BREAK_Y,EMP_BREAK_M	To display if 25 ≤ AGE ≤ 64 and E_EMPST = '1' (Employee)  [excluding full-time NS men (A23 ≠ 2)]					X	X	X			
+		Check for leading zeros, alpha characters and symbols (e.g. dash) for EMP_BREAK_Y,EMP_BREAK_M		Please enter digits without commas or decimals.			X	X	X			
+		EMP_BREAK should only take on values '1'-'2'.		EMP_BREAK Whether there has been any breaks in employment must be a valid code.			X	X	X		258	
+		EMP_BREAK_Y should only be answered if EMP_BREAK= '1'.									259	
+		EMP_BREAK_M should only be answered if EMP_BREAK= '1'.									260	
+		EMP_BREAK_Y should not be greater than or equal to (AGE-AGE_START_EMP)		Total duration of all employment breaks should not be  equal or greater than the difference of your current age and the age when you started your first job.			X		X		463	
+		Set  number of months (EMP_BREAK_M) = 0-11		<Months value>: Please enter value in the range of 0 to 11			X		X		260	
+"B53
+Total length employment 
+
+(Len_EMP_Dur
+Len_EMP_1Dur1A,
+Len_EMP_1Dur1B,
+Len_EMP_2Dur1A,
+Len_EMP_2Dur1B,  Len_EMP_3Dur1A,
+Len_EMP_3Dur1B)"	"Len_EMP,
+Len_EMP_Dur
+Len_EMP_1Dur1A,
+Len_EMP_1Dur1B,
+Len_EMP_2Dur1A,
+Len_EMP_2Dur1B, Len_EMP_3Dur1A, Len_EMP_3Dur1B"	To display when 25 ≤ AGE ≤ 64 and E_EMPST = '1' (Employee) and E_NATURE_EMP = '1' (Full-time) AND ACTVITY_ST_WR ≠ 2 (Full-time National Service) (exclude full-time National Servicemen)					X	X	X			
+		"Check for leading zeros, alpha characters and symbols (e.g. dash) for Len_EMP_1Dur1A, Len_EMP_1Dur1B, Len_EMP_2Dur1A, Len_EMP_2Dur1B, Len_EMP_3Dur1A, Len_EMP_3Dur1B 
+"		Please enter digits without commas or decimals.			X	X	X			
+			For Len_EMP_1Dur1B, Len_EMP_2Dur1B and Len_EMP_3Dur1B, number of months should be an integer from 0 to 11.				X	X	X		102/104/106	
+			For Len_EMP_1Dur1A, Len_EMP_2Dur1A and Len_EMP_3Dur1A, number of years should be an integer from 0 to 100.				X	X	X		103/105/107	
+			If length of full-time employment (Len_EMP_1Dur1A; Len_EMP_1Dur1B) > AGE, system to prompt error for verification. 	Are you sure that the total Total duration of full-time employment cannot be is greater than your age. Pls check response for length of full-time employment and age, and amend any wrong response. ?			X	X	X		426/427	
+			If length of full-time national service ( Len_EMP_2Dur1A; Len_EMP_2Dur1B) > 2 year 6 months, system to prompt error for verification. 	Are you sure the duration Duration of full-time national service cannot be longer than exceeds 2 years and 6 months. ?	Full-time NS liability was set at  2 years but subsequently increased to 3 years in 1969 for those selected as officers (NA since this falls outside the age range) From 1971 to 2004, those who attain the rank of corporal and above serve full-time NS for 2.5 years		X		X		449	
+			If length of full-time national service ( Len_EMP_2Dur1A; Len_EMP_2Dur1B) ≠ 0 and SEX = 2 (Female), system to prompt error for verification. 	Please indicate 0 years and 0 months under this field for females (Females are not required to serve National Service).			X		X	<For LSSP> For consideration if possible to hide  value field for indication when SEX = 2 (Females)	450	
+			If length of part-time employment (Len_EMP_3Dur1A; Len_EMP_3Dur1B) > AGE, system to prompt error for verification. 	Are you sure that the total Total duration of part-time employment cannot be is greater than your age. Pls check response for length of part-time employment and age, and amend any wrong response. ?			X	X	X		451	
+			If total length of employment (Len_EMP_1Dur1A; Len_EMP_1Dur1B) + (Len_EMP_2Dur1A; Len_EMP_2Dur1B) + (Len_EMP_3Dur1A; Len_EMP_3Dur1B)  > AGE, system to prompt error for verification. 	Are you sure that the total Total length of employment (sum of response for (a), (b) and (c) cannot be is greater than your age. Pls check responses for age and those in (a), (b) and (c) of this question and amend any wrong response. ?			X	X	X		428	
+		 If ACTVITY_ST_WR = '1' (Working) and E_EMPST = 1 (Employee), Go to Section H (OAW).					X	X	X			
+		 If ACTVITY_ST_WR = '1' (Working) ,  E_EMPST = 2/3/4 (Employer/OAW/CFW) and [E_When_Left = 1 (Less than 1 year ago) and E_Lst_EMPST = 1 (Employee)], go to Section H.					X	X	X			
+		 If ACTVITY_ST_WR = '1' (Working) ,  E_EMPST = 2/3/4 (Employer/OAW/CFW) and [E_When_Left = 2  (1  year to less than 2 years ago)  or Job_Chg = "2" (did not change jobs in last 2 years)], go to Section I.					X	X	X			
+		 If ACTVITY_ST_WR = '1' (Working) ,  E_EMPST = 2/3/4 (Employer/OAW/CFW) and [E_When_Left = 1 (Less than 1 year ago) and E_Lst_EMPST ≠ 1 (Employee)], go to Section I.					X	X	X			
+		 If ACTVITY_ST_WR = '2-6' (Other working activities), go to Section I					X	X	X			
+"B62
+Willingness to pay more for goods and services
+(PWM_Emp)"	PWM_Emp	"For respondents who need to answer this question, PWM_Emp can only take on values ""1"",""2"", ""3"", ""4"" or ""5"" and,
+
+if Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') "		Answer to question on whether willing to pay more for goods and services if it helps to raise the wages of lower-wage workers must be a valid code.			X	X	X		108	
+		Go to Section E (OAW).					X	X	X			

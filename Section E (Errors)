@@ -1,0 +1,142 @@
+Question	Alias	Routing/ Question format properties	Errors 	Validation_Msg	Reason	Changes for CLFHS 2025	Processing	Collection (MSOL-Respondents)	Collection (MSOL- Interviewers)	Remarks		DC Val 
+SECTION E		"Questions  (Section H) apply only for ID_Typ = '01' , '02' (Singapore Citizens and PRs), residential status = ""1"" (in Singapore, residential unit) and ""3"" (overseas ≤ 6 months) and aged 15 years old & above. 
+Excluding the below subgroups:
+i.  Unemployed persons who indicated ‘2. No’ in C10 Ever worked before
+ii. Unemployed persons who indicated ‘3. 1 or more years ago’ in C25 Left last job
+iii.  Persons outside the labour force who are permanently ill or disabled (option 14 in D1 or I_WHYNOWORK = 13)
+iv.  Persons outside the labour force who indicated ‘2. No’ in  D8 Ever worked before
+v.   Persons outside the labour force who indicated ‘3. 1 or more years ago’ in D9 Left last job"					X	X	X			
+"E1
+Self- employed at any time in the last 12 months "	"H_SEP_Yr, 
+H_SEP_Yes"	For respondents who need to answer this question, H_SEP_Yr can only take on values "1" or "2"		Whether ever self-employed at any point in time in the last 12 months must be a valid code.			X	X	X		Val 1091, Val 1092	175
+		"Allow multiple selection when H_SEP_Yr = 1 (Yes)
+a. Running own business or trade 
+b. Helping with family business without regular pay"					X	X	X		Val 1093-1095	175
+		If H_SEP_Yr = 1 (Yes), at least one of option (a) and (b) must be selected.		If respondent was ever self-employed at any point in the last 12 months, either options (a) or (b) (or both) must be selected.			X	X	X		Val 1094	176
+			"Preferred Customisation
+If employment status (E_EMPST) = '2' (Employer) ‘3’ (Own Account Worker), '4' (Contributing Family Worker), system to prepopulate H_SEP_Yr = '1' (Yes) and display the 2 options to the question on activities while being an SEP in the last 12 months (H_SEP_Yes). If responses is amended such that E_EMPST = '1' (Employee), system to remove the prepopulated H_SEP_Yr = '1' (Yes) for manual reindication.
+
+Manual Error Customisation
+If employment status (E_EMPST) = '2' (Employer) ‘3’ (Own Account Worker), '4' (Contributing Family Worker) and H_SEP_Yr = 2 (No), system to prompt for verification   
+
+System to display the 2 options to the question on activities while being an SEP in the last 12 months (H_SEP_Yes): Refer below for details on activities"	As you/your household member was an employer, own account worker or contributing family worker in the last week, he or she is considered self-employed. Please amend response to "Yes" and indicate the type of self-employment.	"if (E_EMPST) =  '2' (Employer) ‘3’ (Own Account Worker), '4' (Contributing Family Worker) i.e. self-employed in the last week, it means that the person has been self-employed at any time in the last 12 months.
+
+
+[DC] Responses will be prepopulated to H_SEP_Yr=1 in export entries. Responses will be defaulted and displayed once conditions are met (this is to facilitate interviewers' ease for reference as this will be the identification group for selection to LFSS).
+In system, once responses are amended, to delete off any previous responses for re indication by interviewers/ respondents."		X	X	X		Val 1097	759
+			"Preferred Customisation
+If Job change (JOB_CHG) = ‘1’ (Yes) and  E_When_Left = ‘1’  (Less than 1 year ago) and employment status in last job (E_Lst_EMPST) =  '2' (Employer), ‘3’ (Own Account Worker), '4' (Contributing Family Worker) , system to prepopulate H_SEP_Yr = '1' (Yes), and display the 2 options to the question on activities while being an SEP in the last 12 months (H_SEP_Yes). If responses is amended such that E_Lst_EMPST = '1' (Employee), system to remove the prepopulated H_SEP_Yr = '1' (Yes) for manual reindication.
+
+Manual Error Customisation
+If Job change (JOB_CHG) = ‘1’ (Yes) and  E_When_Left = ‘1’  (Less than 1 year ago) and employment status in last job (E_Lst_EMPST) =  '2' (Employer), ‘3’ (Own Account Worker), '4' (Contributing Family Worker) , and H_SEP_Yr = 2 (No), system to prompt for verification 
+
+System to display the 2 options to the question on activities while being an SEP in the last 12 months (H_SEP_Yes): Refer below for details on activities"	As you/your household member had left his or her last job within the last 12 months as an employer, own account worker or contributing family worker, he or she is considered to have been self-employed within the last 12 months. Please amend response to "Yes" and and indicate the type of self-employment. 	"A person who left his last job within the last 12 months and is an employer, own account worker or contributing family worker in that job has definitely been self-employed at any time in the last 12 months.
+
+
+[DC] Responses will be prepopulated to H_SEP_Yr=1 in export entries. Responses will be defaulted and displayed once conditions are met (this is to facilitate interviewers' ease for reference as this will be the identification group for selection to LFSS).
+In system, once responses are amended, to delete off any previous responses for re indication by interviewers/ respondents."		X	X	X		Val 1097	760
+		"If employment status (E_EMPST) [B1] = '2' (Employer) or ‘3’ (Own Account Worker), system to check for selection of H_SEP_Yes = 1 (Running own business or trade), otherwise system to prompt for verification 
+
+The other option (Helping with family business without regular pay) should be available for selection as well, as the person may have also been a contributing family worker at any time in the last 12 months."		Persons who are working as an employer or own account worker should select 'running own business or trade'.			X	X	X		Val 1098	751
+			"If Job change (JOB_CHG) [B46] [B49] = ‘1’ (Yes) and  E_When_Left [B47] [B50] = ‘1’ (Less than 1 year ago) and employment status in last job (E_Lst_EMPST) [B49] [B52] =  '2' (Employer) or ‘3’ (Own Account Worker) , system to check for selection of H_SEP_Yes1 = 1 (Running own business or trade), otherwise system to prompt for verification 
+
+The other option (Helping with family business without regular pay) should be available for selection as well, as the person may have also been a contributing family worker at any time in the last 12 months."	Persons who were previously working as an employer or own account worker should select 'running own business or trade'.			X	X	X		Val 1098	752
+			"If employment status (E_EMPST) [B1] = '4' (Contributing Family Worker), system to check for selection of H_SEP_Yes = 2 (Helping with family business without regular pay), otherwise system to prompt for verification.
+
+The other option (Running own business or trade) should be available for selection as well, as the person may have also been an employer/own account worker at any time in the last 12 months."	Persons who are working as a contributing family worker should select 'Helping with family business without regular pay' .			X	X	X		Val 1099	753
+			"If Job change (JOB_CHG) [B46] [B49] = ‘1’ (Yes) and  E_When_Left [B47] [B50] = ‘1’  (Less than 1 year ago) and employment status in last job (E_Lst_EMPST) [B49] [B52] = '4' (Contributing Family Worker), system to check for selection of H_SEP_Yes = 2 (Helping with family business without regular pay), otherwise system to prompt for verification.
+
+The other option (Running own business or trade) should be available for selection as well, as the person may have also been an employer/own account worker at any time in the last 12 months."	Persons who were previously working as a contributing family worker should select 'Helping with family business without regular pay' .			X	X	X		Val 1099	754
+		"If H_SEP_Yes1 = 1 (Running own business or trade) is selected, sytem to route to question whether working on your own without hiring any paid employees at any point in the last 12 months [H2]
+
+Else, if H_SEP_Yr = 2 (No) or (H_SEP_Yr = 1 (Yes) and H_SEP_Yes1 ≠ 1 (Running own business or trade) (i.e. running own business or trade was not selected), system to route to question whether taken up freelance or assignment-based work through online platforms in the last 12 months [H3]. "					X	X	X			
+"E2
+Own Account Worker at any time in the last 12 months "	H_OAW_Yr	To display if H_SEP_Yes1 = 1 (Running own business or trade) is selected					X	X	X		Val875, Val 876	177
+		For respondents who need to answer this question, H_OAW_Yr can only take on values "1" or "2"		Whether worked on your own (i.e. without paid employees) while running your own business or trade at any point in the last 12 months must be a valid code.			X	X	X		Val 875	177
+		If employment status (E_EMPST) = ‘3’ (i.e. Own Account Worker) and H_SEP_YES1 = '1' (Yes), system to prepopulate H_OAW_Yr = 1 (Yes), respondents/interviewers to proceed to question on usage of online platforms to take up freelance work (H_Online)			"Responses will be prepopulated to H_OAW_Yr=1 in export entries. Responses will be defaulted and displayed once conditions are met (this is to facilitate interviewers' ease for reference as this will be the identification group for selection to LFSS).
+
+In system, once responses are amended, to delete off any previous responses for re indication by interviewers/ respondents.
+
+Proceed to question on online platforms in system if (E_EMPST) = ‘3'.
+
+An OAW in the reference week would have worked as an OAW in the last 12 months."		X	X	X		Val 877	
+		If job change (JOB_CHG) = ‘1’ (Yes) and  E_When_Left = ‘1’  (Less than 1 year ago) and employment status in last job (E_Lst_EMPST) = ‘3’ (Own Account Worker) and H_SEP_YES1 = '1' (Yes), system to prepopulate H_OAW_Yr = 1 (Yes), respondents/interviewers to proceed to question on usage of online platforms to take up freelance work (H_Online)			"Responses will be prepopulated to H_OAW_Yr=1 in export entries. Responses will be defaulted and displayed once conditions are met (this is to facilitate interviewers' ease for reference as this will be the identification group for selection to LFSS).
+
+In system, once responses are amended, to delete off any previous responses for re indication by interviewers/ respondents.
+
+Proceed to question on online platforms in system if job change (JOB_CHG) = ‘1’ (Yes) and  E_When_Left = ‘1’ (Less than 1 year ago) and employment status in last job (E_Lst_EMPST) = ‘3’ (Own Account Worker) 
+
+An OAW in who left his previous job within a year ago would have worked as an OAW in the last 12 months."		X	X	X		Val 877	
+			If E_EMPST="3" (own account worker in reference week) and H_OAW_Yr="1" (own account worker in last year), and respondent answered LFSS but there is no OAW job in LFSS question A1.1 (X1 A1.2 is answered in LFSS), to flag out as Error.	Respondent reported himself as an own account worker during the reference week and in the past 12 months in this survey but not in LFSS. Please verify answers for B1 and H2 in this survey. If respondent was an employee in B1, please collect details for employees in Section B of this survey.			X		X		Val 1115	755
+			If E_EMPST≠"3" (not own account worker in reference week) and H_OAW_Yr="1" (own account worker in last year), and respondent answered LFSS but there is no OAW job in LFSS question A1.1 (X1 A1.2 is answered in LFSS), to flag out as Error.	Respondent reported himself as an own account worker in the past 12 months in this survey but not in LFSS. Please confirm if respondent was an own account worker in the past 12 months, if not to amend H1 and H2 in this survey.			X		X		Val 1116	756
+			If respondent reported at least 1 own account worker job in question A1.1 of LFSS, and H_SEP_Yr = 2 (No) or H_SEP_Yes1 (running own business or trade) not selected or H_OAW_Yr = 2 (No), to flag out as Error.	Respondent reported himself as an own account worker in the past 12 months in LFSS but not in this survey. To confirm if respondent was an own account worker in the past 12 months and if so, to amend answers to H1 and H2 accordingly.			X		X		Val 1117	757
+"E3
+Online platforms used to take up freelance work "	"H_Online, 
+H_Online_Oth"	For respondents who need to answer this question, at least 1 of the options must be selected. If none of the options are selected, to flag out as Error.		At least 1 option should be selected.			X	X	X		Val 883, 884, 887	178
+			If H_Online17 = 1 "Others" is selected, system to display a field to enter the remarks.  If the remarks field is empty, system to prompt error.	Please indicate the platform.			X	X	X		Val 885, Val 886	179
+			If at least one of options 1-17 is selected, option 18 (Did not take up freelance or assignment-based work through online platforms in the last 12 months) should not be selected, system to prompt error.	Invalid response: Please do not indicate non usage of platforms and select option(s) on online platforms at the same time.			X	X	X		Val 1096	761
+			H_Online=17 is selected (Others). H_Online_Oth_IR is not answered OR H_Online_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped witht with the options provided		X		X			765
+		"If H_OAW_Yr=1 (Own account worker at some point in the last 12 months), route to Section I.
+
+System to route to E4 (H_Valid) if:
+ i. For persons who were not self-employed at any time in the last 12 months (H_SEP_Yr [E1] = No) or
+ii. For persons who did not run their own business or trade at any time in the last 12 months (H_SEP_Yes1 [H1a] not selected) or
+iii. For persons who never worked on their own (i.e. without paid employees) at any point in the last 12 months (H_OAW_Yr [E2] = 2 (No)]
+
+and:
+
+Occupation in last week or last job held within the last 12 months [based on when left last job and previous occupation of employed who changed jobs (E_When_Left= 1), unemployed (U_When_Left= 1/2), as well as those outside the labour force (I_When_Left = 1/2)] for which E_OCC_Ttl/ E_Lst_Occ_Ttl/ U_LstOcc_Ttl/ I_Last_Occ_Desc does not contain words in the Word Permutation list (via text-based checks) at tab OAW Word List (Append Latest) or if E_OCC / E_Lst_Occ/ U_LstOcc / I_Last_Occ ≠ 83221 (Taxi Driver), 83226 (Private Hire Car Driver), Real estate agent (33340), Insurance agent (33211), '52110' or '52120' (hawker/stall holder)"					X	X	X	For insurance agents, the exclusion should just be based on 33211 instead of 33211 and 33219.		
+"E4
+Valid licences or permit"	H_Valid	"
+System to display if:
+ i. For persons who were not self-employed at any time in the last 12 months (H_SEP_Yr [E1] = No) or
+ii. For persons who did not run their own business or trade at any time in the last 12 months (H_SEP_Yes1 [E1a] not selected) or
+iii. For persons who never worked on their own (i.e. without paid employees) at any point in the last 12 months (H_OAW_Yr [E2] = 2 (No)]
+
+and:
+
+Occupation in last week or last job held within the last 12 months [based on when left last job and previous occupation of employed who changed jobs (E_When_Left= 1), unemployed (U_When_Left= 1/2), as well as those outside the labour force (I_When_Left = 1/2)] for which E_OCC_Ttl/ E_Lst_Occ_Ttl/ U_LstOcc_Ttl/ I_Last_Occ_Desc does not contain words in the Word Permutation list (via text-based checks) at tab OAW Word List (Append Latest) or if E_OCC / E_Lst_Occ/ U_LstOcc / I_Last_Occ ≠ 83221 (Taxi Driver), 83226 (Private Hire Car Driver), Real estate agent (33340), Insurance agent (33211), '52110' or '52120' (hawker/stall holder)"					X	X	X	For insurance agents, the exclusion should just be based on 33211 instead of 33211 and 33219.	Val 1240, Val 1241	
+			If at least one of options 1-5 is selected, option 6 (None of the above) should not be selected, system to prompt error	Invalid response: Please do not indicate ‘None of the above’ and select option(s) on licence(s) or permits at the same time.			X	X	X		Val 1243	180
+			If option 6 (None of the above) is not selected, at least one of options 1-5 should be selected.	Please select a response relating to the the licence(s) or permit(s) you hold.			X	X	X		Val 1242	758
+		"If H_Valid = 6 (None of the above), refer to routing instructions.
+Otherwise system to proceed to H_Rel_Work."					X	X	X			
+"E5
+Online platforms used to take up freelance work "	H_Rel_Work	"
+System to display if:
+ i. For persons who were not self-employed at any time in the last 12 months (H_SEP_Yr [E1] = No) or
+ii. For persons who did not run their own business or trade at any time in the last 12 months (H_SEP_Yes1 [E1a] not selected) or
+iii. For persons who never worked on their own (i.e. without paid employees) at any point in the last 12 months (H_OAW_Yr [E2] = 2 (No)]
+
+and:
+
+Occupation in last week or last job held within the last 12 months [based on when left last job and previous occupation of employed who changed jobs (E_When_Left= 1), unemployed (U_When_Left= 1/2), as well as those outside the labour force (I_When_Left = 1/2)] for which E_OCC_Ttl/ E_Lst_Occ_Ttl/ U_LstOcc_Ttl/ I_Last_Occ_Desc does not contain words in the Word Permutation list (via text-based checks) at tab OAW Word List (Append Latest) or if E_OCC / E_Lst_Occ/ U_LstOcc / I_Last_Occ ≠ 83221 (Taxi Driver), 83226 (Private Hire Car Driver), Real estate agent (33340), Insurance agent (33211), '52110' or '52120' (hawker/stall holder)
+
+
+AND H_Valid6 [H4]  ≠ '1' (None of the above)"					X	X	X	For insurance agents, the exclusion should just be based on 33211 instead of 33211 and 33219.	Val 1244, Val 1245	
+		For respondents who need to answer this question, H_Rel_Work can only take on values "1" or "2"		Whether did any work related to the license(s) held in the last 12 months must be a valid code.			X	X	X		Val 1244	181
+		"If H_Rel_Work = 1 (Yes), refer to routing instructions.
+Otherwise, system to proceed to  H_Rel_No."					X	X	X			
+"E6
+Online platforms used to take up freelance work "	H_Rel_No, H_Rel_Oth	"
+System to display if:
+ i. For persons who were not self-employed at any time in the last 12 months (H_SEP_Yr [H1] = No) or
+ii. For persons who did not run their own business or trade at any time in the last 12 months (H_SEP_Yes1 [H1a] not selected) or
+iii. For persons who never worked on their own (i.e. without paid employees) at any point in the last 12 months (H_OAW_Yr [H2] = 2 (No)]
+
+and:
+
+Occupation in last week or last job held within the last 12 months [based on when left last job and previous occupation of employed who changed jobs (E_When_Left= 1), unemployed (U_When_Left= 1/2), as well as those outside the labour force (I_When_Left = 1/2)] for which E_OCC_Ttl/ E_Lst_Occ_Ttl/ U_LstOcc_Ttl/ I_Last_Occ_Desc does not contain words in the  Word Permutation list (via text-based checks) at tab OAW Word List (Append Latest) or if E_OCC / E_Lst_Occ/ U_LstOcc / I_Last_Occ ≠ 83221 (Taxi Driver), 83226 (Private Hire Car Driver), Real estate agent (33340), Insurance agent (33211), '52110' or '52120' (hawker/stall holder)
+
+
+AND H_Valid6 [H4]  ≠ '1' (None of the above) AND H_Rel_Work [H5] = '2' (No)"					X	X	X	For insurance agents, the exclusion should just be based on 33211 instead of 33211 and 33219.	Val 1246, Val 1247	
+		For respondents who need to answer this question, H_Rel_No can only take on values "1"-"6"		Main reason not doing work related to the license(s) held must be a valid code.			X	X	X		Val 1246	182
+			If H_Rel_No = ‘6’ (i.e. Others), system to display a field to enter the remarks. If the remarks field is empty, system to prompt error.	Please elaborate on 'Others'.			X	X	X		Val 1248, Val 1249	183
+			H_Rel_No=6 is selected (Others). H_Rel_No_Oth_IR is not answered OR H_Rel_No_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped witht with the options provided		X		X			764
+		Refer to routing instructions					X	X	X			
+Routing Instructions		"For persons whose current labour force status is “Working/ Undergoing full-time National Service/ Working while awaiting examination results or NS call-up” (ACTVITY_ST=1/2/5),
+Go to Section G (Non-employment Income)"										
+		"For persons whose current labour force status is “Schooling but currently working in vacation job/ Schooling but currently undergoing paid internship, traineeship or apprenticeship/ Working while schooling” (ACTVITY_ST=3/4/6),
+GO to F4"										
+		"For persons whose current labour force status “Not working” 
+(A28=7). Go to F2"										
+												

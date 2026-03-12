@@ -1,0 +1,63 @@
+Question	Alias	Routing/ Question format properties	Errors 	Validation_Msg	Reason	Changes for CLFHS 2025	Processing	Collection (MSOL-Respondents)	Collection (MSOL- Interviewers)	DC Val
+SECTION F		Question appears only for Persons with residential status (RESIDENTIAL_ST = “1” (in Singapore, residential unit) or “6”/ “7” / “4” (outside Singapore for less than 6 months/ 6 months/ > 6 to < 12 months) excluding foreign domestic helpers on work permit (RELH= '12' and ID_TYPE='05'				New Section	X	X	X	
+"F1
+Attend Pre-school"	Attend_pre_sch	For persons aged 0 to 4 years.					X	X	X	
+		"If Attend_pre_sch =Yes '1'. Go to F6 if staying in Singapore residential unit  (RESIDENTIAL_ST = “1” (in Singapore, residential unit) or “6”/ “7” / “4” (outside Singapore for less than 6 months/ 6 months/ > 6 to < 12 months) . 
+Otherwise, go to Section G (Non- employment income).                      
+"								
+"F2
+Whether respondent is a student"	STDNT	For persons aged 5 and above who are not working. ACTVITY_ST='7' (Not working)								
+		"If STDNT=Yes '1', Go to F3. 
+If STDNT =No '2'. Go to F5 if aged 5-14 years old. Otherwise, go to Section G (Non-employment income).                                            "								
+"F3
+Full-time or part-time student"	SCHOOL_FTPT	For students (STDNT='Yes' '1') aged 5 and above who are not working.ACTVITY_ST='7' (Not working)								
+"F4
+Level of formal education currently attending"	EDUC_ATTEND	"This question applies to:
+Aged 5 and above who are:
+-	 Not working and students (F2 = 1) OR
+-	 Labour force status = Schooling but currently working in vacation job (ACTVITY_ST_5 = 2 or ACTVITY_ST = 3) OR schooling but undergoing paid internship/traineeship/apprenticeship (ACTVITY_ST = 4) OR working while schooling (ACTVITY_ST_5 = 4 or ACTVITY_ST = 6)]"								
+		"For part-time students (F3 = 2) aged 5- 14 years old and
+persons aged 5 – 14 years whose labour force status is “Schooling but currently working in a vacation job/paid internship/traineeship/apprenticeship” or “Working while schooling” (ACTVITY_ST=2/4),
+go to F5.
+
+Otherwise,
+For students staying in Singapore residential unit (RESIDENTIAL_ST='1') or outside Singapore for 6 months or less (RESIDENTIAL_ST=6/7), go to F6.
+For students staying outside Singapore for more than 6 months (RESIDENTIAL_ST='4'), go to Section G (Non-employment income)
+"								
+"F5
+Highest academic grade passed or qualification attained"	EDUC_5	"This question applies to: 
+Aged 5- 14 years who are:
+- Non-students (F2 = 2) or part-time students (F3 = 2) OR
+
+-Labour force status = Schooling but currently working in vacation job/paid internship, traineeship or apprenticeship or working while schooling (ACTVITY_ST_5= 2/4)] OR 
+
+- Labour force status = Working or working while awaiting examination results (ACTVITY_ST_5 = '1','3')"								
+		"For part-time students staying in Singapore residential unit (RESIDENTIAL_ST = '1') 
+or outside Singapore for 6 months or less (RESIDENTIAL_ST = '6' / '7'), 
+
+For persons whose labour force status is “Schooling but currently working in a vacation job/paid internship/traineeship/apprenticeship” or “Working while schooling” (ACTVITY_ST_5=2/4) staying in Singapore residential unit (A11=1a) or outside Singapore for 6 months or less (RESIDENTIAL_ST='6'/'7'), 
+
+Go to F6.
+
+Otherwise go to Section G (Non-employment income)"								
+"F6
+Usual Travel mode to school"	TRANSPORT_SCH	"This question applies to: 
+students staying in Singapore residential unit or outside Singapore for 6 months or less who are:
+-	 Attending preschool (aged 0 to 4 years) [Attend_pre_sch] =""1"" (Yes) OR
+-	  Students aged 5 and over [STDNT] =""1"" (Yes) OR
+-	 For persons aged 5 to 14 years whose current labour force status is “Schooling but currently working in vacation job/ paid internship/traineeship/apprenticeship” or “Working while schooling” (ACTVITY_ST_5=2/4) OR
+-	 For persons aged 15 years and over whose current labour force status is “Schooling but currently working in vacation job” or “Schooling but undergoing paid internship/traineeship/apprenticeship” or “Working while schooling” (ACTVITY_ST =3/4/6)"								
+		" Go to F7 for those who do NOT study from home (F6=1/2). 
+    Otherwise, go to Section G (Non-employment income).
+"								
+"F7
+Usual Travel time to school"	TRVL_TIME_SCH	"This question applies to: 
+For students staying in Singapore residential unit or outside Singapore for 6 months or less, excluding those who study from home (F6 = 1/2)] who are:
+-	 Attending preschool (aged 0 to 4 years) [Attend_pre_sch] =""1"" (Yes) OR
+-	  Students aged 5 and over [STDNT] =""1"" (Yes) OR
+-	 For persons aged 5 to 14 years whose current labour force status is “Schooling but currently working in vacation job/ paid internship/traineeship/apprenticeship” or “Working while schooling” (ACTVITY_ST_5=2/4) OR
+-	 For persons aged 15 years and over whose current labour force status is “Schooling but currently working in vacation job” or “Schooling but undergoing paid internship/traineeship/apprenticeship” or “Working while schooling” (ACTVITY_ST =3/4/6)"								
+		Go to Section G (Non-employment income).								
+"G2
+Main reason for not working / looking for a job "	F_I_WHYNOWORK	For respondents who need to answer this question, F_I_WHYNOWORK can only take on value "01"-"08, "10-22"		Main reason for not working and not looking for a job must be a valid code.			X	X	X	
+			If F_I_WHYNOWORK = ‘02’ (Pursuing full-time study) and AGE > 16 and Educational Attainment < 03, system should prompt as error for verification. 	This person is above 16 years and is currently pursuing full-time study.  His educational attainment should not be below primary qualification.	If the person is aged > 16 years and is currently pursuing full-time/ part-time study , it is unlikely that his educational attainment is below primary qualification. 		X		X	

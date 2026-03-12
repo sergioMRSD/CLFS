@@ -1,0 +1,14 @@
+		Routing/ Question format properties	Errors 	Validation_Msg	Processing	Collection (MSOL-Respondents)	Collection (MSOL- Interviewers)	Comments	DC Val
+"SECTION H
+OUTSIDE SINGAPORE FOR MORE THAN 6 MONTHS "		"Questions apply only for ID_Typ = '01' , '02' (Singapore Citizens and PRs), residential status (RESIDENTIAL_ST) = ""1"" (in Singapore, residential unit) and ""3"" (overseas ≤ 6 months) aged 15 years old & above. 
+"			X	X	X		
+"H1
+Country currently residing in"	COUNTRY_IN,COUNTRY_IN_OTH,COUNTRY_IN_CODE	For persons staying outside Singapore for 12 months and over. RESIDENTIAL_ST ='5'			X	X	X		
+"H2
+Reason for living abroad"	RSN_LIVE_ABD	For persons staying outside Singapore for more than 6 months. RESIDENTIAL_ST ='4', '5'			X	X	X		
+		"For persons aged 15 years and above staying outside Singapore for 12 months and over (RESIDENTIAL_ST='5') whose main reason for living abroad is NOT studying (H2=2/3), go to H3.
+
+For persons aged 5 years and over, staying outside Singapore for more than 6 to less than 12 months (RESIDENTIAL_ST=4),"							
+"H3
+Highest qualification attained"	EDUC_ABD	For persons aged 15 years and above outside Singapore ≥ 12 months whose main reason for living abroad is not studying. RESIDENTIAL_ST ='5'. End of Survey			X	X	X		
+									

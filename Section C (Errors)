@@ -1,0 +1,262 @@
+Question	Alias	Routing / Question format properties	Errors 	Validation_Msg	Reason	Changes for CLFHS 2025	Processing	Collection (MSOL-Respondents)	Collection (MSOL- Interviewers)	Remarks	DC Val
+SECTION C		Refer to current LF status routing tab for routing to Section C					X	X	X		
+SECTION C		"For persons outside Singapore> 6 to < 12 months who are not future starters (ACTVITY_ST_4W_DESC = Yes, '1' and ACTVITY_ST_2W_DESC = Yes, '1'), go to C4.
+
+For persons outside Singapore> 6 to < 12 months who are future starters (ACTVITY_ST_4W_DESC = No, '2' and When_Newjob = 1 – 3 and ACTVITY_ST_2W_DESC = Yes, '1'), go to C6.
+
+Otherwise, go to C1"				Y	X	X	X		
+"C1
+Duration of unemployment 
+U_DUR_UNEMP"	U_DUR_UNEMP	For persons staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')				Y					
+		"Check for leading zeros, symbols and alpha characters, system to negate these entries
+
+If wrong format, system to prompt error for verification. "		Please enter digits without commas or decimals.			X	X	X		109
+		Entry up to 3-digit numeric code (a valid integer, greater than or equal to 1). No decimal place would be captured.					X	X	X		109
+		Code should be in weeks and ranges from 001 – 999.		Duration of unemployment (in weeks) must be a valid integer.			X	X	X		in pega
+"C2
+Current activity while looking for work  
+U_WK_ACTY"	U_WK_ACTY	For persons staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')				Y					
+		For respondents who need to answer this question, U_WK_ACTY can only take on value "1"-"4"		Current activity while looking for work must be a valid code.			X	X	X		110
+			If Current activity while looking for work (U_WK_ACTY) = '3' (Awaiting NS Call-up) and SEX = '2' (Female), system to prompt as error for verification.	Female should not be awaiting NS call-up.	Full-time NS is for males only.		X		X		501
+		"– For foreigners who are not future starters (ACTVITY_ST_4W_DESC = Yes, '1' and ACTVITY_ST_2W_DESC = Yes, '1'), go to C4.
+– For foreigners who are future starters (ACTVITY_ST_4W_DESC = No, '2' and When_Newjob = 1 – 3 and ACTVITY_ST_2W_DESC = Yes, '1'), go to C6.
+– Otherwise, go to C3."				Y					
+"C3
+Job looking for 
+U_OCC_LOOK"		For Singapore Citizens and Permanent Residents staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')				Y					
+	U_OCC_LOOK	Refer to the Occupation codes in SSOC 2024. The arrangement of the occupational classification in iMSS is based on alphabetical order. 					X	X	X		
+		The occupational codes in the system are at 5-digit level.  					X	X	X		
+			if kind of job looking for (U_OCC_LOOK) = blank, 'OTH' or other invalid code.	Coding for kind of job or work (occupation) looked for in the last 4 weeks must be a valid code that can be found in SSOC 2024.	invalid occupation code		X				111
+		"– For persons who are not future starters (ACTVITY_ST_4W_DESC = Yes, '1' and ACTVITY_ST_2W_DESC = Yes, '1'), go to C4.
+
+–For persons who are future starters (ACTVITY_ST_4W_DESC = No, '2' and When_Newjob = 1 – 3 and ACTVITY_ST_2W_DESC = Yes, '1')), go to C6."				Y	X	X	X		
+"C4
+Main step taken to look for job for non future starters
+U_Main_Act_Job"	"U_Main_Act_Job,
+U_Main_Act_Job_Oth "	For persons who are not future starters (ACTVITY_ST_4W_DESC = Yes, '1' and ACTVITY_ST_2W_DESC = Yes, '1')					X	X	X	"(C4 to C7):
+U_Action_Job, U_Action_Job_Oth"	112
+		For respondents who need to answer this question,U_Main_Act_Job can only take on value "01"-"12"		Main step taken to look for a job must be a valid code.			X	X	X		112
+			If  U_Main_Act_Job = '12' (i.e. Others), system to display a field (U_Main_Act_Job) to enter the remarks. If the remarks field is empty, system to prompt error.	An answer is required.			X	X	X		113
+			U_Main_Act_Job=12 is selected (Others).U_Main_Act_Job_Oth_IR is not answered OR U_Main_Act_Job_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	'Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		551
+"C5
+Other steps taken to look for job for non future starters
+U_Action_Job,
+U_Action_Job_Oth"	"U_Action_Job,
+U_Action_Job_Oth"	For persons who are not future starters (ACTVITY_ST_4W_DESC = Yes, '1' and ACTVITY_ST_2W_DESC = Yes, '1')				Y					114
+			For respondents who need to answer this question, at least 1 of the options must be selected. If none of the options are selected, to flag out as Error.	At least one option must be selected.			X	X	X		114
+			If Other steps (U_NFS_Act_Job U_Action_Job) = '12' (No other step taken" is selected and other steps are also selected (U_NFS_Act_Job U_Action_Job = 01 - 11 and 13), system should prompt as error for verification.  	'No other step taken' should not be selected concurrently when other steps in options 01-11 and 13 have been selected. If 'No other step taken' is selected, other steps should not be selected i.e. options 1 to 11 and 13 should not be selected.			X	X	X		503
+			If U_NFS_Main_Act U_Action_Job= 01-11 and U_NFS_Main_Act U_Main_Act_Job=U_Action_Job U_NFS_Act_Job , system to prompt error for verification. 	Option <n> should not be selected as both the main step and other steps of job search. One of the 'Other Steps' taken to look for a job is the same as the 'Main Step'.  Please select other steps, if any.  If there is no other step, please select 'No other step taken'. (where n=01, 02, ..., 11)			X		X		504-515
+			If U_Action_Job = '12' (i.e. Others), system to display a field (U_Action_Job_Oth) to enter the remarks. If the remarks field is empty, system to prompt error.	An answer is required			X	X	X		115
+			U_Action_Job=12 is selected (Others).U_Action_Job_Oth_IR is not answered OR U_Action_Job_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	'Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		550
+		"– For Singapore Citizens and Permanent Residents staying in Singapore residential unit (A11=1a)/ outside Singapore for 6 months or less (A11=2a/2b), go to C8.
+
+-  Otherwise, go to F2 (Students)"					X	X	X		
+"C6
+Main Step to look for job 
+for future starters
+U_Main_Act_Job,
+U_Main_Act_Job_Oth "	"U_Main_Act_Job,
+U_Main_Act_Job_Oth "	For persons who are future starters (ACTVITY_ST_4W_DESC = No and When_Newjob = 1 – 3 and ACTVITY_ST_2W_DESC = Yes)				Y	X	X	X		112
+		For respondents who need to answer this question, U_Main_Act_Job can only take on value "01"-"12"		Main step taken to look for a job must be a valid code.			X	X	X		112
+			If  U_Main_Act_Job = '12' (i.e. Others), system to display a field (U_Main_Act_Job_Oth) to enter the remarks. If the remarks field is empty, system to prompt error.	An answer is required.			X	X	X		113
+			U_Main_Act_Job=12 is selected (Others).U_Main_Act_Job_Oth_IR is not answered OR U_Main_Act_Job_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	'Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		552
+"C7
+Other Step to look for job 
+for future starters
+U_Action_Job,
+U_Action_Job_Oth"	"U_Action_Job,
+U_Action_Job_Oth"	For persons who are future starters (ACTVITY_ST_4W_DESC = No and When_Newjob = 1 – 3 and ACTVITY_ST_2W_DESC = Yes)				Y	X	X	X		114
+		For respondents who need to answer this question, at least 1 of the options must be selected. If none of the options are selected, to flag out as Error.		At least one option must be selected.			X	X	X		114
+			If Other steps (U_FS_Act_Job U_Action_Job) = '12' (No other step taken" is selected and Other steps are also selected (U_FS_Act_Job  U_Action_Job  = 01 - 11 and 13), system should prompt as error for verification. 	'No other step taken' should not be selected concurrently when other steps in options 01-11 and 13 have been selected. If 'No other step taken' is selected, other steps should not be selected i.e. options 1 to 11 and 13 should not be selected.			X	X	X		503
+			If U_FS_Main_Act  U_Action_Job = 01-11 and U_FS_Act_Job  U_Action_Job =  U_Action_Job U_FS_Main_Act, system to prompt error for verification.	Option <n> should not be selected as both the main step and other steps of job search. One of the 'Other Steps' taken to look for a job is the same as the 'Main Step'.  Please select other steps, if any.  If there is no other step, please select 'No other step taken'. (where n=01, 02, ..., 11)			X		X		504
+			If U_FS_Act_Job U_Action_Job = '13' (i.e. Others), system to display a field (U_FS_Act_Job_Oth U_Action_Job_Oth) to enter the remarks. If the remarks field is empty, system to prompt error.	An answer is required.			X	X	X		115
+			U_Action_Job=13 is selected (Others).U_Action_Job_Oth_IR is not answered OR U_Action_Job_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		553
+		"– For Singapore Citizens and Permanent Residents staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7'), go to C8.
+– Otherwise, go to F2 (Students)"				Y					
+"C8
+Difficulties when trying to secure a job "	U_DIFF	– For Singapore Citizens and Permanent Residents staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')									
+		If U_DIFF = '1' (Yes), system to proceed to U_Difflist U_DIFFLIST_MAIN [C9]. Otherwise, system to proceed to U_WORK_BEFORE [C10].					X	X	X		
+			For respondents who need to answer this question, U_DIFF can only take on value "1" or "2"	Whether experienced difficulties while trying to secure a job must be a valid code.			X	X	X		116
+"C9
+Main difficulty difficulties when trying to secure a job 
+U_DIFFLIST_MAIN"	U_DIFFLIST_MAIN,U_DIFFLIST_MAIN_Oth	"To display if U_DIFF = '1' (Yes) and for
+Singapore Citizens and Permanent Residents staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')"									
+		For respondents who need to answer this question, U_DIFFLIST_MAIN can only take on value "01"-"19"		Main step taken to look for a job must be a valid code.			X	X	X		261
+		If  U_DIFFLIST_MAIN= '19' (i.e. Others), system to display a field U_DIFFLIST_MAIN_Oth to enter the remarks. If the remarks field is empty, system to prompt error.		An answer is required.			X	X	X		262
+			U_DIFFLIST_MAIN=19 is selected (Others).U_DIFFLIST_MAIN_Oth_IR is not answered OR U_DIFFLIST_MAIN_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		554
+"C9a
+Other difficulties when trying to secure a job 
+U_Difflist"	U_Difflist, U_Difflist_Oth	"To display if U_DIFF = '1' (Yes) and for
+Singapore Citizens and Permanent Residents staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')"					X	X	X		117
+			If Other difficulties (U_Difflist) = '20' (No other difficulty encountered) is selected and Other difficulties are also selected (U_Difflist  = 01 - 19), system should prompt as error for verification. 	'No other difficulty encountered' should not be selected concurrently when other difficulties in options 01-19 have been selected.			X	X	X		578
+			If U_Difflist = ‘19’ (i.e. Others), system to display a field (U_Difflist_Oth) to enter the remarks. If the remarks field is empty, system to prompt error.	An answer is required.			X	X	X		118
+			U_Difflist=19 is selected (Others).U_Difflist_IR is not answered OR U_Difflist_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped witht the options provided		X		X		577
+			If U_Difflist = 01-18 01-19 and U_Difflist =  U_DIFFLIST_MAIN, system to prompt error for verification.	Option <n> should not be selected as both the main difficulty and other difficulties encountered. One of the 'Other Steps' taken to look for a job is the same as the 'Main Step'.  Please select other difficulties steps, if any.  If there is no other difficulty step, please select 'No other difficulty encountered step taken'. (where n = 01, 02, ..., 18)			X		X		555-573
+			If U_DIFF = 1 (Yes) and all 20 19 options in U_Difflist ≠ 1 (i.e. no option selected), to flag out as error	At least 1 option must be selected. If you experience difficulty in trying to secure a job, please  indicate at least 1 difficulty encountered for the following question.	If the person experience difficulty in trying to secure a job, he/she needs to indicate either  at least 1 other difficulty encountered or select option 20 No other difficulty encountered. for consistency in the answers for these questions.		X	X	X		516
+"C10
+Ever worked before 
+U_WORK_BEFORE"	U_WORK_BEFORE	"For Singapore Citizens and Permanent Residents staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')
+
+For respondents who need to answer this question, U_WORK_BEFORE can only take on value ""1"" or ""2"""		Whether ever worked before must be a valid code.			X	X	X		119
+			If U_WORK_BEFORE = '2' (No) and (U_Difflist_Main [C9] = '06' or U_Difflist [C9a] = '06') (Lack of confidence after a long absence from employment), to flag out as error.  	If one of the difficulties encountered when trying to secure a job is due to lack of confidence after a long absence from employment, the person should have worked before.	Indicating option 6 suggest that respondent have worked before, which contradicts his response to question on whether worked before		X		X		517
+			If U_WORK_BEFORE = '2' (No) and U_Main_Act_Job [C4] / U_Action_Job [C5] / U_Action_Job [C6] / U_Action_Job [C7] = '10' (Contacted referrals from previous employers), system to prompt error.	A person who has contacted referrals from previous employers should have worked before.			X		X		518
+			If U_WORK_BEFORE = ’2’ (No) and RETIRED [A22] = ‘1’ (Yes), system to prompt  error  	A person who has not worked before cannot have retired previously. [Please check against question on ""Retired"].	To check against the question on Retired. 		X		X		519
+		If U_WORK_BEFORE = ‘1’ (Yes), system to proceed to U_Last_Occ  (Last  Occupation) [C11]. Otherwise, system to proceed to PWM_Une [C26].					X	X	X		
+"C11
+Last Job Employment Status"	U_LST_EMPST	"To display if U_WORK_BEFORE [C10] = '1' (Yes) and for
+Singapore Citizens and Permanent Residents staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')"				New Qns					
+"C12
+ Last Occupation 
+U_Last_Occ"	U_Last_Occ	"To display if U_WORK_BEFORE [C10] = '1' (Yes) and for
+Singapore Citizens and Permanent Residents staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')"					X	X	X		120
+		Refer to the Occupation codes in SSOC 2024. The arrangement of the occupational classification is based on alphabetical order. 						X	X		120
+		The occupational codes in the system are at 5-digit level.  					X	X	X		120
+			If whether worked before U_WORK_BEFORE= ’1’ (Yes) and last occupation (U_Last_Occ) = blank or 'oth' or other invalid code.	Coding for last occupation must be a valid code that can be found in SSOC 2020.	invalid occupation code		X		X		120
+"C13
+Last Industry 
+U_LstInd_Desc"	U_Last_Ind	"To display if U_WORK_BEFORE [C10] = '1' (Yes) and for
+Singapore Citizens and Permanent Residents staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')"				Y	X	X	X		
+		The industrial codes in the system are at 5-digit level.					X	X	X		
+		Refer to the Industry codes in SSIC 2020.						X	X		121
+			if whether worked before U_WORK_BEFORE [C10] = ’1’ (Yes) and last industry (U_Last_ind) = blank or 'OTH' or other invalid code	 Coding for last industry must be a valid code that can be found in SSIC 2020.	"Invalid industry code
+
+Note: Code 00000 added as an internal code for ""Activities not adequarely defined"", following DOS's practice for Census 2020."		X		X		121
+			If last occupation (U_Last_Occ) = '83221' (Taxi Driver) and previous industry (U_Last_Ind) ≠ 49214 ( Street-hail and ride-hail service providers), system to prompt as Error. 	Are you sure the Last industry of a person previously working as taxi driver is not should be in the  Street-hail and ride-hail service providers (49214) industry			X		X		1634 - 4
+			If last occupation (U_Last_Occ) = '83226' (Private Hire Car Driver) and last industry (U_Last_Ind) ≠  49214 (Street-hail and ride-hail service providers), system to prompt as error for verification. 	Are you sure the Last industry of a person previously working as private hire car driver is not should be in the Street-hail and ride-hail service providers (49214)  industry			X		X		1634 - 5
+			"If last occupation (U_Last_Occ) = '23101' -'23109' (University, Polytechnic &  Higher Education Teachers) and previous industry (U_Last_Ind) ≠ '85301'-'85509' (Higher Education and Education Services Not Elsewhere Classified), to flag as Error.
+"	Last Industry of a person previously working as university, polytechnic &  higher education teachers should be in 85301 to 85509.			X		X (Appendix E)		1634 - 1
+			If last occupation ((U_Last_Occ) = '31572' ( Train service supervisor), '31596' (Train operations officer) or '83110' (Train operator) and previous industry (U_Last_Ind) ≠ '49101' (Railroad services) or '49102' (mass rapid transit systems (incl. light rail)), to flag as error. 	Previous Industry of Train service supervisor, Train operations officer and Train operator should be railroad services (49101) or mass rapid transit systems (49102).			X		X		1634 - 2
+			If last occupation (U_Last_Occ) = '93209' (Manufacturing Labourers & Related Workers) and previous industry (U_Last_Ind) ≠ '10101'-'32909' (Manufacturing), to flag as Error.	Last Industry of a person previously working as Manufacturing Labourers & Related Workers should be in Manufacturing.			X		X (Appendix E)		1634 - 6
+			If last occupation (U_Last_Occ) = 'X3000' (Singapore Armed Forces Personnel) and previous industry (U_LAST_IND) ≠ '84221', '84232', '84235' (Armed Forces, Police or Civil Defence), to flag as Error.	Last Industry of a person previously working as Singapore Armed Forces Personnel should be Armed Forces, Police or Civil Defence.			X		X (Appendix E)		1634 - 8
+"C14
+Nature of Employment in Last Job
+U_NATURE_EMP"	U_NATURE_EMP	"To display if U_WORK_BEFORE [C10] = '1' (Yes) and for
+Singapore Citizens and Permanent Residents staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')"				Y	X	X	X		122
+			For respondents who need to answer this question, U_NATURE_EMP can only take on value "1" or "2"	Nature of employment in last job must be a valid code.			X	X	X		122
+			If nature of employment (U_NATURE_EMP) = '2' (part-time) and last occupation (U_Last_Occ) = X3000 (Singapore Armed Forces personnel), to flag out as error	If the respondent last worked as a Singapore Armed Forces Personnel, the nature of employment in last job should be full-time.	SAF Personnel (whether NSF or regular servicemen) are working full-time.		X		X		1938
+"C15
+Last drawn gross monthly income 
+U_Last_Income"	U_Last_Income	"To display if U_WORK_BEFORE [C10] = '1' (Yes) and for
+Singapore Citizens and Permanent Residents staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')"				Y	X	X	X		123
+		Entry up to 7-digit numeric code. No decimal place would be captured.					X	X	X		123
+		Check for symbols,  leading zeros and alpha characters, system to negate these entries.		Please enter digits without commas or decimals.			X	X	X		123
+"C16
+Main reason for leaving last job 
+U_WHY_LEFT"	U_WHY_LEFT, U_WHY_LEFT_Oth	"To display if U_WORK_BEFORE [C10] = '1' (Yes) and for
+Singapore Citizens and Permanent Residents staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')"				Y	X	X	X		124
+		For respondents who need to answer this question, U_WHY_LEFT can only take on value from "01"-"18", "20"-"23" 		Main reason for leaving last job must be a valid code.			X	X	X		124
+			If U_WHY_LEFT = ‘21’ (i.e. Others), system to display a field  (U_WHY_LEFT_Oth) to enter the remarks. If the remarks field is empty, system to prompt error.	An answer is required.			X	X	X		125
+			If reason for leaving previous job (U_WHY_LEFT) = ‘16’ (Retirement) and RETIRED [A22] = '2' (No), system should prompt for error for reconfirmation. 	The person's reason for leaving his / her last job is "Retirement" but he has indicated that he has never retired before. Please check against the question on "Retired".			X		X		521
+			U_WHY_LEFT=21 is selected (Others).U_WHY_LEFT_Oth_IR is not answered OR U_WHY_LEFT_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		574
+		If U_WHY_LEFT = '05' (Completion of contract/job), system to proceed to U_LEFT_CONTRACT [C17]					X	X	X		
+		If U_WHY_LEFT = '06' (Job was temporary in nature), system to proceed to U_LEFT_TEMP [C18]					X	X	X		
+		If U_WHY_LEFT = '15' (Illness / injury / accident) or U_WHY_LEFT = '21' (Others), system to proceed to U_LEFT_ILL [C19]					X	X	X		
+		If U_WHY_LEFT = '18' (Care for own children aged 12 and below), system to proceed to U_LEFT_CAREABLE [C22] 					X	X	X		
+		If U_WHY_LEFT = '22' (Care for own children aged above 12), system to proceed to U_LEFT_CAREABLE [C22] 									
+		If U_WHY_LEFT = '19 23' (Care for families / relatives), system to proceed to U_LEFT_CAREAGE [C20]					X	X	X		
+		Else, system to proceed to U_When_Left [C26]					X	X	X		
+"C17
+Reason for leaving last job due to completion of contract/job 
+U_LEFT_CONTRACT"	U_LEFT_CONTRACT	To display if U_WORK_BEFORE [C10] = '1' (Yes) and U_WHY_LEFT [C16] = '05' (Completion of contract/ job) 				Y	X	X	X		126
+		For respondents who need to answer this question, U_LEFT_CONTRACT can only take on values "1" or "2"		Elaboration on main reason for leaving last job must be a valid code.			X	X	X		126
+		System to proceed to U_When_Left [C26]					X	X	X		
+"C18
+Reason for leaving last job due to temp job 
+U_LEFT_TEMP, U_LEFT_Rsn, U_LEFT_Rsn_Oth"	"U_LEFT_TEMP, 
+U_LEFT_Rsn, U_LEFT_Rsn_Oth"	To display if U_WORK_BEFORE [C10] = '1' (Yes) and U_WHY_LEFT [C16] = '06' (Job was temporary in nature ) 				Y	X	X	X		127
+		For respondents who need to answer this question, U_LEFT_TEMP can only take on values "1" or "2"		Elaboration on main reason for leaving last job must be a valid code.			X	X	X		127
+		For respondents who answered U_LEFT_TEMP = "1", U_LEFT_Rsn can only take on values "1"-"5"		Elaboration on main reason for leaving last job (chose to leave the job as it was a job which I took up temporarily) must be a valid code.			X	X	X		128
+		System to proceed to U_When_Left [C26]					X	X	X		
+			If U_LEFT_Rsn = ‘5’ (i.e. Others), system to display a field U_LEFT_Rsn_Oth to enter the remarks. If the remarks field U_LEFT_Rsn_Oth is empty, system to prompt error.	An answer is required.			X	X	X		129
+			U_LEFT_Rsn=5 is selected (Others).U_LEFT_Rsn_Oth_IR is not answered OR U_LEFT_Rsn_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		575
+"C19
+Reason for leaving last job due to illness/accident/injury
+U_LEFT_ILL"	U_LEFT_ILL	To display if U_WORK_BEFORE [C10] = '1' (Yes) and U_WHY_LEFT [C16] = '15' (Illness/ injury / accident) or U_WORK_BEFORE [C10] = '1' (Yes) and U_WHY_LEFT [C16] = '21' (Others)				Y	X	X	X		130
+		For respondents who need to answer this question, U_LEFT_ILL can only take on values "1" or "2"		Elaboration on main reason for leaving last job must be a valid code.			X	X	X		130
+		System to proceed to U_When_Left [C26]					X	X	X		
+"C20
+Reason for leaving last job to care  for families/ relatives
+U_LEFT_CAREMEMBER"	U_LEFT_CAREMEMBER	To display if U_WORK_BEFORE [C10] = '1' (Yes) and U_WHY_LEFT [C16] = ' 23' (Care for families / relatives)				Y	X	X	X		131
+		For respondents who need to answer this question, U_LEFT_CAREMEMBER can only take on values "1", "2", "3", "5" or "6"		Relationship of person you left last job mainly to take care of must be a valid code.			X	X	X		131
+			If MARITAL_ST in "1" (single) and U_LEFT_CAREMEMBER = "2" (parent-in-law), to flag out as Error. 	A person who is single should not have a parent-in-law. Pls check response to this question and marital status.	Unlike question for employed (part-time) and outside the labour force where the questions refer to current (unlike unemployed which refers to previously when the person left last job), divorced is not included in this check because a person could be married previously and taking care of parent-in-law then, but has subsequently divorced.		X	X	X	Unlike employed section, divorced is taken out from this validation as some respondents may be married previously and taking care of parent-in-law, but have divorced since then.	545
+			If MARITAL_ST in "1" (single) and U_LEFT_CAREMEMBER = "3" (Husband/wife), to flag out as Error. 	A person who is single should not have a husband/wife. Pls check response to this question and marital status.	Unlike question for employed (part-time) and outside the labour force where the questions refer to current (unlike unemployed which refers to previously when the person left last job), divorced is not included in this check because a person could be married previously and taking care of husband/wife then, but has subsequently divorced. Similarly, person may have left last job to take care of husband/wife previously, but the husband/wife may have passed on and the respondent's marital status has changed to widowed currently.		X	X	X	Unlike employed section, widowed/divorced/separated is taken out from this validation as some respondents may be married previously and taking care of the husband/wife, but the spouse may have passed away subsequently or the person may have divorced/separated.	546
+"C21
+Age of family member/ relatives  
+U_LEFT_CAREAGE"	U_LEFT_CAREAGE 	To display if U_WORK_BEFORE [C10] = '1' (Yes) and U_WHY_LEFT [C16] = '23' (Care for families / relatives)				Y	X	X	X		132
+		Check for symbols, leading zeros and alpha characters, system to negate these entries.					X	X	X		
+		U_LEFT_CAREAGE should be an integer from 0 to 119		Age of person you left last job to mainly take care of should be zero or a positive whole number.			X	X	X		132
+			If left last job to mainly take care of parent  (U_LEFT_CAREMEMBER = "1") and age of parent when the respondent left last job (U_LEFT_CAREAGE) <=(AGE - U_WHEN_LEFT duration in years), to flag as Error. 	The age of this respondent's parent should be older than the respondent's age when he/she left the last job.			X	X	X		547
+			If left last job to mainly take care of own child aged above 12 (U_LEFT_CAREMEMBER = "4") and age of child when the respondent left last job (U_LEFT_CAREAGE) <= 12, to flag as Error. 	The age of this respondent's child aged above 12 when respondent left last job should be older than 12. If left last job to mainly take care of own children aged 12 and below, main reason for leaving last job should be Care for own children aged 12 and below.			X	X	X		548
+			If left last job to mainly take care of own child aged above 12 or grandchild (U_LEFT_CAREMEMBER = "4" or "5") and age of child/grandchild when the respondent left last job (U_LEFT_CAREAGE) >= (AGE - U_WHEN_LEFT duration in years), to flag as Error. 	The age of this respondent's child or grandchild should be younger than the respondent's age when he/she left the last job.			X	X	X		549
+"C22
+Whether individual was disabled
+U_LEFT_CAREDISABLED"	U_LEFT_CAREDISABLED	To display if U_WORK_BEFORE [C10] = '1' (Yes) and U_WHY_LEFT [C16] = '18' (Care for own children aged 12 and below) or '22' (Care for own children aged above 12)  or '19  23' (Care for families/relatives)				Y	X	X	X		133
+		For respondents who need to answer question on Was he/she disabled, this question can only take on values "1"or "2"		Whether family member/relative respondent left last job to take care of was disabled must be a valid code.			X	X	X		133
+"C23
+Whether individual was ill
+U_LEFT_CAREILL"	U_LEFT_CAREILL	To display if U_WORK_BEFORE [C10] = '1' (Yes) and U_WHY_LEFT [C16] = '18' (Care for own children aged 12 and below) or '22' (Care for own children aged above 12)  or '19  23' (Care for families/relatives)				Y	X	X	X		134
+		For respondents who need to answer question on Was he/she ill, this question can only take on values "1" or "2"		Whether family member/relative respondent left last job to take care of was ill must be a valid code.			X	X	X		134
+"C24
+Reason for leaving last job due to care for own children aged 12 or below  family  / relatives
+U_LEFT_PREF"	U_LEFT_PREF, U_LEFT_PREF_Oth	To display if U_WORK_BEFORE [C10] = '1' (Yes) and U_WHY_LEFT [C16] = '18' (Care for own children aged 12 and below) or '22' (Care for own children aged above 12)  or '19  23' (Care for families/relatives)				Y	X	X	X		135
+		For respondents who need to answer this question, U_LEFT_PREF can only take on values "1"-"4"		Elaboration on main reason for leaving last job (question C23) must be a valid code.			X	X	X		135
+			If U_LEFT_PREF = ‘4’ (i.e. Others), system to display a field U_LEFT_PREF_Oth to enter the remarks. If the remarks field U_LEFT_PREF_Oth is empty, system to prompt error.	An answer is required.			X	X	X		136
+			U_LEFT_PREF=4 is selected (Others).U_LEFT_PREF_Oth_IR is not answered OR U_LEFT_PREF_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		576
+"C25
+Suitable care service"	U_LEFT_AFFORD	To display if U_WORK_BEFORE [C10] = '1' (Yes) and U_WHY_LEFT [C16] = '18' (Care for own children aged 12 and below) or '22' (Care for own children aged above 12)  or '19  23' (Care for families/relatives)				Y	X	X	X		137
+		For respondents who need to answer this question, U_LEFT_AFFORD can only take on values "1" or "2"		Whether would have left last job had suitable care services been available and/or affordable must be a valid code.			X	X	X		137
+"C26
+When left last job "	U_When_Left, U_When_Left_2Dur1A, U_When_Left_3Dur1A, U_When_Left_3Dur1B 	To display if U_WORK_BEFORE [C10] = '1' (Yes)					X	X	X		138
+		Check for leading zeros, alpha characters and symbols (e.g. dash) for U_When_Left_2Dur1A, U_When_Left_3Dur1A, U_When_Left_3Dur1B, system to negate these entries			Please enter digits without commas or decimals.		X	X	X		138
+		For respondents who need to answer this question,  U_When_Left can only take on values "1", "2" or "3"		When left last job must be a valid code.			X	X	X		138
+			If U_When_Left = ‘1’ (i.e. Less than 1 month ago) and U_DUR_UNEMP (Duration of unemployment) ≥ ‘4’ weeks, system should prompt as error for verification.	If person left last job less than 1 month ago, duration of unemployment cannot be more than or equal to 4 weeks.	If person left his last job less than 1 month ago, he cannot have been unemployed for 4 weeks (1 month) or longer.		X		X		522
+		"U_When_Left = ‘2’ (i.e. 1 month to less than 1 year)
+Set number of months (U_When_Left_2Dur1A) = 1-11"		Number of months should be an integer from 1 to 11.			X	X	X		139
+			If U_When_Left = ‘2’ (i.e. 1 month to less than 1 year) and U_When_Left_2Dur1A = 1 (i.e. 1 mth to < 2 mths ago) and U_DUR_UNEMP ≥ 8 weeks, system should prompt as error for verification. 	If person left last job 1 month to less than 2 months ago, duration of unemployment cannot be more than or equal to 8 weeks.			X		X		525
+			If U_When_Left = ‘2’ (i.e. 1 month to less than 1 year) and U_When_Left_2Dur1A = 2 (i.e. 2 mths to < 3 mths ago) and U_DUR_UNEMP ≥ 12 weeks, system should prompt as error for verification. 	If person left last job 2 months to less than 3 months ago, duration of unemployment cannot be more than or equal to 12 weeks.			X		X		526
+			If U_When_Left = ‘2’ (i.e. 1 month to less than 1 year) and U_When_Left_2Dur1A = 3 (i.e. 3 mths to < 4 mths ago) and U_DUR_UNEMP ≥ 17 weeks, system should prompt as error for verification.	If person left last job 3 months to less than 4 months ago, duration of unemployment cannot be more than or equal to 17 weeks.			X		X		527
+			If U_When_Left = ‘2’ (i.e. 1 month to less than 1 year) and U_When_Left_2Dur1A = 4 (i.e. 4 mths to < 5 mths ago) and U_DUR_UNEMP ≥ 21 weeks, system should prompt as error for verification. 	If person left last job 4 months to less than 5 months ago, duration of unemployment cannot be more than or equal to 21 weeks.			X		X		528
+			If U_When_Left = ‘2’ (i.e. 1 month to less than 1 year) and U_When_Left_2Dur1A = 5 (i.e. 5 mths to < 6 mths ago) and U_DUR_UNEMP ≥ 26 weeks, system should prompt as error for verification. 	If person left  last job 5 months to less than 6 months ago, duration of unemployment cannot be more than or equal to 26 weeks.			X		X		529
+			If U_When_Left = ‘2’ (i.e. 1 month to less than 1 year) and U_When_Left_2Dur1A = 6 (i.e. 6 mths to < 7 mths ago) and U_DUR_UNEMP ≥ 30 weeks, system should prompt as error for verification. 	If person left last job 6 months to less than 7 months ago, duration of unemployment cannot be more than or equal to 30 weeks.			X		X		530
+			If U_When_Left = ‘2’ (i.e. 1 month to less than 1 year) and U_When_Left_2Dur1A = 7 (i.e. 7 mths to < 8 mths ago) and U_DUR_UNEMP ≥ 34 weeks, system should prompt as error for verification. 	If person left last job 7 months to less than 8 months ago, duration of unemployment cannot be more than or equal to 34 weeks.			X		X		531
+			If U_When_Left = ‘2’ (i.e. 1 month to less than 1 year) and U_When_Left_2Dur1A = 8 (i.e. 8 mths to < 9 mths ago) and U_DUR_UNEMP ≥ 38 weeks, system should prompt as error for verification. 	If person left last job 8 months to less than 9 months ago, duration of unemployment cannot be more than or equal to 38 weeks.			X		X		532
+			If U_When_Left = ‘2’ (i.e. 1 month to less than 1 year) and U_When_Left_2Dur1A = 9 (i.e. 9 mths to < 10 mths ago) and U_DUR_UNEMP ≥ 43 weeks, system should prompt as error for verification. 	If person left last job 9 months to less than 10 months ago, duration of unemployment cannot be more than or equal to 43 weeks.			X		X		533
+			If U_When_Left = ‘2’ (i.e. 1 month to less than 1 year) and U_When_Left_2Dur1A = 10 (i.e. 10 mths to < 11 mths ago) and U_DUR_UNEMP ≥ 47 weeks, system should prompt as error for verification. 	If person left last job 10 months to less than 11 months ago, duration of unemployment cannot be more than or equal to 47 weeks.			X		X		534
+			If U_When_Left  = ‘2’ (i.e. 1 month to less than 1 year) and U_When_Left_2Dur1A = 11 (i.e. 11 mth to < 12 mths ago) and U_DUR_UNEMP ≥ 52weeks, system should prompt as error for verification. 	If person left last job 11 month to less than 12 months ago, duration of unemployment cannot be more than or equal to 52 weeks.			X		X		535
+		"U_When_Left =  ‘3’ (i.e.  1 or more years ago)
+Set number of years (U_When_Left_3Dur1A) = 1-100
+Set number of months (U_When_Left_3Dur1B) = 0-11 "		"Years indication should be integer from 1 to 100.
+Months indication should be integer from 0 to 11."			X	X	X		140-141
+			If U_When_Left = ‘3’ (i.e. 1 or more years ago) and U_When_Left_3Dur1A = 1 and U_When_Left_3Dur1B = 0 - 5 (i.e. 1 year to < 1.5 years ago) and U_DUR_UNEMP ≥ 78 weeks, system should prompt as error for verification. 	If person left last job 1 year to less than 1.5 years ago, duration of unemployment cannot be more than or equal to 78 weeks.			X		X		537
+			If U_When_Left  = ‘3’ (i.e. 1 or more years ago) and U_When_Left_3Dur1A = 1 and U_When_Left_3Dur1B = 6-11 (i.e. 1.5 year to < 2 years ago) and U_DUR_UNEMP ≥ 104 weeks, system should prompt as error for verification. 	If person left last job 1.5 years to less than 2 years ago, duration of unemployment cannot be more than or equal to 104 weeks.			X		X		538
+			If U_When_Left = ‘3’ (i.e. 1 or more years ago) and U_When_Left_3Dur1A = 2 (i.e. 2 years to < 3 years ago) and U_DUR_UNEMP ≥ 156 weeks, system should prompt as error for verification. 	If person left last job 2 years to less than 3 years ago, duration of unemployment cannot be more than or equal to 156 weeks.			X		X		539
+			If U_When_Left = ‘3’ (i.e. 1 or more years ago) and U_When_Left_3Dur1A = 3 (i.e. 3 years to < 4 years ago) and U_DUR_UNEMP ≥ 208 weeks, system should prompt as error for verification. 	If person left last job 3 years to less than 4 years ago, duration of unemployment cannot be more than or equal to 208 weeks.			X		X		540
+			If U_When_Left  = ‘3’ (i.e. 1 or more years ago) and U_When_Left_3Dur1A = 4 (i.e. 4 years to < 5 years ago) and U_DUR_UNEMP ≥ 260 weeks, system should prompt as error for verification. 	If person left last job 4 years to less than 5 years ago, duration of unemployment cannot be more than or equal to 260 weeks.			X		X		541
+			If number of months since leaving last job + 1 - (duration of unemployment / 52)*12 < 0, to flag out as Error. 	Unemployment duration cannot be longer than the number of months elapsed since leaving last job.			X		X		542
+			If U_When_Left_3Dur1A > AGE or (U_When_Left_3Dur1A = AGE and U_When_Left_3Dur1B > 0), system to prompt as error.	When left last job should not be greater than the person's age.			X		X		543
+			If last occupation (U_Last_Occ) = 83211 (Motorcycle deliveryman), 83222-83229 (Car, Van and Light Goods Vehicle Drivers), 83311-83329 (Heavy Truck and Bus Drivers) and AGE - U_When_Left < 18, to flag out as Error. 	A person should not be a driver in the last job when aged below 18, as he/she would not have a driving license then.			X	X	X		2001
+			If last occupation (U_Last_Occ) = 83221 (taxi driver) and AGE – U_When_Left < 30 or identification type ≠ '01' (Singapore citizen), to flag out as Error. 	A person previously working as a taxi driver should be at least 30 years old and Singapore citizen.	According to LTA website (http://www.lta.gov.sg/content/ltaweb/en/public-transport/taxis/industry-matters-for-taxi-drivers/driving-a-taxi-in-singapore.html), a taxi driver must be Singaporean and aged at least 30 years		X		X		2002
+			If last occupation (U_Last_Occ) = 83311 (bus driver) and AGE - U_When_Left < 21, to flag out as Error.	A person previously working as a bus driver should be at least 21 years old then.			X		X		1920
+			If last occupation (U_Last_Occ) = 83221 (taxi driver), 83226 (private-hire car driver) or 83311 (bus driver), and AGE - U_When_Left ≥75, to flag out as Error.	A person previously working as a taxi driver, private-hire car driver or bus driver should be less than 75 years old when he/she left the job (based on the age limit set by LTA).			X		X		1903
+			If last occupation (U_Last_Occ) = 83431 (crane/hoist operator (excluding port)), 83432 (crane operator (on-site)) or 83439 (other crane, hoist and related equipment operator), and AGE - U_When_Left < 21, to flag out as Error.	A person previously working as a crane, hoist and related equipment operator should be at least 21 years old then.			X		X		1946
+Ever relocated from SG to other countries for work	R_RLC,U_RLCFIRST,U_RLCDUR	For Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') 									
+"C28
+Willingness to pay more for goods and services
+(PWM_Une)"	PWM_Une	"If U_When_Left = ‘3’ (i.e. 1 or more years ago) or U_WORK_BEFORE = 2 (no),  system to proceed to Section I (Non work income).
+
+If U_When_Left = ‘1’ (i.e. Less than 1 month ago) or '2'  (1  month to less than 1 year ago), go to Section H (OAW Unpaid Leave)."					X	X	X		142
+		For respondents who need to answer this question, PWM_Une can only take on values "1", "2", "3", "4" or "5"		Answer to question on whether willing to pay more for goods and services if it helps to raise the wages of lower-wage workers must be a valid code.			X	X	X		142
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											

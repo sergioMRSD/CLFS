@@ -1,0 +1,280 @@
+Question	Alias	Routing / Question format properties	Errors 	Validation_Msg	Reason	Changes for CLFHS 2025	Processing	Collection (MSOL-Respondents)	Collection (MSOL- Interviewers)	Comments 	DC Val
+SECTION D		Refer to current LF status routing tab for routing to Section D					X	X	X		
+SECTION D		"For Singapore citizens and permanent residents, go to D1. 
+For foreigners, go to D19."					X	X	X		
+"D1
+Main reason for not working & not looking for a job"	I_WHYNOWORK	For Singapore citizens and permanent residents I_WHYNOWORK can only take on value "01"-"08", "10"-"22"		Main reason for not working and not looking for a job must be a valid code.			X	X	X		143
+			If I_WHYNOWORK = ‘01’ (Pursuing full-time study) and AGE > 16 and Educational Attainment (EDUC) < '03', system should prompt as error for verification.	This person is above 16 years and is currently pursuing full-time study. His educational attainment should not be below primary qualification.	If the person is aged > 16 years and is currently pursuing full-time study , it is unlikely that his educational attainment is below primary qualification. 		X		X		601
+			If I_WHYNOWORK = ‘01’ (Pursuing full-time study) and AGE > 20 and Educational Attainment (EDUC) ≥ '03' and < ‘31’, system should prompt as error for verification. 	This person is above 20 years and is currently pursuing full-time study. His educational attainment should not be below secondary qualification.	If the person is aged > 20 years and is currently pursuing full-time study , it is unlikely that his educational attainment is below secondary qualification. 		X		X		602
+			If I_WHYNOWORK = '04' (Awaiting NS call-up) and SEX = '2' (Female), system should prompt as error for verification. 	Females should not be awaiting NS call-up.	Full-time NS is for males only.		X	X	X		603
+			If I_WHYNOWORK = '20' (i.e. Others), system to display a field to enter the remarks. If the remarks field is empty, system to prompt error.	An answer is required.			X	X	X		144
+		For persons staying outside Singapore for > 6 to < 12 months (RESIDENTIAL_ST='4'), go to F2.				Y					
+		If persons staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') and  I_WHYNOWORK = '08' (Care for own children aged 12 and below) or '21' (Care for own children aged above 12), system to route to  I_LEFT_CAREABLE [D4]				Y	X	X	X		
+		If persons staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7') and I_WHYNOWORK = '22' (Care for families (including own children aged above 12 and grandchildren / relatives), system to route to I_LEFT_CARE_MEMBER [D2]				Y	X	X	X		
+		If persons staying in Singapore residential unit (RESIDENTIAL_ST='1')/ outside Singapore for 6 months or less (RESIDENTIAL_ST='6' or '7')  and I_WHYNOWORK = '14' (Retired/ No desire to work due to old age ) and AGE <= 39, system to route to I_RETIRED [D1a]				Y	X	X	X		
+			I_WHYNOWORK=20 is selected (Others). I_WHYNOWORK_Oth_IR is not answered OR I_WHYNOWORK_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		619
+		Otherwise, system to proceed to I_WORK_BEFORE [D8]					X	X	X		
+"D1.a
+Ever Retired "	I_RETIRED,I_RETAGE	To display if I_WHYNOWORK [D1] = '14' (Retired/ No desire to work due to old age ) and AGE <= 39					X	X	X		213
+		Whether ever retired should only take on value "1" or "2"		Whether ever retired must be a valid code.			X	X	X		213
+		"If I_RETIRED RET_V = '1' (Yes), system to display field (I_RETAGE RETAGE_V).
+
+System to set I_RETAGE minimum value = 16 years old, maximum = 120 years old"					X	X	X		214
+			If RETAGE_V I_RETAGE > AGE, system to prompt error.  	A person's retired age cannot be greater than his current age.			X	X	X		617
+"D2
+Reason for currently not working and not looking for a job leaving last job to care  for families/ relatives"	I_LEFT_CAREMEMBER	To display if I_WHYNOWORK [D1] = '09 22' (Care for families (including own children aged above 12 and grandchildren / relatives)				Y	X	X	X		
+		For respondents who need to answer this question, I_LEFT_CAREMEMBER can only take on values from "1", "2", "3", "5" or "6"		Relationship of person mainly taking care of must be a valid code.			X	X	X		145
+			If MARITAL_ST in "1" (single) or "4" (divorced) and I_LEFT_CAREMEMBER = "2" (parent-in-law), to flag out as Error. 	A person who is single or divorced should not have a parent-in-law.Pls check response to this question and marital status.			X	X	X		612
+			If MARITAL_ST in "1" (single), "3" (widowed) or "4" (divorced) and I_LEFT_CAREMEMBER = "3" (Husband/wife), to flag out as Error. 	A person who is single, widowed or divorced should not have a husband/wife. Pls check response to this question and marital status.			X	X	X		613
+"D3
+Age of family member/ relatives  "	I_LEFT_CAREAGE 	To display if I_WHYNOWORK [D1] = '09 22' (Care for families (including own children aged above 12 and grandchildren / relatives)					X	X	X		146
+		Check for symbols, leading zeros and alpha characters, system to negate these entries.					X	X	X		146
+		I_LEFT_CAREAGE should be an integer from 0 to 119		Age of person you are mainly taking care of should be zero or a positive whole number.			X	X	X		146
+			If mainly taking care of parent  (I_LEFT_CAREMEMBER = "1") and age of parent (I_LEFT_CAREAGE) <=AGE, to flag as Error. 	The age of this respondent's parent should be older than the respondent.			X	X	X		614
+			If mainly taking care of own child aged above 12 (I_LEFT_CAREMEMBER = "4") and age of child (I_LEFT_CAREAGE) <= 12, to flag as Error. 	The age of this respondent's child aged above 12 should be older than 12. If mainly taking care of own children aged 12 and below, main reason for not working and not looking for a job should be Care for own children aged 12 and below.			X	X	X		615
+			If mainly taking care of own child aged above 12 or grandchild (I_LEFT_CAREMEMBER = "4" or "5") and age of child/grandchild (I_LEFT_CAREAGE) >= AGE, to flag as Error.	The age of this respondent's child or grandchild should be younger than the respondent.			X	X	X		616
+"D4 
+Whether individual is disabled"	I_LEFT_CAREABLE	To display if I_WHYNOWORK [D1]  = '08' (Care for own children aged 12 and below) or  '21' (Care for own children aged above 12 ) or '22' (Care for families/relatives)					X	X	X		
+		For respondents who need to answer question on Is he/she disabled, this question can only take on values "1"or "2"		Whether person you are mainly taking care of is disabled must be a valid code.			X	X	X		147
+"D5
+Whether individual is ill"	"
+I_LEFT_CAREILL"	To display if I_WHYNOWORK [D1]  = '08' (Care for own children aged 12 and below) or  '21' (Care for own children aged above 12 ) or '09 '22' (Care for families/relatives)					X	X	X		
+		For respondents who need to answer question on Is he/she ill, this question can only take on values "1" or "2"		Whether person you are mainly taking care of is ill must be a valid code.			X	X	X		148
+"D6
+Reason for currently not working and not looking for a job leaving last job due to care for family  / relatives or care for own children"	I_LEFT_PREF, I_LEFT_PREF_Oth	To display if I_WHYNOWORK [D1]  = '08' (Care for own children aged 12 and below) or  '21' (Care for own children aged above 12 ) or '09 '22' (Care for families/relatives)					X	X	X		
+		For respondents who need to answer this question, I_LEFT_PREF can only take on values "1"-"4"		Elaboration on main reason for not working and not looking for a job must be a valid code.			X	X	X		149
+			If I_LEFT_PREF = ‘4’ (i.e. Others), system to display a field I_LEFT_PREF_Oth to enter the remarks. If the remarks field I_LEFT_PREF_Oth is empty, system to prompt error.	An answer is required.			X	X	X		150
+			I_LEFT_PREF=4 is selected (Others).I_LEFT_PREF_Oth_IR is not answered OR I_LEFT_PREF_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided		X		X		620
+"D7
+Suitable care service"	I_LEFT_AFFORD	To display if I_WHYNOWORK [D1]  = '08' (Care for own children aged 12 and below) or  '21' (Care for own children aged above 12 ) or '09 '22' (Care for families/relatives)					X	X	X		
+		For respondents who need to answer this question, I_LEFT_AFFORD can only take on values "1" or "2"		Whether will work if suitable care services were available and/or affordable must be a valid code.			X	X	X		151
+"D8
+Ever worked before "	I_WORK_BEFORE	For respondents who need to answer this question, I_WORK_BEFORE can only take on values "1" or "2"		Whether ever worked before must be a valid code.			X	X	X		152
+			If I_WORK_BEFORE = ’2’ (No) and RETIRED = ‘1’ (Yes), system to show error message.	A person who has not worked before  (Question D8) cannot have retired previously (Question A21).	To check against the question on  Retired. 		X	X	X		604
+			If I_WORK_BEFORE = ’2’ (No) and RET_V I_RETIRED = ‘1’ (Yes), system to show error message.	A person who has not worked before  (Question D8) cannot have retired previously (Question D1.5V).	To check against the question on  Retired (Verification). 		X		X		618
+		"If I_WORK_BEFORE = ‘1’ (Yes), system to proceed to I_When_Left [D9].
+
+Else, system to proceed to I_Look_Job [D15]."					X	X	X		
+"D9 
+When left last job "	I_When_Left, I_When_Left_2Dur1A, I_When_Left_3Dur1A, I_When_Left_3Dur1B	To display if I_WORK_BEFORE [D8] = '1' (Yes)					X	X	X		
+		For respondents who need to answer this question, I_When_Left can only take on values "1", "2" or "3"		When left last job must be a valid code.			X	X	X		153
+		"Check for leading zeros, alpha characters and symbols (e.g. dash) for I_When_Left_2Dur1A, I_When_Left_3Dur1A, I_When_Left_3Dur1B, system to negate these entries
+
+If wrong format, system to prompt error for verification. "		“Please enter digits without commas or decimals.”	If wrong format, system to prompt error for verification. 		X	X	X		
+		"I_When_Left = ‘2’ (i.e. 1 month to less than 1 year)
+Set number of months (I_When_Left_2Dur1A) = 1-11"		Number of months should be an integer from 1 to 11.			X	X	X		154
+		"I_When_Left =  ‘3’ (i.e.  1 or more years ago)
+Set number of years (I_When_Left_3Dur1A) = 1-100
+Set number of months (I_When_Left_3Dur1B) = 0-11 "		Number of years should be integer from 1 to 100. Number of months should be integer from 0 to 11.			X	X	X		155-156
+			If when left last job I_When_Left_3Dur1A > AGE or (I_When_Left_3Dur1A = AGE and I_When _Left_3Dur1B > 0), system to prompt as error.	When left last job should not be greater than the person's age.			X		X		608
+"D10
+Employment Status in last job"	I_LST_EMPST		"For persons aged below 75 who have worked before and persons 75 & over who left their last job less than 1 year ago (i.e., D9 = 1 or 2)
+Otherwise, go to D15."			New Qns					
+		For persons aged below 75 who have worked before and persons 75 & over who left their last job less than 1 year ago (i.e., I_When_Left = 1 or 2)				New Qns					
+"D11
+Last Occupation"	I_Last_Occ	To display if I_WORK_BEFORE [D8] = '1' (Yes) and AGE ≥ 15 and AGE ≤ 74 AGE < 75 years old or AGE >= 75 and I_When_Left = '1 ' (Less than 1 month ago) or ‘2’ (1 month to less than 1 year ago)				Y	X	X	X		
+		Refer to the Occupation codes in SSOC 2020. The arrangement of the occupational classification in iMSS is based on alphabetical order. 					X	X	X		
+		The occupational codes in the system are at 5-digit level.  					X	X	X		
+			If I_WORK_BEFORE = '1' (Yes) and AGE ≥ 15 and AGE ≤ 74 and ID_TYP in ('01', '02') and RESIDENTIAL_ST in ('1', '3') and I_Last_Occ is blank, OTH or is a invalid code	Coding for last occupation must be a valid code that can be found in SSOC 2024.		Y	X	X	X		157
+			If I_WORK_BEFORE = '1' (Yes) and AGE >= 75 and I_When_Left = '1 ' (Less than 1 month ago) or ‘2’ (1 month to less than 1 year ago) and ID_TYP in ('01', '02') and RESIDENTIAL_ST in ('1', '3') and I_Last_Occ is blank, OTH or is a invalid code	Coding for last occupation must be a valid code that can be found in SSOC 2024.		Y	X	X	X		157
+			If last occupation (I_Last_Occ) = 83211 (Motorcycle deliveryman), 83222-83229 (Car, Van and Light Goods Vehicle Drivers), 83311-83329 (Heavy Truck and Bus Drivers) and AGE - I_When_Left < 18, to flag out as Error. 	A person should not be a driver in the last job when aged below 18, as he/she would not have a driving license then.			X	X	X		2001
+			If last occupation (I_Last_Occ) = 83221 (taxi driver) and AGE – I_When_Left < 30 or identification type ≠ 01 (Singapore citizen), to flag out as Error. 	A person previously working as a taxi driver should be at least 30 years old and Singapore citizen.	According to LTA website (http://www.lta.gov.sg/content/ltaweb/en/public-transport/taxis/industry-matters-for-taxi-drivers/driving-a-taxi-in-singapore.html), a taxi driver must be Singaporean and aged at least 30 years		X		X		2002
+			If last occupation (I_Last_Occ) = 83311 (bus driver) and AGE - I_When_Left < 21, to flag out as Error.	A person previously working as a bus driver should be at least 21 years old then.			X		X		2020
+			If last occupation (I_Last_Occ) = 83221 (taxi driver) , 83226 (private-hire car driver) or 83311 (bus driver), and AGE - I_When_Left ≥ 75, to flag out as Error.	A person previously working as a taxi driver, private-hire car driver or bus driver should be less than 75 years old when he/she left the job (based on the age limit set by LTA).			X		X		2003
+			If last occupation (I_Last_Occ) = 83431 (crane/hoist operator (excluding port)), 83432 (crane operator (on-site)) or 83439 (other crane, hoist and related equipment operator), and AGE - I_When_Left < 21, to flag out as Error.	A person previously working as a crane, hoist and related equipment operator should be at least 21 years old then.			X		X		2046
+"D12
+Previous Company"	I_PrevCo	To display if I_WORK_BEFORE [D8] = '1' (Yes) and AGE ≥ 15 and AGE ≤ 74 AGE < 75 years old or AGE >= 75 and I_When_Left = '1 ' (Less than 1 month ago) or ‘2’ (1 month to less than 1 yearago)				Y					
+"D13
+Last Industry "	I_Last_Ind	To display if I_WORK_BEFORE [D8] = '1' (Yes) and AGE ≥ 15 and AGE ≤ 74 AGE < 75 years old or AGE >= 75 and I_When_Left = '1 ' (Less than 1 month ago) or ‘2’ (1 month to less than 1 yearago)				Y	X	X	X		
+			The industry codes in the system are at 5-digit level.				X	X	X		158
+			Refer to the Industry codes in SSIC 2020.					X	X		158
+			If I_WORK_BEFORE = '1' (Yes) and AGE ≥ 15 and AGE ≤ 74 and ID_TYP in ('01', '02') and RESIDENTIAL_ST in ('1', '3') and I_Last_Ind is blank or is a invalid code	Coding for last industry must be a valid code that can be found in SSIC 2020.	"Invalid industry code
+
+Note: Code 00000 added as an internal code for ""Activities not adequarely defined"", following DOS's practice for Census 2020."		X	X	X		158
+			If I_WORK_BEFORE = '1' (Yes) and  AGE >= 75 and I_When_Left = '1 ' (Less than 1 month ago) or ‘2’ (1 month to less than 1 year ago) and ID_TYP in ('01', '02') and RESIDENTIAL_ST in ('1', '3') and I_Last_Ind is blank or is a invalid code	Coding for last industry must be a valid code that can be found in SSIC 2020.	"Invalid industry code
+
+Note: Code 00000 added as an internal code for ""Activities not adequarely defined"", following DOS's practice for Census 2020."		X	X	X		158
+			If last occupation (I_Last_Occ) = '83221' (Taxi Driver) and  last industry (I_Last_Ind) ≠ 49214 (Street-hail and ride-hail service providers ), system to prompt for reconfirmation. 	Last industry of a person previously working as taxi driver should be in the  Street-hail and ride-hail service providers (49214) industry			X		X		2034
+			If  last occupation (I_Last_Occ) = '83226' (Private Hire Car Driver) and previous industry (I_Last_Ind) ≠ 49214 (Street-hail and ride-hail service providers) , system to prompt as error for verification. 	Last industry of a person previously working as private hire car driver should be in the Street-hail and ride-hail service providers (49214)  industry			X		X		2034
+			If last occupation (I_Last_Occ) = '23101' -'23109' (University, Polytechnic & Higher Education Teachers) and previous industry (I_Last_Ind) ≠ '85301'-'85509' (Higher Education and Education Services Not Elsewhere Classified), to flag as Error.	Last Industry of a person previous working as university, polytechnic & higher education teachers should be in 85301 to 85509.			X		X		2034
+			If last occupation (I_Last_Occ) = '31572' (Train service supervisor), '31596' (Train operations officer) or '83110' (Train operator) and previous industry (I_Last_Ind) ≠ '49101' (Railroad services) or '49102' (mass rapid transit systems (incl. light rail)), to flag as error. 	Last industry of a person previously working as Train service supervisor, Train operations officer and Train operator should be railroad services (49101) or mass rapid transit systems (49102)."			X		X		2034
+			"If last occupation (I_Last_Occ) = '93209' (Manufacturing Labourers & Related Workers) and last industry (I_Last_Ind) ≠ '10101'-'32909' (Manufacturing), to flag as Error.
+"	Last Industry of a person previously working as Manufacturing Labourers & Related Workers should be in Manufacturing.			X		X		2034
+			"If last occupation (I_Last_Occ) = 'X3000' (Singapore Armed Forces Personnel) and previous industry (I_Last_Ind) ≠ '84221', '84232', '84235' (Armed Forces, Police or Civil Defence), to flag as Error.
+"	Last Industry of a person previously working as Singapore Armed Forces Personnel should be Armed Forces, Police or Civil Defence.			X		X		2034
+"D14
+Nature of Employment in Last Job "	I_NAT_EMP	To display if I_WORK_BEFORE [D8] = '1' (Yes) and AGE ≥ 15 and AGE ≤ 74 AGE < 75 years old or AGE >= 75 and I_When_Left = '1 ' (Less than 1 month ago) or ‘2’ (1 month to less than 1 yearago)				Y	X	X	X		
+		For respondents who need to answer this question, I_NAT_EMP can only take on values "1" or "2"		Nature of employment in last job must be a valid code.			X	X	X		159
+			If previous occupation (I_Last_Occ) = 'X3000' (Singapore Armed Forces Personnel) and nature of employment in previous job (I_NAT_EMP) = '2' (part-time), to flag as Error.	If the respondent last worked as a Singapore Armed Forces Personnel, the nature of employment in last job should be full-time.			X		X		2038
+"D15
+Intend to look for job"	I_Look_Job	 If I_Look_Job = '1' (Yes), system to proceed to When intend to look for job (I_When_Look)					X	X	X		
+		For respondents who need to answer this question, I_Look_Job can only take on values "1" or "2"		Whether intend to look for a job in the future must be a valid code.			X	X	X		160
+		If I_Look_Job = '2' (No), system to proceed to PWM_OLF I_PWM [D18]					X	X	X		
+"D16
+When intend to look for job"	I_When_Look	To display I_When_Look if I_Look_Job = '1' (Yes)					X	X	X		
+		For respondents who need to answer this question, I_When_Look can only take on values "1"-"4"		When intend to look for a job must be a valid code.			X	X	X		161
+"D17
+Prefer to work full/part time"	I_Pref_TypEmp	To display I_When_Look I_Pref_TypEmp if I_Look_Job = '1' (Yes)					X	X	X		
+		For respondents who need to answer this question, I_Pref_TypEmp can only take on values "1" or "2"		Whether prefer to work full-time or part-time must be a valid code.			X	X	X		162
+"D18
+Willingness to pay more for goods and services "	I_PWM	For respondents who need to answer this question, PWM_OLF I_PWM can only take on values "1", "2", "3", "4" or "5"		Answer to question on whether willing to pay more for goods and services if it helps to raise the wages of lower-wage workers must be a valid code.			X	X	X		163
+		"For persons who never worked before (I_WORK_BEFORE ='2'),
+For persons who left their jobs 1 or more years ago (I_When_Left = '3'),
+For persons who indicated D1='13' Permanently ill/Disabled,
+Go to F2"					X	X	X		
+"D19
+Main reason for not working / looking for a job "	F_I_WHYNOWORK	For respondents who need to answer this question, F_I_WHYNOWORK can only take on value "01"-"08, "10-22"		Main reason for not working and not looking for a job must be a valid code.		Y		X	X	X	170
+			If F_I_WHYNOWORK = ‘02’ (Pursuing full-time study) and AGE > 16 and Educational Attainment < 03, system should prompt as error for verification. 	This person is above 16 years and is currently pursuing full-time study.  His educational attainment should not be below primary qualification.	If the person is aged > 16 years and is currently pursuing full-time/ part-time study , it is unlikely that his educational attainment is below primary qualification. 	Y		X		X	701
+			If F_I_WHYNOWORK = ‘02’ (Pursuing full-time study) and AGE > 20 and Educational Attainment ≥ '03' and < ‘31’, system should prompt as error for verification. 	This person is above 20 years and is currently pursuing full-time study. His educational attainment should not be below secondary qualification.	If the person is aged > 20 years and is currently pursuing full-time study , it is unlikely that his educational attainment is below secondary qualification. 	Y		X		X	702
+			If ID_TYP [A10] = '03' (Foreigner on Employment Pass), '04' (Foreigner on S Pass), '05' (Foreigner on Work Permit) or '10' (Foreigner on training pass) and F_I_WHYNOWORK = '01' (Foreigner without work pass), system to prompt error for re-verification. 	Option is not applicable for persons on valid work pass. If your work pass has expired, pls indicate the identification type you are holding that enable you to be in Singapore currently.		Y		X		X	704
+			If F_I_WHYNOWORK = '20' (i.e. Others), system to display a field to enter the remarks. If the remarks field is empty, system to prompt error.	Please elaborate on the main reason for not working and not looking for a job.		Y		X	X	X	171
+			F_I_WHYNOWORK=20 is selected (Others). F_I_WHYNOWORK_Oth_IR is not answered OR F_I_WHYNOWORK_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.	To confirm with interviewers that the Others option cannot be grouped with witht the options provided	Y		X		X	705
+		System to proceed to Section F F2						X	X	X	
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+			If previous occupation (E_LST_OCC) = '83221' (Taxi Driver) and previous industry (E_LST_IND) ≠ 49214 (Taxi Services), system to prompt as error for verification. "Are you sure a person previously working as taxi driver was not working in the Taxi Services industry?"								
+			If previous occupation (E_LST_OCC) = '83226' (Private Hire Car Driver) and previous industry (E_LST_IND) ≠ 49219 (Passenger land transport n.e.c. (e.g. private cars for hire with operator and trishaws)), system to prompt as error for verification. "Are you sure the previous industry of a person previously working as private hire car driver is not Passenger land transport n.e.c. (e.g. private cars for hire with operator and trishaws))?"								

@@ -1,0 +1,56 @@
+		Routing/ Question format properties	Errors 	Validation_Msg	Changes for CLFHS	Processing	Collection (MSOL-Respondents)	Collection (MSOL- Interviewers)	Comments	DC Val
+SECTION I		"Questions apply only for ID_Typ = '01' , '02' (Singapore Citizens and PRs), residential status (RESIDENTIAL_ST) = ""1"" (in Singapore, residential unit) and ""3"" (overseas ≤ 6 months) aged 15 years old & above. 
+"	"I1 to I6 will apply to:
+Singapore Citizens / Permanent Residents / Foreigners (except foreign domestic helpers with work permit) aged 5 years and above with RESIDENTIAL_ST = “1” (in Singapore, residential unit) or “6 / 7/ 4” (Outside Singapore < 12 months) excluding foreign domestic helpers on work permit. (RELH=12, ID_TYP ='05'"			X	X	X		
+"I1
+Difficulty in seeing "	DIFF_See	For respondents who need to answer this question, DIFF_See can only take on values "1"-"4"		Whether have difficulty seeing must be a valid code.		X	X	X		189
+"J2
+Difficulty in hearing"	DIFF_ Hear	For respondents who need to answer this question, DIFF_Hear can only take on values "1"-"4"		Whether have difficulty hearing must be a valid code.		X	X	X		190
+"I3
+Difficulty with body movement activities "	DIFF_Move	For respondents who need to answer this question, DIFF_Move can only take on values "1", "2", "3".		Whether have difficulty with body movement activities must be a valid code.	Y	X	X	X		191
+		If DIFF_Move = '2' (Yes - with difficulty), system to proceed to DIFF_Walk. Otherwise proceed to DIFF_Rem			Y	X	X	X		
+			If DIFF_Move = '2' (Yes - with difficulty), DIFF_Walk = '4' (Cannot do at all) and DIFF_Trans = '4'  (Cannot do at all), system to prompt error for verification.	Invalid response: You stated that you cannot do both activities -walking or climbing steps AND transferring from bed to chair/wheelchair (and vice versa) at all. Please verify, to select "Cannot do at all" in the main question  (difficulty with body movements) if so. 	Y	X	X	X		801
+			If DIFF_Move = '2' (Yes - with difficulty), DIFF_Walk = '1' (No difficulty) and DIFF_Trans = '1'  (No difficulty, system to prompt error for verification.	Invalid response: You stated that you have no difficulties walking or climbing steps AND transferring from bed to chair/wheelchair (and vice versa). Please verify, to select "No - no difficulty" in the main question (difficulty with body movements) if so.	Y	X	X	X		802
+"I3a
+Difficulty in walking "	DIFF_Walk	For respondents who need to answer this question, DIFF_Walk can only take on values "1"-"4"		Whether have difficulty walking or climbing steps must be a valid code.	Y	X	X	X		192
+"I3b
+Difficulty in transferring"	DIFF_Trans	For respondents who need to answer this question, DIFF_Trans can only take on values "1"-"4"		Whether have difficulty transferring from bed to chair/wheelchair (and vice versa) must be a valid code.	Y	X	X	X		193
+"I4
+Difficulty in remembering"	DIFF_Rem	For respondents who need to answer this question, DIFF_Rem can only take on values "1"-"4"		Whether have difficulty remembering or concentrating must be a valid code.	Y	X	X	X		194
+"
+I5
+Difficulty in self care activities"	DIFF_Care	For respondents who need to answer this question, DIFF_Care can only take on values "1"-"3"		Whether have difficulty with self-care activities must be a valid code.		X	X	X		195
+		If DIFF_Care = '2' (Yes - with difficulty), system to proceed to DIFF_Wash. Otherwise proceed to DIFF_Comm				X	X	X		
+			If DIFF_Care = '2' (Yes - with difficulty), DIFF_Wash = '4' (Cannot do at all), DIFF_Feed = '4' (Cannot do at all) and DIFF_Toilet = '4' (Cannot do at all), system to prompt error for verification.	Invalid response: You stated that you cannot do all activities -washing, feeding AND using the toilet at all. Please verify, to select "Cannot do at all" in the main question (difficulty with self-care activities) if so. 		X	X	X		803
+			If DIFF_Care = '2' (Yes - with difficulty), DIFF_Wash = '1' (No difficulty), DIFF_Feed = '1' (No difficulty) and DIFF_Toilet = '1' (No difficulty), system to prompt error for verification.	Invalid response: You stated that you have no difficulties washing, feeding AND using the toilet. Please verify, to select "No - no difficulty" in the main question (difficulty with self-care activities) if so.		X	X	X		804
+"I5a
+Difficulty in washing"	DIFF_Wash	For respondents who need to answer this question, DIFF_Wash can only take on values "1"-"4"		Whether have difficulty washing all over (bath/shower) or dressing must be a valid code.	Y	X	X	X		196
+"I5b
+Difficulty in feeding"	DIFF_Feed	For respondents who need to answer this question, DIFF_Feed can only take on values "1"-"4"		Whether have difficulty feeding must be a valid code.	Y	X	X	X		197
+"I5c
+Difficulty in using toilet"	DIFF_Toilet	For respondents who need to answer this question, DIFF_Toilet can only take on values "1"-"4"		Whether have difficulty using the toilet must be a valid code.	Y	X	X	X		198
+"I6
+Difficulty in communicating"	DIFF_Comm	For respondents who need to answer this question, DIFF_Comm can only take on values "1"-"4"		Whether have difficulty communicating must be a valid code.	Y	X	X	X		199
+		"– For Singapore citizens and permanent residents aged ≥ 15 years staying in Singapore residential unit (A11 = 1a) or outside Singapore for 6 months or less (A11= 2a/2b), go to I7.
+– Otherwise, end of survey."								
+"
+I5
+Have long-lasting conditions or difficulty"	"Yes_Phy
+Yes_Visual
+Yes_Hear
+Yes_ASD
+Yes_Intellect
+Yes_Oth; Yes_Others"	"If K7 Pwd_Member = 1 (Yes), to show table to collect responses.
+
+Else, system to  end survey"				X	X	X		
+		For respondents who need to answer this question, Pwd_Member can only take on values "1" or "2"		Whether have long-lasting difficulties must be a valid code.		X	X	X		200
+		For respondents who need to answer this question, Yes_Phy can only take on values "0" or "1"		Whether have physical impairment must be a valid code.		X	X	X		201
+		For respondents who need to answer this question, Yes_Visual can only take on values "0" or "1"		Whether have visual impairment must be a valid code.		X	X	X		202
+		For respondents who need to answer this question, Yes_Hear can only take on values "0" or "1"		Whether have hearing impairment must be a valid code.		X	X	X		203
+		For respondents who need to answer this question, Yes_ASD can only take on values "0" or "1"		Whether have autistic spectrum disorder must be a valid code.		X	X	X		204
+		For respondents who need to answer this question, Yes_Intellect can only take on values "0" or "1"		Whether have intellectual disability must be a valid code.		X	X	X		205
+		For respondents who need to answer this question, Yes_Oth can only take on values "0" or "1"		Whether have Other long-lasting difficulties must be a valid code.		X	X	X		206
+		If Yes_Oth = "1", free text for Others (Yes_Others) must not be blank.		Please indicate what is the Other(s) long-lasting difficulties.		X	X	X		207
+			Yes_Oth = '1' (Others). Yes_Oth_IR is not answered OR Yes_Oth_IR < 10 char. System prompt for confirmation that others cannot be grouped into the options provided.	Others' was specified, interviewer has not indicated any remarks or has remarks with less than 10 characters. Please confirm that the 'Others' option cannot be grouped into the options provided.		X	X	X	To confirm with interviewers that the Others option cannot be grouped with witht the options provided	805
+		If Pwd_Member = "1", sum of Yes_Phy, Yes_Visual, Yes_Hear, Yes_ASD, Yes_Intellect, Yes_Oth must be greater than 0		If respondent has long-lasting difficulties, at least one impairment or condition should be selected.		X	X	X		208
+		If Pwd_Member = "2", sum of Yes_Phy, Yes_Visual, Yes_Hear, Yes_ASD, Yes_Intellect, Yes_Oth must be 0		If respondent does not have long-lasting difficulties, the options on specific impairment or condition should not be selected.		X	X	X		209
